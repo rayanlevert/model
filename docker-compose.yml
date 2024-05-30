@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+  model:
+    build: docker/8.3
+    restart: 'no'
+    working_dir: /app
+    volumes:
+      - .:/app
