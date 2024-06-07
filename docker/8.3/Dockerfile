@@ -9,7 +9,7 @@ RUN apt update && apt install git zip
 # Enabling xdebug
 RUN pecl install xdebug && docker-php-ext-enable xdebug
 
-# Créé le dossier /app
+# Creates /app directory
 RUN mkdir /app
 
 # Volumes
