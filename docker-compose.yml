@@ -7,3 +7,14 @@ services:
     working_dir: /app
     volumes:
       - .:/app
+
+  percona:
+    image: percona:8.0
+    platform: linux/x86_64
+    volumes:
+      - ./docker/data/mysql:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    restart: "no"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root-password

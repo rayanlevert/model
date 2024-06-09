@@ -9,11 +9,8 @@ namespace RayanLevert\Model;
  */
 abstract class Connection
 {
-    /** PDO Driver name */
-    public const string DRIVER_NAME = '';
-
     /**
-     * With information from the instance, generates the DNS required to connect to the database from PHP's PDO
+     * Generates the DSN required to connect to the database from PHP's PDO
      */
     abstract public function dsn(): string;
 
@@ -32,6 +29,16 @@ abstract class Connection
         protected array $options = []
     ) {
         $this->options = \array_filter($this->options, fn (mixed $value) => \is_scalar($value));
+    }
+
+    /**
+     * Returns PDO ordered parameters to the constructor
+     *
+     * @return array{0: string, 1: ?string, 2: ?string, 3: array<string, string|int|float|bool>}
+     */
+    public function getPDOParameters(): array
+    {
+        return [$this->dsn(), $this->username, $this->password, $this->options];
     }
 
     /**
@@ -62,5 +69,21 @@ abstract class Connection
     public function getOptions(): array
     {
         return $this->options;
+    }
+
+    /**
+     * Returns ther username from the constructor
+     */
+    public function getUsername(): ?string
+    {
+        return $this->username;
+    }
+
+    /**
+     * Returns the password from the constructor
+     */
+    public function getPassword(): ?string
+    {
+        return $this->password;
     }
 }
