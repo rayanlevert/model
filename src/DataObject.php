@@ -30,4 +30,36 @@ class DataObject
     {
         return $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
     }
+
+    /**
+     * Starts a transaction
+     *
+     * @throws Exception If the database is already in transaction or does not support it
+     */
+    public function startTransaction(): void
+    {
+        if ($this->pdo->inTransaction()) {
+            throw new Exception('A transaction is already active, cannot start a new one');
+        }
+
+        try {
+            $this->pdo->beginTransaction();
+        } catch (PDOException $e) {
+            throw new Exception('Cannot start a transaction, message: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Commits a transaction and puts back the database in autocommit mode
+     *
+     * @throws Exception If there is no active transaction
+     */
+    public function commit(): void
+    {
+        if (!$this->pdo->inTransaction()) {
+            throw new Exception('There is no active transaction');
+        }
+
+        $this->pdo->commit();
+    }
 }

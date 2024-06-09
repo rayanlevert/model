@@ -5,13 +5,14 @@ namespace RayanLevert\Model\Tests;
 use PDOException;
 use RayanLevert\Model\Connection;
 use RayanLevert\Model\DataObject;
+use RayanLevert\Model\Exception;
 use ReflectionProperty;
 
 class DataObjectTest extends \PHPUnit\Framework\TestCase
 {
     public function testPdoException(): void
     {
-        $oC = new class ('test-host') extends Connection
+        $oC = new class('test-host') extends Connection
         {
             public function dsn(): string
             {
@@ -26,16 +27,60 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
 
     public function testConnectionOk(): void
     {
-        $oC = new class ('percona', 'root', 'root-password') extends Connection
+        $oDataObject = new DataObject($this->getConnectionClass());
+
+        $this->assertSame('mysql', $oDataObject->getDriverName());
+    }
+
+    public function testCommitNoTransaction(): void
+    {
+        $oDataObject = new DataObject($this->getConnectionClass());
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('There is no active transaction');
+
+        $oDataObject->commit();
+    }
+
+    public function testStartTransaction(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        $oDataObject = new DataObject($this->getConnectionClass());
+        $oDataObject->startTransaction();
+    }
+
+    public function testStartTransactionWithCommitBefore(): void
+    {
+        $oDataObject = new DataObject($this->getConnectionClass());
+        $oDataObject->startTransaction();
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('A transaction is already active, cannot start a new one');
+
+        $oDataObject->startTransaction();
+    }
+
+    public function testCommitOk(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        $oDataObject = new DataObject($this->getConnectionClass());
+        $oDataObject->startTransaction();
+        $oDataObject->commit();
+    }
+
+    /**
+     * Returns a working DataObject to the mysql database
+     */
+    private function getConnectionClass(): object
+    {
+        return new class('percona', 'root', 'root-password') extends Connection
         {
             public function dsn(): string
             {
                 return "mysql:host={$this->host}";
             }
         };
-
-        $oDataObject = new DataObject($oC);
-
-        $this->assertSame('mysql', $oDataObject->getDriverName());
     }
 }
