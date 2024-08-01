@@ -54,11 +54,11 @@ abstract class Connection
     /**
      * Returns an option set from the constructor, or `::setOption()`
      *
-     * @return string|int|float|bool Returns null if the option has not been set
+     * @return string|int|float|bool Returns $default if the option has not been set
      */
-    public function getOption(string $name): null|string|float|int|bool
+    public function getOption(string $name, null|string|float|int|bool $default = null): null|string|float|int|bool
     {
-        return $this->options[$name] ?? null;
+        return $this->options[$name] ?? $default;
     }
 
     /**
@@ -71,17 +71,20 @@ abstract class Connection
         return $this->options;
     }
 
-    /**
-     * Returns ther username from the constructor
-     */
+    /** Returns the host from the constructor */
+    public function getHost(): string
+    {
+        return $this->host;
+    }
+
+    /** Returns the username from the constructor */
     public function getUsername(): ?string
     {
         return $this->username;
     }
 
-    /**
-     * Returns the password from the constructor
-     */
+
+    /** Returns the password from the constructor */
     public function getPassword(): ?string
     {
         return $this->password;

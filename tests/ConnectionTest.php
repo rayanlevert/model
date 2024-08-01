@@ -42,9 +42,13 @@ class ConnectionTest extends \PHPUnit\Framework\TestCase
         $oRC = new ReflectionClass($o);
 
         $this->assertSame('test-host', $oRC->getProperty('host')->getValue($o));
+        $this->assertSame('test-host', $o->getHost());
         $this->assertSame('test-username', $oRC->getProperty('username')->getValue($o));
+        $this->assertSame('test-username', $o->getUsername());
         $this->assertSame('test-password', $oRC->getProperty('password')->getValue($o));
+        $this->assertSame('test-password', $o->getPassword());
         $this->assertSame([], $oRC->getProperty('options')->getValue($o));
+        $this->assertSame([], $o->getOptions());
     }
 
     public function testConstructOptions(): void
@@ -58,6 +62,7 @@ class ConnectionTest extends \PHPUnit\Framework\TestCase
         };
 
         $this->assertNull($o->getOption('not-an-option'));
+        $this->assertSame('defaultValue', $o->getOption('not-an-option', 'defaultValue'));
         $this->assertSame('test-value', $o->getOption('test-option'));
         $this->assertSame(['test-option' => 'test-value'], $o->getOptions());
 

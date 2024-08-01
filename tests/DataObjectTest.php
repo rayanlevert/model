@@ -4,6 +4,7 @@ namespace RayanLevert\Model\Tests;
 
 use PDOException;
 use RayanLevert\Model\Connection;
+use RayanLevert\Model\Connections\Mysql;
 use RayanLevert\Model\DataObject;
 use RayanLevert\Model\Exception;
 use ReflectionProperty;
@@ -73,14 +74,8 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
     /**
      * Returns a working DataObject to the mysql database
      */
-    private function getConnectionClass(): object
+    private function getConnectionClass(): Mysql
     {
-        return new class('percona', 'root', 'root-password') extends Connection
-        {
-            public function dsn(): string
-            {
-                return "mysql:host={$this->host}";
-            }
-        };
+        return new Mysql('percona', 'root', 'root-password');
     }
 }
