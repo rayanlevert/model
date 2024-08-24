@@ -71,6 +71,16 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
         $oDataObject->commit();
     }
 
+    public function testDestruct(): void
+    {
+        $oDataObject = new DataObject($this->getConnectionClass());
+        $oDataObject->__destruct();
+
+        $oPdo = (new ReflectionProperty($oDataObject, 'pdo'))->getValue($oDataObject);
+
+        $this->assertNull($oPdo);
+    }
+
     /**
      * Returns a working DataObject to the mysql database
      */

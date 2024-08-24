@@ -11,7 +11,7 @@ use PDOException;
 class DataObject
 {
     /** PHP's PDO instance */
-    protected PDO $pdo;
+    protected ?PDO $pdo = null;
 
     /**
      * Initialises the connection to the database
@@ -61,5 +61,10 @@ class DataObject
         }
 
         $this->pdo->commit();
+    }
+
+    public function __destruct()
+    {
+        $this->pdo = null;
     }
 }

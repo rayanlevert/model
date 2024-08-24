@@ -9,8 +9,8 @@ RUN apt-get update -y && \
     git \
     zip
 
-# Enabling xdebug
-RUN pecl install xdebug && docker-php-ext-enable xdebug
+# Enabling xdebug and PDO MySQL
+RUN pecl install xdebug && docker-php-ext-install pdo_mysql && docker-php-ext-enable xdebug pdo_mysql
 
 # Creates directory /app
 RUN mkdir /app
