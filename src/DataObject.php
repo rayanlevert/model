@@ -13,6 +13,9 @@ class DataObject
     /** PHP's PDO instance */
     protected ?PDO $pdo = null;
 
+    /** PDO's driver name */
+    protected string $driverName;
+
     /**
      * Initialises the connection to the database
      *
@@ -23,12 +26,14 @@ class DataObject
     public function __construct(protected readonly Connection $connection)
     {
         $this->start();
+
+        $this->driverName = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
     }
 
     /** Returns PDO's driver name */
     public function getDriverName(): string
     {
-        return $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+        return $this->driverName;
     }
 
     /**
@@ -67,12 +72,6 @@ class DataObject
         $this->pdo->commit();
     }
 
-    /** Closes PDO connection (closes it as well when PHP destructs the object) */
-    public function close(): void
-    {
-        $this->pdo = null;
-    }
-
     /**
      * Restart the connection to the database with the same parameters passed to the constructor
      *
@@ -81,6 +80,12 @@ class DataObject
     public function start(): void
     {
         $this->pdo = new PDO(...$this->connection->getPDOParameters());
+    }
+
+    /** Closes PDO connection (closes it as well when PHP destructs the object) */
+    public function close(): void
+    {
+        $this->pdo = null;
     }
 
     public function __destruct()
