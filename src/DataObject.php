@@ -92,4 +92,18 @@ class DataObject
     {
         $this->pdo = null;
     }
+
+    /**
+     * Returns the PDO instance
+     *
+     * @throws Exception If the database connection has been closed beforehand
+     */
+    public function getPDO(): PDO
+    {
+        if (!$this->pdo) {
+            throw new Exception('Connection to the database has been closed, no PDO is available');
+        }
+
+        return $this->pdo;
+    }
 }

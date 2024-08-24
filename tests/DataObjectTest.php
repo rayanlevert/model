@@ -2,6 +2,7 @@
 
 namespace RayanLevert\Model\Tests;
 
+use PDO;
 use PDOException;
 use RayanLevert\Model\Connection;
 use RayanLevert\Model\Connections\Mysql;
@@ -113,6 +114,17 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
             $oPdo,
             (new ReflectionProperty($oDataObject, 'pdo'))->getValue($oDataObject)
         );
+    }
+
+    public function testGetPdo(): void
+    {
+        $oDataObject = new DataObject($this->getConnectionClass());
+
+        $this->assertInstanceOf(PDO::class, $oDataObject->getPDO());
+
+        $this->expectExceptionMessage('Connection to the database has been closed, no PDO is available');
+
+        $oDataObject->close() || $oDataObject->getPDO();
     }
 
     /**
