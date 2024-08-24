@@ -22,7 +22,7 @@ class DataObject
      */
     public function __construct(protected readonly Connection $connection)
     {
-        $this->pdo = new PDO(...$connection->getPDOParameters());
+        $this->start();
     }
 
     /** Returns PDO's driver name */
@@ -38,6 +38,10 @@ class DataObject
      */
     public function startTransaction(): void
     {
+        if (!$this->pdo) {
+            throw new Exception('The connection to database has been closed, no transaction can be started');
+        }
+
         if ($this->pdo->inTransaction()) {
             throw new Exception('A transaction is already active, cannot start a new one');
         }
@@ -56,11 +60,27 @@ class DataObject
      */
     public function commit(): void
     {
-        if (!$this->pdo->inTransaction()) {
+        if (!$this->pdo?->inTransaction()) {
             throw new Exception('There is no active transaction');
         }
 
         $this->pdo->commit();
+    }
+
+    /** Closes PDO connection (closes it as well when PHP destructs the object) */
+    public function close(): void
+    {
+        $this->pdo = null;
+    }
+
+    /**
+     * Restart the connection to the database with the same parameters passed to the constructor
+     *
+     * @throws PDOException If the attempt to connect to the requested database fails
+     */
+    public function start(): void
+    {
+        $this->pdo = new PDO(...$this->connection->getPDOParameters());
     }
 
     public function __destruct()

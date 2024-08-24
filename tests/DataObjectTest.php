@@ -62,6 +62,16 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
         $oDataObject->startTransaction();
     }
 
+    public function testStartTransactionWithPdoNull(): void
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('The connection to database has been closed, no transaction can be started');
+
+        $oDataObject = new DataObject($this->getConnectionClass());
+        $oDataObject->close();
+        $oDataObject->startTransaction();
+    }
+
     public function testCommitOk(): void
     {
         $this->expectNotToPerformAssertions();
@@ -79,6 +89,30 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
         $oPdo = (new ReflectionProperty($oDataObject, 'pdo'))->getValue($oDataObject);
 
         $this->assertNull($oPdo);
+    }
+
+    public function testClose(): void
+    {
+        $oDataObject = new DataObject($this->getConnectionClass());
+        $oDataObject->close();
+
+        $oPdo = (new ReflectionProperty($oDataObject, 'pdo'))->getValue($oDataObject);
+
+        $this->assertNull($oPdo);
+    }
+
+    public function testStart(): void
+    {
+        $oDataObject = new DataObject($this->getConnectionClass());
+
+        $oPdo = (new ReflectionProperty($oDataObject, 'pdo'))->getValue($oDataObject);
+
+        $oDataObject->start();
+
+        $this->assertNotSame(
+            $oPdo,
+            (new ReflectionProperty($oDataObject, 'pdo'))->getValue($oDataObject)
+        );
     }
 
     /**
