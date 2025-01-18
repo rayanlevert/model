@@ -10,11 +10,28 @@ use PDOException;
  */
 class DataObject
 {
-    /** PHP's PDO instance */
-    protected ?PDO $pdo = null;
+    /** Backed property handling the PDO instance */
+    private private(set) ?PDO $backedPDO = null;
+
+    /**
+     * Virtual property representing the PHP's PDO instance
+     *
+     * @throws Exception If the database connection has been closed beforehand
+     */
+    public PDO $pdo {
+        get {
+            if (!$this->backedPDO) {
+                throw new Exception('Connection to the database has been closed, no PDO is available');
+            }
+
+            return $this->backedPDO;
+        }
+    }
 
     /** PDO's driver name */
-    protected string $driverName;
+    public string $driverName {
+        get => $this->backedPDO?->getAttribute(PDO::ATTR_DRIVER_NAME) ?: '';
+    }
 
     /**
      * Initialises the connection to the database
@@ -26,14 +43,27 @@ class DataObject
     public function __construct(protected readonly Connection $connection)
     {
         $this->start();
-
-        $this->driverName = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
     }
 
-    /** Returns PDO's driver name */
-    public function getDriverName(): string
+    public function __destruct()
     {
-        return $this->driverName;
+        $this->close();
+    }
+
+    /**
+     * Restart the connection to the database with the same parameters passed to the constructor
+     *
+     * @throws PDOException If the attempt to connect to the requested database fails
+     */
+    public function start(): void
+    {
+        $this->backedPDO = new PDO(...$this->connection->getPDOParameters());
+    }
+
+    /** Closes PDO connection (closes it as well when PHP destructs the object) */
+    public function close(): void
+    {
+        $this->backedPDO = null;
     }
 
     /**
@@ -43,16 +73,16 @@ class DataObject
      */
     public function startTransaction(): void
     {
-        if (!$this->pdo) {
+        if (!$this->backedPDO) {
             throw new Exception('The connection to database has been closed, no transaction can be started');
         }
 
-        if ($this->pdo->inTransaction()) {
+        if ($this->backedPDO->inTransaction()) {
             throw new Exception('A transaction is already active, cannot start a new one');
         }
 
         try {
-            $this->pdo->beginTransaction();
+            $this->backedPDO->beginTransaction();
         } catch (PDOException $e) {
             throw new Exception('Cannot start a transaction, message: ' . $e->getMessage(), $e->getCode(), $e);
         }
@@ -65,45 +95,10 @@ class DataObject
      */
     public function commit(): void
     {
-        if (!$this->pdo?->inTransaction()) {
+        if (!$this->backedPDO?->inTransaction()) {
             throw new Exception('There is no active transaction');
         }
 
-        $this->pdo->commit();
-    }
-
-    /**
-     * Restart the connection to the database with the same parameters passed to the constructor
-     *
-     * @throws PDOException If the attempt to connect to the requested database fails
-     */
-    public function start(): void
-    {
-        $this->pdo = new PDO(...$this->connection->getPDOParameters());
-    }
-
-    /** Closes PDO connection (closes it as well when PHP destructs the object) */
-    public function close(): void
-    {
-        $this->pdo = null;
-    }
-
-    public function __destruct()
-    {
-        $this->pdo = null;
-    }
-
-    /**
-     * Returns the PDO instance
-     *
-     * @throws Exception If the database connection has been closed beforehand
-     */
-    public function getPDO(): PDO
-    {
-        if (!$this->pdo) {
-            throw new Exception('Connection to the database has been closed, no PDO is available');
-        }
-
-        return $this->pdo;
+        $this->backedPDO->commit();
     }
 }

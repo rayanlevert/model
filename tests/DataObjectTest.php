@@ -31,7 +31,7 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
     {
         $oDataObject = new DataObject($this->getConnectionClass());
 
-        $this->assertSame('mysql', $oDataObject->getDriverName());
+        $this->assertSame('mysql', $oDataObject->driverName);
     }
 
     public function testCommitNoTransaction(): void
@@ -87,9 +87,9 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
         $oDataObject = new DataObject($this->getConnectionClass());
         $oDataObject->__destruct();
 
-        $oPdo = (new ReflectionProperty($oDataObject, 'pdo'))->getValue($oDataObject);
+        $this->expectExceptionMessage('Connection to the database has been closed, no PDO is available');
 
-        $this->assertNull($oPdo);
+        $oDataObject->pdo;
     }
 
     public function testClose(): void
@@ -97,9 +97,9 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
         $oDataObject = new DataObject($this->getConnectionClass());
         $oDataObject->close();
 
-        $oPdo = (new ReflectionProperty($oDataObject, 'pdo'))->getValue($oDataObject);
+        $this->expectExceptionMessage('Connection to the database has been closed, no PDO is available');
 
-        $this->assertNull($oPdo);
+        $oDataObject->pdo;
     }
 
     public function testStart(): void
@@ -120,11 +120,11 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
     {
         $oDataObject = new DataObject($this->getConnectionClass());
 
-        $this->assertInstanceOf(PDO::class, $oDataObject->getPDO());
+        $this->assertInstanceOf(PDO::class, $oDataObject->pdo);
 
         $this->expectExceptionMessage('Connection to the database has been closed, no PDO is available');
 
-        $oDataObject->close() || $oDataObject->getPDO();
+        $oDataObject->close() || $oDataObject->pdo;
     }
 
     /**
