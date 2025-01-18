@@ -29,6 +29,12 @@ abstract class Connection
         $this->options = \array_filter($this->options, fn (mixed $value) => \is_scalar($value));
     }
 
+    /** Dumping this class doesn't display the password */
+    public function __debugInfo(): array
+    {
+        return \array_merge(\get_object_vars($this), ['password' => '***']);
+    }
+
     /**
      * Returns PDO ordered parameters to the constructor
      *

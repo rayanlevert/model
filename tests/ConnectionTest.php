@@ -2,6 +2,7 @@
 
 namespace RayanLevert\Model\Tests;
 
+use PHPUnit\Framework\Attributes\Test;
 use RayanLevert\Model\Connection;
 use ReflectionClass;
 
@@ -79,5 +80,24 @@ class ConnectionTest extends \PHPUnit\Framework\TestCase
         };
 
         $this->assertSame(['test-option' => 'test-value'], $o->options);
+    }
+
+    #[Test]
+    public function debugInfo(): void
+    {
+        $o = new class('test-host', 'test-username', 'test-password', ['test-option' => 'test-value']) extends Connection
+        {
+            public function dsn(): string
+            {
+                return '';
+            }
+        };
+
+        $this->assertSame([
+            'host' => 'test-host',
+            'username' => 'test-username',
+            'password' => '***',
+            'options' => ['test-option' => 'test-value']
+        ], $o->__debugInfo());
     }
 }
