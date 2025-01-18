@@ -106,13 +106,13 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
     {
         $oDataObject = new DataObject($this->getConnectionClass());
 
-        $oPdo = (new ReflectionProperty($oDataObject, 'pdo'))->getValue($oDataObject);
+        $oPdo = new ReflectionProperty($oDataObject, 'pdo')->getValue($oDataObject);
 
         $oDataObject->start();
 
         $this->assertNotSame(
             $oPdo,
-            (new ReflectionProperty($oDataObject, 'pdo'))->getValue($oDataObject)
+            new ReflectionProperty($oDataObject, 'pdo')->getValue($oDataObject)
         );
     }
 
