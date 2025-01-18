@@ -9,9 +9,7 @@ namespace RayanLevert\Model;
  */
 abstract class Connection
 {
-    /**
-     * Generates the DSN required to connect to the database from PHP's PDO
-     */
+    /** Generates the DSN required to connect to the database from PHP's PDO */
     abstract public function dsn(): string;
 
     /**
@@ -23,10 +21,10 @@ abstract class Connection
      * @param array<string, string|int|float|bool> $options PDO options
      */
     final public function __construct(
-        protected readonly string $host,
-        protected readonly ?string $username = null,
+        public readonly string $host,
+        public readonly ?string $username = null,
         #[\SensitiveParameter] protected readonly ?string $password = null,
-        protected array $options = []
+        public private(set) array $options = []
     ) {
         $this->options = \array_filter($this->options, fn (mixed $value) => \is_scalar($value));
     }
@@ -59,34 +57,5 @@ abstract class Connection
     public function getOption(string $name, null|string|float|int|bool $default = null): null|string|float|int|bool
     {
         return $this->options[$name] ?? $default;
-    }
-
-    /**
-     * Returns options
-     *
-     * @return array<string, string|int|float|bool>
-     */
-    public function getOptions(): array
-    {
-        return $this->options;
-    }
-
-    /** Returns the host from the constructor */
-    public function getHost(): string
-    {
-        return $this->host;
-    }
-
-    /** Returns the username from the constructor */
-    public function getUsername(): ?string
-    {
-        return $this->username;
-    }
-
-
-    /** Returns the password from the constructor */
-    public function getPassword(): ?string
-    {
-        return $this->password;
     }
 }
