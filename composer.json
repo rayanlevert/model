@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "php": ">=8.2",
+        "php": ">=8.4",
         "ext-pdo": "*"
     },
     "require-dev": {
@@ -31,7 +31,10 @@
     "autoload": {
         "psr-4": {
             "RayanLevert\\Model\\": "src/"
-        }
+        },
+        "exclude-from-classmap": [
+            "tests/"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
