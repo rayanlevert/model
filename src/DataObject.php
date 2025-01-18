@@ -57,7 +57,7 @@ class DataObject
      */
     public function start(): void
     {
-        $this->backedPDO = new PDO(...$this->connection->getPDOParameters());
+        $this->backedPDO = PDO::connect(...$this->connection->getPDOParameters());
     }
 
     /** Closes PDO connection (closes it as well when PHP destructs the object) */
