@@ -2,13 +2,16 @@
 
 namespace RayanLevert\Model\Tests;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use RayanLevert\Model\Connection;
 use ReflectionClass;
 
+#[CoversClass(Connection::class)]
 class ConnectionTest extends \PHPUnit\Framework\TestCase
 {
-    public function testConstructOnlyHost(): void
+    #[Test]
+    public function constructOnlyHost(): void
     {
         $o = new class('test-host') extends Connection
         {
@@ -28,7 +31,8 @@ class ConnectionTest extends \PHPUnit\Framework\TestCase
         $this->assertSame([], $oRC->getProperty('options')->getValue($o));
     }
 
-    public function testConstructUsernameAndPassword(): void
+    #[Test]
+    public function constructUsernameAndPassword(): void
     {
         $o = new class('test-host', 'test-username', 'test-password') extends Connection
         {
@@ -51,7 +55,8 @@ class ConnectionTest extends \PHPUnit\Framework\TestCase
         $this->assertSame([], $o->options);
     }
 
-    public function testConstructOptions(): void
+    #[Test]
+    public function constructOptions(): void
     {
         $o = new class('test-host', options: ['test-option' => 'test-value']) extends Connection
         {

@@ -2,11 +2,15 @@
 
 namespace RayanLevert\Model\Tests\Connections;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use RayanLevert\Model\Connections\Mysql;
 
+#[CoversClass(Mysql::class)]
 class MysqlTest extends \PHPUnit\Framework\TestCase
 {
-    public function testDsn(): void
+    #[Test]
+    public function dsn(): void
     {
         $o = new Mysql('localhost');
         $this->assertSame('mysql:host=localhost', $o->dsn());

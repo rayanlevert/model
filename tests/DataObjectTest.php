@@ -4,15 +4,19 @@ namespace RayanLevert\Model\Tests;
 
 use PDO;
 use PDOException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use RayanLevert\Model\Connection;
 use RayanLevert\Model\Connections\Mysql;
 use RayanLevert\Model\DataObject;
 use RayanLevert\Model\Exception;
 use ReflectionProperty;
 
+#[CoversClass(DataObject::class)]
 class DataObjectTest extends \PHPUnit\Framework\TestCase
 {
-    public function testPdoException(): void
+    #[Test]
+    public function pdoException(): void
     {
         $oC = new class('test-host') extends Connection
         {
@@ -27,14 +31,16 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
         new DataObject($oC);
     }
 
-    public function testConnectionOk(): void
+    #[Test]
+    public function connectionOk(): void
     {
         $oDataObject = new DataObject($this->getConnectionClass());
 
         $this->assertSame('mysql', $oDataObject->driverName);
     }
 
-    public function testCommitNoTransaction(): void
+    #[Test]
+    public function commitNoTransaction(): void
     {
         $oDataObject = new DataObject($this->getConnectionClass());
 
@@ -44,7 +50,8 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
         $oDataObject->commit();
     }
 
-    public function testStartTransaction(): void
+    #[Test]
+    public function startTransaction(): void
     {
         $this->expectNotToPerformAssertions();
 
@@ -52,7 +59,8 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
         $oDataObject->startTransaction();
     }
 
-    public function testStartTransactionWithCommitBefore(): void
+    #[Test]
+    public function startTransactionWithCommitBefore(): void
     {
         $oDataObject = new DataObject($this->getConnectionClass());
         $oDataObject->startTransaction();
@@ -63,7 +71,8 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
         $oDataObject->startTransaction();
     }
 
-    public function testStartTransactionWithPdoNull(): void
+    #[Test]
+    public function startTransactionWithPdoNull(): void
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('The connection to database has been closed, no transaction can be started');
@@ -73,7 +82,8 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
         $oDataObject->startTransaction();
     }
 
-    public function testCommitOk(): void
+    #[Test]
+    public function commitOk(): void
     {
         $this->expectNotToPerformAssertions();
 
@@ -82,7 +92,8 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
         $oDataObject->commit();
     }
 
-    public function testDestruct(): void
+    #[Test]
+    public function destruct(): void
     {
         $oDataObject = new DataObject($this->getConnectionClass());
         $oDataObject->__destruct();
@@ -92,7 +103,8 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
         $oDataObject->pdo;
     }
 
-    public function testClose(): void
+    #[Test]
+    public function close(): void
     {
         $oDataObject = new DataObject($this->getConnectionClass());
         $oDataObject->close();
@@ -102,7 +114,8 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
         $oDataObject->pdo;
     }
 
-    public function testStart(): void
+    #[Test]
+    public function start(): void
     {
         $oDataObject = new DataObject($this->getConnectionClass());
 
@@ -116,7 +129,8 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function testGetPdo(): void
+    #[Test]
+    public function getPdo(): void
     {
         $oDataObject = new DataObject($this->getConnectionClass());
 
@@ -127,9 +141,7 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
         $oDataObject->close() || $oDataObject->pdo;
     }
 
-    /**
-     * Returns a working DataObject to the mysql database
-     */
+    /** Returns a working DataObject to the mysql database */
     private function getConnectionClass(): Mysql
     {
         return new Mysql('percona', 'root', 'root-password');
