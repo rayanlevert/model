@@ -5,6 +5,10 @@ namespace RayanLevert\Model\Attributes\Validation;
 use Attribute;
 use RayanLevert\Model\Attributes\Validation;
 
+use function is_string;
+use function mb_strlen;
+use function sprintf;
+
 /**
  * MaxLength attribute for enforcing maximum string length
  *

@@ -5,6 +5,9 @@ namespace RayanLevert\Model\Attributes\Validation;
 use Attribute;
 use RayanLevert\Model\Attributes\Validation;
 
+use function is_numeric;
+use function sprintf;
+
 /**
  * Min attribute for enforcing minimum numeric values
  *
