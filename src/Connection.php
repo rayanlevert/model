@@ -7,8 +7,14 @@ namespace RayanLevert\Model;
  *
  * Abstract class allowing its children to easily handle parameters required by PHP for the PDO instance
  */
-abstract class Connection
+abstract class Connection implements \Stringable
 {
+    /** Prefix signifying the database type (mysql, pgsql, etc.) */
+    public const string PREFIX = '';
+
+    /** String used to mask sensitive information like passwords */
+    public final const string MASKED_VALUE = '*****';
+
     /** Generates the DSN required to connect to the database from PHP's PDO */
     abstract public function dsn(): string;
 
@@ -26,13 +32,13 @@ abstract class Connection
         #[\SensitiveParameter] protected readonly ?string $password = null,
         public private(set) array $options = []
     ) {
-        $this->options = \array_filter($this->options, fn (mixed $value) => \is_scalar($value));
+        $this->options = \array_filter($this->options, fn(mixed $value) => \is_scalar($value));
     }
 
     /** Dumping this class doesn't display the password */
     public function __debugInfo(): array
     {
-        return \array_merge(\get_object_vars($this), ['password' => '***']);
+        return \array_merge(\get_object_vars($this), ['password' => self::MASKED_VALUE]);
     }
 
     /**
@@ -63,5 +69,19 @@ abstract class Connection
     public function getOption(string $name, null|string|float|int|bool $default = null): null|string|float|int|bool
     {
         return $this->options[$name] ?? $default;
+    }
+
+    /** Returns a human-readable representation of the connection */
+    public function __toString(): string
+    {
+        $parts = [
+            "prefix: " . static::PREFIX,
+            "host: {$this->host}",
+            $this->username ? "username: {$this->username}" : null,
+            $this->password ? "password: " . self::MASKED_VALUE : null,
+            $this->options ? "options: " . json_encode($this->options) : null
+        ];
+        
+        return implode(', ', array_filter($parts));
     }
 }
