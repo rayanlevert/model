@@ -15,6 +15,8 @@ namespace RayanLevert\Model\Connections;
  */
 class Mysql extends \RayanLevert\Model\Connection
 {
+    public const string PREFIX = 'mysql';
+
     public function dsn(): string
     {
         $options = [
@@ -30,6 +32,6 @@ class Mysql extends \RayanLevert\Model\Connection
             $dsn .= "$name=$value;";
         }
 
-        return \rtrim("mysql:$dsn", ';');
+        return \rtrim(self::PREFIX . ":$dsn", ';');
     }
 }
