@@ -5,6 +5,10 @@ namespace RayanLevert\Model\Attributes\Validation;
 use Attribute;
 use RayanLevert\Model\Attributes\Validation;
 
+use function is_string;
+use function preg_match;
+use function sprintf;
+
 /**
  * Pattern attribute for enforcing regex patterns
  *

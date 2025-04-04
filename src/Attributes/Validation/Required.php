@@ -21,14 +21,14 @@ use RayanLevert\Model\Attributes\Validation;
 class Required extends Validation
 {
     public function __construct() {}
-    
+
     public function validate(mixed $value): bool
     {
         return $value !== null && $value !== '';
     }
-    
+
     public function getMessage(): string
     {
         return '%s is required';
     }
-} 
+}

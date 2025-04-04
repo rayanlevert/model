@@ -5,6 +5,9 @@ namespace RayanLevert\Model\Attributes\Validation;
 use Attribute;
 use RayanLevert\Model\Attributes\Validation;
 
+use function is_numeric;
+use function sprintf;
+
 /**
  * Max attribute for enforcing maximum numeric values
  *
