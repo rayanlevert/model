@@ -4,6 +4,7 @@ namespace RayanLevert\Model;
 
 use PDO;
 use PDOException;
+use PDOStatement;
 
 /**
  * Abstraction layer to access to a database through PHP's Data Objects (PDO)
@@ -100,5 +101,33 @@ class DataObject
         }
 
         $this->backedPDO->commit();
+    }
+
+    /**
+     * Rolls back a transaction and puts back the database in autocommit mode
+     *
+     * @throws Exception If there is no active transaction
+     */
+    public function rollback(): void
+    {
+        if (!$this->backedPDO?->inTransaction()) {
+            throw new Exception('There is no active transaction to rollback');
+        }
+
+        try {
+            $this->backedPDO->rollBack();
+        } catch (PDOException $e) {
+            throw new Exception('Failed to rollback transaction: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Checks if the connection is active
+     *
+     * @return bool True if the connection is active, false otherwise
+     */
+    public function isConnected(): bool
+    {
+        return $this->backedPDO !== null;
     }
 }

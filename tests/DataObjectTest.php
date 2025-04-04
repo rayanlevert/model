@@ -141,6 +141,44 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
         $oDataObject->close() || $oDataObject->pdo;
     }
 
+    #[Test]
+    public function rollbackNoTransaction(): void
+    {
+        $oDataObject = new DataObject($this->getConnectionClass());
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('There is no active transaction to rollback');
+
+        $oDataObject->rollback();
+    }
+
+    #[Test]
+    public function rollbackOk(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        $oDataObject = new DataObject($this->getConnectionClass());
+        $oDataObject->startTransaction();
+        $oDataObject->rollback();
+    }
+
+    #[Test]
+    public function isConnectedWhenConnected(): void
+    {
+        $oDataObject = new DataObject($this->getConnectionClass());
+        
+        $this->assertTrue($oDataObject->isConnected());
+    }
+
+    #[Test]
+    public function isConnectedWhenDisconnected(): void
+    {
+        $oDataObject = new DataObject($this->getConnectionClass());
+        $oDataObject->close();
+        
+        $this->assertFalse($oDataObject->isConnected());
+    }
+
     /** Returns a working DataObject to the mysql database */
     private function getConnectionClass(): Mysql
     {
