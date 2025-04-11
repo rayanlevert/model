@@ -25,13 +25,6 @@ class TypeTest extends \PHPUnit\Framework\TestCase
     }
 
     #[Test]
-    public function autoIncrementType(): void
-    {
-        $this->assertSame('INT UNSIGNED AUTO_INCREMENT PRIMARY KEY', Type::AUTO_INCREMENT->value);
-        $this->assertSame('int', Type::AUTO_INCREMENT->getPhpType());
-    }
-
-    #[Test]
     public function booleanType(): void
     {
         $this->assertSame('TINYINT(1)', Type::BOOLEAN->value);
@@ -92,7 +85,6 @@ class TypeTest extends \PHPUnit\Framework\TestCase
         return [
             'INTEGER'           => [Type::INTEGER],
             'UNSIGNED_INTEGER'  => [Type::UNSIGNED_INTEGER],
-            'AUTO_INCREMENT'    => [Type::AUTO_INCREMENT],
             'SMALL_INTEGER'     => [Type::SMALL_INTEGER],
             'TINY_INTEGER'      => [Type::TINY_INTEGER]
         ];

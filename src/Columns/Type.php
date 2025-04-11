@@ -11,9 +11,6 @@ enum Type: string
     /** Unsigned integer type for IDs and positive numbers. */
     case UNSIGNED_INTEGER = 'INT UNSIGNED';
 
-    /** Auto-incrementing integer for primary keys. */
-    case AUTO_INCREMENT = 'INT UNSIGNED AUTO_INCREMENT PRIMARY KEY';
-
     /** Small integer type for flags and status codes. */
     case SMALL_INTEGER = 'SMALLINT';
 
@@ -81,8 +78,7 @@ enum Type: string
     public function getPhpType(): string
     {
         return match($this) {
-            self::INTEGER, self::UNSIGNED_INTEGER, self::AUTO_INCREMENT, 
-            self::SMALL_INTEGER, self::TINY_INTEGER => 'int',
+            self::INTEGER, self::UNSIGNED_INTEGER,  self::SMALL_INTEGER, self::TINY_INTEGER => 'int',
             self::BOOLEAN => 'bool',
             self::DECIMAL, self::FLOAT, self::DOUBLE => 'float',
             self::CHAR, self::VARCHAR, self::TEXT, self::MEDIUM_TEXT, self::LONG_TEXT, => 'string',
