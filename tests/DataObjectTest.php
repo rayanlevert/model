@@ -166,7 +166,7 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
     public function isConnectedWhenConnected(): void
     {
         $oDataObject = new DataObject($this->getConnectionClass());
-        
+
         $this->assertTrue($oDataObject->isConnected());
     }
 
@@ -175,8 +175,32 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
     {
         $oDataObject = new DataObject($this->getConnectionClass());
         $oDataObject->close();
-        
+
         $this->assertFalse($oDataObject->isConnected());
+    }
+
+    #[Test]
+    public function testStartTransactionThrowsExceptionWhenPDOThrowsException(): void
+    {
+        $mockPDO = $this->createMock(PDO::class);
+        $mockPDO->expects($this->once())
+            ->method('beginTransaction')
+            ->willThrowException(new PDOException('Test exception'));
+
+        $dataObject = new class($this->createMock(Connection::class)) extends DataObject {
+            public function setBackedPDO(?PDO $pdo): void
+            {
+                $this->backedPDO = $pdo;
+            }
+
+            public function start(): void {}
+        };
+        $dataObject->setBackedPDO($mockPDO);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Test exception');
+
+        $dataObject->startTransaction();
     }
 
     /** Returns a working DataObject to the mysql database */

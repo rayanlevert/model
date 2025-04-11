@@ -9,7 +9,7 @@ use PDOException;
 class DataObject
 {
     /** Backed property handling the PDO instance */
-    private private(set) ?PDO $backedPDO = null;
+    protected protected(set) ?PDO $backedPDO = null;
 
     /**
      * Virtual property representing the PHP's PDO instance
