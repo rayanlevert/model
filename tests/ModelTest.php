@@ -16,13 +16,10 @@ class ModelTest extends TestCase
     public function table(): void
     {
         $model = new class extends Model {
-            protected function table(): string
-            {
-                return 'users';
-            }
+            public string $table = 'users';
         };
 
-        $this->assertSame('users', $model->getTable());
+        $this->assertSame('users', $model->table);
     }
 
     #[Test]
@@ -36,10 +33,7 @@ class ModelTest extends TestCase
             #[Validation\Max(100)]
             public float|int $age = 30;
 
-            protected function table(): string
-            {
-                return 'users';
-            }
+            public string $table = 'users';
         };
 
         // This should not throw an exception
@@ -76,10 +70,7 @@ class ModelTest extends TestCase
                     #[Validation\Required]
                     public ?string $name = null;
 
-                    protected function table(): string
-                    {
-                        return 'users';
-                    }
+                    public string $table = 'users';
                 },
                 ['name is required']
             ],
@@ -88,10 +79,7 @@ class ModelTest extends TestCase
                     #[Validation\Required]
                     public string $name = '';
 
-                    protected function table(): string
-                    {
-                        return 'users';
-                    }
+                    public string $table = 'users';
                 },
                 ['name is required']
             ],
@@ -100,10 +88,7 @@ class ModelTest extends TestCase
                     #[Validation\Min(0)]
                     public float|int $price = -10;
 
-                    protected function table(): string
-                    {
-                        return 'products';
-                    }
+                    public string $table = 'products';
                 },
                 ['price must be at least 0']
             ],
@@ -112,10 +97,7 @@ class ModelTest extends TestCase
                     #[Validation\Max(100)]
                     public float|int $price = 150;
 
-                    protected function table(): string
-                    {
-                        return 'products';
-                    }
+                    public string $table = 'products';
                 },
                 ['price must be at most 100']
             ],
@@ -127,10 +109,7 @@ class ModelTest extends TestCase
                     #[Validation\Min(0)]
                     public float|int $price = -10;
 
-                    protected function table(): string
-                    {
-                        return 'products';
-                    }
+                    public string $table = 'products';
                 },
                 [
                     'name is required',
