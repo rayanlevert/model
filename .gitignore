@@ -1,5 +1,7 @@
 vendor
+
 .phpunit.cache
+coverage
 
 data
 
