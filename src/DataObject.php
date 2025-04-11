@@ -43,6 +43,7 @@ class DataObject
         $this->start();
     }
 
+    /** Close PDO connection when the request/script ends */
     public function __destruct()
     {
         $this->close();
