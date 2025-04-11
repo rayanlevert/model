@@ -203,6 +203,34 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
         $dataObject->startTransaction();
     }
 
+    #[Test]
+    public function testRollbackThrowsExceptionWhenPDOThrowsException(): void
+    {
+        $mockPDO = $this->createMock(PDO::class);
+        $mockPDO->expects($this->once())
+            ->method('rollBack')
+            ->willThrowException(new PDOException('Test exception'));
+
+        $mockPDO->expects($this->once())
+            ->method('inTransaction')
+            ->willReturn(true);
+
+        $dataObject = new class($this->createMock(Connection::class)) extends DataObject {
+            public function setBackedPDO(?PDO $pdo): void
+            {
+                $this->backedPDO = $pdo;
+            }
+
+            public function start(): void {}
+        };
+        $dataObject->setBackedPDO($mockPDO);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Test exception');
+
+        $dataObject->rollback();
+    }
+
     /** Returns a working DataObject to the mysql database */
     private function getConnectionClass(): Mysql
     {
