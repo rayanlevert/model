@@ -10,6 +10,7 @@ use ReflectionClass;
 use function sprintf;
 use function is_subclass_of;
 use function array_filter;
+use function function_exists;
 
 /** Abstract base class for all validation attributes */
 #[Attribute(Attribute::TARGET_PROPERTY)]
@@ -60,5 +61,11 @@ abstract class Validation
         if (isset($errors)) {
             throw new ValidationException(...$errors);
         }
+    }
+
+    /** Returns the function to use for string operations, either with the extension `mbstring` or native `string` */
+    final protected function stringFunction(string $function): callable
+    {
+        return function_exists("mb_$function") ? "mb_$function"(...) : $function(...);
     }
 }

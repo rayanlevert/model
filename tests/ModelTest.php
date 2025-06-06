@@ -126,44 +126,44 @@ class ModelTest extends TestCase
         $model = new class extends Model {
             public string $table = 'test_table';
         };
-        
+
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Cannot update an instance that is not persistent yet');
-        
+
         $model->update();
     }
-    
+
     #[Test]
     public function updateDoesNotThrowExceptionWhenModelIsPersistent(): void
     {
         $model = new class extends Model {
             public string $table = 'test_table';
         };
-        
+
         // Use reflection to set the state to PERSISTENT
         $reflection = new \ReflectionProperty($model, 'state');
         $reflection->setValue($model, State::PERSISTENT);
-        
+
         // This should not throw an exception
         $model->update();
-        
+
         $this->assertTrue(true); // Assert that we reached this point
     }
-    
+
     #[Test]
     public function updateDoesNotThrowExceptionWhenModelIsDetached(): void
     {
         $model = new class extends Model {
             public string $table = 'test_table';
         };
-        
+
         // Use reflection to set the state to DETACHED
         $reflection = new \ReflectionProperty($model, 'state');
         $reflection->setValue($model, State::DETACHED);
-        
+
         // This should not throw an exception
         $model->update();
-        
+
         $this->assertTrue(true); // Assert that we reached this point
     }
 }

@@ -6,7 +6,6 @@ use Attribute;
 use RayanLevert\Model\Attributes\Validation;
 
 use function is_string;
-use function mb_strlen;
 
 /**
  * MinLength attribute for enforcing minimum string length
@@ -31,7 +30,7 @@ class MinLength extends Validation
             return false;
         }
 
-        return mb_strlen($value) >= $this->length;
+        return $this->stringFunction('strlen')($value) >= $this->length;
     }
 
     public function getMessage(): string

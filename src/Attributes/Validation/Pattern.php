@@ -37,6 +37,6 @@ class Pattern extends Validation
 
     public function getMessage(): string
     {
-        return sprintf('%s must match the pattern %s', $this->propertyName ?? '%s', $this->pattern);
+        return sprintf('%s must match the pattern %s', '%s', $this->pattern);
     }
 }

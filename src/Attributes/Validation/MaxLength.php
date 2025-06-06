@@ -6,7 +6,6 @@ use Attribute;
 use RayanLevert\Model\Attributes\Validation;
 
 use function is_string;
-use function mb_strlen;
 use function sprintf;
 
 /**
@@ -32,11 +31,11 @@ class MaxLength extends Validation
             return false;
         }
 
-        return mb_strlen($value) <= $this->length;
+        return $this->stringFunction('strlen')($value) <= $this->length;
     }
 
     public function getMessage(): string
     {
-        return sprintf('%s must be at most %d characters long', $this->propertyName ?? '%s', $this->length);
+        return sprintf('%s must be at most %d characters long', '%s', $this->length);
     }
 }

@@ -31,15 +31,13 @@ class MaxLengthTest extends TestCase
     #[DataProvider('validationProvider')]
     public function validate(mixed $value, bool $expected): void
     {
-        $maxLength = new MaxLength(5);
-        $this->assertSame($expected, $maxLength->validate($value));
+        $this->assertSame($expected, new MaxLength(5)->validate($value));
     }
 
     #[Test]
     public function getMessage(): void
     {
-        $maxLength = new MaxLength(5);
-        $this->assertSame('%s must be at most 5 characters long', $maxLength->getMessage());
+        $this->assertSame('%s must be at most 5 characters long', new MaxLength(5)->getMessage());
     }
 
     public static function validationProvider(): array

@@ -36,6 +36,6 @@ class Min extends Validation
 
     public function getMessage(): string
     {
-        return sprintf('%s must be at least %g', $this->propertyName ?? '%s', $this->value);
+        return sprintf('%s must be at least %g', '%s', $this->value);
     }
 }

@@ -24,18 +24,18 @@ use function sprintf;
 class Max extends Validation
 {
     public function __construct(public readonly float|int $value) {}
-    
+
     public function validate(mixed $value): bool
     {
         if (!is_numeric($value)) {
             return false;
         }
-        
+
         return $value <= $this->value;
     }
-    
+
     public function getMessage(): string
     {
-        return sprintf('%s must be at most %g', $this->propertyName ?? '%s', $this->value);
+        return sprintf('%s must be at most %g', '%s', $this->value);
     }
-} 
+}
