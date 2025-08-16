@@ -38,7 +38,11 @@ abstract class Model
         Validation::validateProperties($this);
     }
 
-    /** Returns the columns and their values */
+    /**
+     * Returns the columns and their values
+     *
+     * @return array<string, mixed> The columns (database column name => PHP value)
+     */
     public function columns(): array
     {
         foreach (new ReflectionClass($this)->getProperties() as $property) {
@@ -46,7 +50,12 @@ abstract class Model
                 continue;
             }
 
-            $columns[$attributes[0]->newInstance()->name ?: $property->getName()] = $property->getValue($this);
+            $phpValue = $property->getValue($this);
+
+            // We need to transform every possible value to a scalar for databases
+
+            
+            $columns[$attributes[0]->newInstance()->name ?: $property->getName()] = $phpValue;
         }
 
         return $columns ?? [];
