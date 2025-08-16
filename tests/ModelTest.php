@@ -8,9 +8,11 @@ use PHPUnit\Framework\TestCase;
 use RayanLevert\Model\Attributes\Column;
 use RayanLevert\Model\Attributes\Validation;
 use RayanLevert\Model\Columns\Type;
+use RayanLevert\Model\Exception;
 use RayanLevert\Model\Exceptions\ValidationException;
 use RayanLevert\Model\Model;
 use RayanLevert\Model\State;
+use stdClass;
 
 #[CoversClass(Model::class)]
 class ModelTest extends TestCase
@@ -231,5 +233,26 @@ class ModelTest extends TestCase
         };
 
         $this->assertSame(['firstName' => 'John', 'lastName' => 'Doe'], $model->columns());
+    }
+
+    #[Test]
+    public function columnsOnePropertyException(): void
+    {
+        $model = new class extends Model {
+            #[Column(Type::VARCHAR)]
+            public stdClass $name;
+
+            public string $table = 'test_table';
+
+            public function onConstruct(): void
+            {
+                $this->name = new stdClass;
+            }
+        };
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage($model::class . '::$name : cannot use an object of type stdClass as a value for a column');
+
+        $model->columns();
     }
 }

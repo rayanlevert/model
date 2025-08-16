@@ -121,7 +121,7 @@ enum Type: string
                 self::DATE                      => $value->format('Y-m-d'),
                 self::TIME                      => $value->format('H:i:s'),
                 self::DATETIME, self::TIMESTAMP => $value->format('Y-m-d H:i:s'),
-                default => throw new Exception('Incorrect DateTimeInterface/Column type combination'),
+                default => throw new Exception('incorrect DateTimeInterface/Column type combination'),
             };
         }
 
@@ -138,9 +138,9 @@ enum Type: string
                 return json_encode($value);
             }
 
-            throw new Exception('Cannot use an object of type ' . get_class($value) . ' as a value for a column');
+            throw new Exception('cannot use an object of type ' . get_class($value) . ' as a value for a column');
         }
 
-        throw new Exception('Cannot use a value of type ' . gettype($value) . ' as a value for a column');
+        throw new Exception('cannot use a value of type ' . gettype($value) . ' as a value for a column');
     }
 }

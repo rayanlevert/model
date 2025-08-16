@@ -7,6 +7,7 @@ use RayanLevert\Model\Attributes\Validation;
 use RayanLevert\Model\Exceptions\ValidationException;
 use ReflectionClass;
 
+
 abstract class Model
 {
     public protected(set) State $state = State::TRANSIANT;
@@ -14,7 +15,13 @@ abstract class Model
     /** @var string The database table name */
     abstract public string $table { get; }
 
-    final public function __construct() {}
+    final public function __construct()
+    {
+        $this->onConstruct();
+    }
+
+    /** Called at the end of the constructor */
+    public function onConstruct(): void {}
 
     /**
      * Updates the instance to the database
@@ -39,7 +46,9 @@ abstract class Model
     }
 
     /**
-     * Returns the columns and their values
+     * Returns the columns and their values to be used in a query
+     *
+     * @throws Exception If a property's value cannot be used in a query
      *
      * @return array<string, mixed> The columns (database column name => PHP value)
      */
@@ -50,12 +59,15 @@ abstract class Model
                 continue;
             }
 
-            $phpValue = $property->getValue($this);
+            $oColumn = $attributes[0]->newInstance();
 
-            // We need to transform every possible value to a scalar for databases
+            try {
+                $phpValue = $oColumn->type->getValue($property->getValue($this));
+            } catch (Exception $e) {
+                throw new Exception(static::class . '::$' . $property->getName() . ' : ' . $e->getMessage());
+            }
 
-            
-            $columns[$attributes[0]->newInstance()->name ?: $property->getName()] = $phpValue;
+            $columns[$oColumn->name ?: $property->getName()] = $phpValue;
         }
 
         return $columns ?? [];
