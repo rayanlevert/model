@@ -240,18 +240,18 @@ class ModelTest extends TestCase
     {
         $model = new class extends Model {
             #[Column(Type::VARCHAR)]
-            public stdClass $name;
+            public mixed $name;
 
             public string $table = 'test_table';
 
             public function onConstruct(): void
             {
-                $this->name = new stdClass;
+                $this->name = fopen('php://memory', 'r');
             }
         };
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage($model::class . '::$name : cannot use an object of type stdClass as a value for a column');
+        $this->expectExceptionMessage($model::class . '::$name : cannot use a value of type resource as a value for a column');
 
         $model->columns();
     }

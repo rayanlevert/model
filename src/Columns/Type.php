@@ -11,7 +11,6 @@ use function is_object;
 use function method_exists;
 use function serialize;
 use function json_encode;
-use function get_class;
 use function gettype;
 use function is_callable;
 use function call_user_func;
@@ -19,85 +18,85 @@ use function call_user_func;
 /** Enum for common database column types used in PDO. This enum defines standard SQL data types and their corresponding PHP types. */
 enum Type: string
 {
-    /** Integer type for primary keys and foreign keys. */
+/** Integer type for primary keys and foreign keys. */
     case INTEGER = 'INT';
 
-    /** Unsigned integer type for IDs and positive numbers. */
+/** Unsigned integer type for IDs and positive numbers. */
     case UNSIGNED_INTEGER = 'INT UNSIGNED';
 
-    /** Small integer type for flags and status codes. */
+/** Small integer type for flags and status codes. */
     case SMALL_INTEGER = 'SMALLINT';
 
-    /** Tiny integer type for boolean values. */
+/** Tiny integer type for boolean values. */
     case TINY_INTEGER = 'TINYINT';
 
-    /** Boolean type (TINYINT(1)). */
+/** Boolean type (TINYINT(1)). */
     case BOOLEAN = 'TINYINT(1)';
 
-    /** Decimal type for precise numbers. */
+/** Decimal type for precise numbers. */
     case DECIMAL = 'DECIMAL';
 
-    /** Float type for approximate numbers. */
+/** Float type for approximate numbers. */
     case FLOAT = 'FLOAT';
 
-    /** Double precision floating point. */
+/** Double precision floating point. */
     case DOUBLE = 'DOUBLE';
 
-    /** Character type with fixed length. */
+/** Character type with fixed length. */
     case CHAR = 'CHAR';
 
-    /** Variable-length character string. */
+/** Variable-length character string. */
     case VARCHAR = 'VARCHAR';
 
-    /** Text type for longer strings. */
+/** Text type for longer strings. */
     case TEXT = 'TEXT';
 
-    /** Medium text type for very long strings. */
+/** Medium text type for very long strings. */
     case MEDIUM_TEXT = 'MEDIUMTEXT';
 
-    /** Long text type for extremely long strings. */
+/** Long text type for extremely long strings. */
     case LONG_TEXT = 'LONGTEXT';
 
-    /** Date type for storing dates. */
+/** Date type for storing dates. */
     case DATE = 'DATE';
 
-    /** Time type for storing times. */
+/** Time type for storing times. */
     case TIME = 'TIME';
 
-    /** Datetime type for storing date and time. */
+/** Datetime type for storing date and time. */
     case DATETIME = 'DATETIME';
 
-    /** Timestamp type for storing date and time with timezone. */
+/** Timestamp type for storing date and time with timezone. */
     case TIMESTAMP = 'TIMESTAMP';
 
-    /** Binary type for storing binary data. */
+/** Binary type for storing binary data. */
     case BINARY = 'BINARY';
 
-    /** VarBinary type for storing variable-length binary data. */
+/** VarBinary type for storing variable-length binary data. */
     case VARBINARY = 'VARBINARY';
 
-    /** Blob type for storing large binary objects. */
+/** Blob type for storing large binary objects. */
     case BLOB = 'BLOB';
 
-    /** MediumBlob type for storing medium-sized binary objects. */
+/** MediumBlob type for storing medium-sized binary objects. */
     case MEDIUM_BLOB = 'MEDIUMBLOB';
 
-    /** LongBlob type for storing large binary objects. */
+/** LongBlob type for storing large binary objects. */
     case LONG_BLOB = 'LONGBLOB';
 
-    /** JSON type for storing JSON data. */
+/** JSON type for storing JSON data. */
     case JSON = 'JSON';
 
     /** Get the PHP type corresponding to this SQL type. */
     public function getPhpType(): string
     {
-        return match($this) {
+        return match ($this) {
             self::INTEGER, self::UNSIGNED_INTEGER,  self::SMALL_INTEGER, self::TINY_INTEGER => 'int',
             self::BOOLEAN => 'bool',
             self::DECIMAL, self::FLOAT, self::DOUBLE => 'float',
             self::CHAR, self::VARCHAR, self::TEXT, self::MEDIUM_TEXT, self::LONG_TEXT, => 'string',
             self::DATE, self::TIME, self::DATETIME, self::TIMESTAMP => 'DateTimeInterface',
-            self::BINARY, self::VARBINARY, self::BLOB, self::MEDIUM_BLOB, 
+            self::BINARY, self::VARBINARY, self::BLOB, self::MEDIUM_BLOB,
             self::LONG_BLOB => 'string',
             self::JSON => 'mixed',
         };
@@ -132,13 +131,12 @@ enum Type: string
         if (is_object($value)) {
             if (method_exists($value, '__toString')) {
                 return $value->__toString();
-            } elseif (method_exists($value, '__serialize')) {
-                return serialize($value);
             } elseif ($value instanceof JsonSerializable) {
                 return json_encode($value);
             }
 
-            throw new Exception('cannot use an object of type ' . get_class($value) . ' as a value for a column');
+            // Fall back to PHP's built-in serialization for any object
+            return serialize($value);
         }
 
         throw new Exception('cannot use a value of type ' . gettype($value) . ' as a value for a column');

@@ -110,7 +110,7 @@ class TypeTest extends \PHPUnit\Framework\TestCase
         $type = Type::VARCHAR;
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Incorrect DateTimeInterface/Column type combination');
+        $this->expectExceptionMessage('incorrect DateTimeInterface/Column type combination');
 
         $type->getValue($dateTime);
     }
@@ -155,24 +155,12 @@ class TypeTest extends \PHPUnit\Framework\TestCase
     }
 
     #[Test]
-    public function getValueThrowsExceptionForObjectsWithoutRequiredMethods(): void
-    {
-        $object = new \stdClass();
-        $type = Type::VARCHAR;
-
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Cannot use an object of type stdClass as a value for a column');
-
-        $type->getValue($object);
-    }
-
-    #[Test]
     public function getValueThrowsExceptionForNonScalarNonObjectValues(): void
     {
         $type = Type::VARCHAR;
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Cannot use a value of type array as a value for a column');
+        $this->expectExceptionMessage('cannot use a value of type array as a value for a column');
 
         $type->getValue(['array' => 'value']);
     }
@@ -184,25 +172,13 @@ class TypeTest extends \PHPUnit\Framework\TestCase
         $resource = fopen('php://memory', 'r');
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Cannot use a value of type resource as a value for a column');
+        $this->expectExceptionMessage('cannot use a value of type resource as a value for a column');
 
         try {
             $type->getValue($resource);
         } finally {
             fclose($resource);
         }
-    }
-
-    #[Test]
-    public function getValueThrowsExceptionForCallableTypeAfterCalledNotCorrectType(): void
-    {
-        $type = Type::VARCHAR;
-        $callable = function() { return new \stdClass(); };
-
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Cannot use an object of type stdClass as a value for a column');
-
-        $type->getValue($callable);
     }
 
     #[Test]
