@@ -2,8 +2,10 @@
 
 namespace RayanLevert\Model;
 
+use RayanLevert\Model\Attributes\Column;
 use RayanLevert\Model\Attributes\Validation;
 use RayanLevert\Model\Exceptions\ValidationException;
+use ReflectionClass;
 
 abstract class Model
 {
@@ -12,9 +14,7 @@ abstract class Model
     /** @var string The database table name */
     abstract public string $table { get; }
 
-    final public function __construct()
-    {
-    }
+    final public function __construct() {}
 
     /**
      * Updates the instance to the database
@@ -36,5 +36,19 @@ abstract class Model
     public function validate(): void
     {
         Validation::validateProperties($this);
+    }
+
+    /** Returns the columns and their values */
+    public function columns(): array
+    {
+        foreach (new ReflectionClass($this)->getProperties() as $property) {
+            if (!$attributes = $property->getAttributes(Column::class)) {
+                continue;
+            }
+
+            $columns[$attributes[0]->newInstance()->name ?: $property->getName()] = $property->getValue($this);
+        }
+
+        return $columns ?? [];
     }
 }

@@ -5,7 +5,7 @@ namespace RayanLevert\Model;
 use PDO;
 use PDOException;
 
-/** Abstraction layer to access to a database through PHP's Data Objects (PDO) */
+/** Abstraction layer accessing and interacting with a database through PHP's Data Objects (PDO) */
 class DataObject
 {
     /** Backed property handling the PDO instance */

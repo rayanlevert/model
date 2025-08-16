@@ -5,7 +5,9 @@ namespace RayanLevert\Model\Tests;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use RayanLevert\Model\Attributes\Column;
 use RayanLevert\Model\Attributes\Validation;
+use RayanLevert\Model\Columns\Type;
 use RayanLevert\Model\Exceptions\ValidationException;
 use RayanLevert\Model\Model;
 use RayanLevert\Model\State;
@@ -165,5 +167,69 @@ class ModelTest extends TestCase
         $model->update();
 
         $this->assertTrue(true); // Assert that we reached this point
+    }
+
+    #[Test]
+    public function columnsNoAttributes(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+        };
+
+        $this->assertSame([], $model->columns());
+    }
+
+    #[Test]
+    public function columnsOnePropertyNoAttribute(): void
+    {
+        $model = new class extends Model {
+            public string $name;
+
+            public string $table = 'test_table';
+        };
+
+        $this->assertSame([], $model->columns());
+    }
+
+    #[Test]
+    public function columnsOnePropertyNoName(): void
+    {
+        $model = new class extends Model {
+            #[Column(Type::VARCHAR)]
+            public string $name = 'John Doe';
+
+            public string $table = 'test_table';
+        };
+
+        $this->assertSame(['name' => 'John Doe'], $model->columns());
+    }
+
+    #[Test]
+    public function columnsOnePropertyWithName(): void
+    {
+        $model = new class extends Model {
+            #[Column(Type::VARCHAR, 'first_name')]
+            public string $firstName = 'John';
+
+            public string $table = 'test_table';
+        };
+
+        $this->assertSame(['first_name' => 'John'], $model->columns());
+    }
+
+    #[Test]
+    public function twoColumnsOneNoName(): void
+    {
+        $model = new class extends Model {
+            #[Column(Type::VARCHAR)]
+            public string $firstName = 'John';
+
+            #[Column(Type::VARCHAR)]
+            public string $lastName = 'Doe';
+
+            public string $table = 'table_name';
+        };
+
+        $this->assertSame(['firstName' => 'John', 'lastName' => 'Doe'], $model->columns());
     }
 }
