@@ -2,16 +2,11 @@
 
 namespace RayanLevert\Model;
 
-use PDO;
 use RayanLevert\Model\Queries\Statement;
 
 /** Abstract class for generating queries for a specific model */
 abstract class Queries
 {
-    public function __construct(protected readonly Model $model)
-    {
-    }
-
     /**
      * Generate a query to create a new record in the database
      *
@@ -19,7 +14,7 @@ abstract class Queries
      *
      * @throws Exception If the query cannot be generated
      */
-    abstract public function create(): Statement;
+    abstract public function create(Model $model): Statement;
 
     /**
      * Generate a query to update a record in the database
@@ -28,7 +23,7 @@ abstract class Queries
      *
      * @return Statement The query to update a record in the database with possible placeholders
      */
-    abstract public function update(): Statement;
+    abstract public function update(Model $model): Statement;
 
     /**
      * Generate a query to delete a record in the database
@@ -37,5 +32,5 @@ abstract class Queries
      *
      * @return Statement The query to delete a record in the database with the primary key placeholder
      */
-    abstract public function delete(): Statement;
+    abstract public function delete(Model $model): Statement;
 }

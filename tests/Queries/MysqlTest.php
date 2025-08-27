@@ -19,12 +19,12 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
             public string $table = 'users';
         };
 
-        $queries = new Mysql($model);
+        $queries = new Mysql();
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('No columns found in ' . $model::class);
 
-        $queries->create();
+        $queries->create($model);
     }
 
     #[Test]
@@ -37,8 +37,8 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
             public string $table = 'users';
         };
 
-        $queries = new Mysql($model);
-        $result  = $queries->create();
+        $queries = new Mysql();
+        $result  = $queries->create($model);
 
         $this->assertSame("INSERT INTO `users` (`name`) VALUES (?)", $result->query);
         $this->assertSame(['John Doe'], $result->values);
@@ -60,8 +60,8 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
             public string $table = 'users';
         };
 
-        $queries = new Mysql($model);
-        $result  = $queries->create();
+        $queries = new Mysql();
+        $result  = $queries->create($model);
 
         $this->assertSame("INSERT INTO `users` (`firstName`, `lastName`, `age`) VALUES (?, ?, ?)", $result->query);
         $this->assertSame(['John', 'Doe', 30], $result->values);
@@ -80,8 +80,8 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
             public string $table = 'users';
         };
 
-        $queries = new Mysql($model);
-        $result  = $queries->create();
+        $queries = new Mysql();
+        $result  = $queries->create($model);
 
         $this->assertSame("INSERT INTO `users` (`first_name`, `last_name`) VALUES (?, ?)", $result->query);
         $this->assertSame(['John', 'Doe'], $result->values);
@@ -100,8 +100,8 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
             public string $table = 'users';
         };
 
-        $queries = new Mysql($model);
-        $result  = $queries->create();
+        $queries = new Mysql();
+        $result  = $queries->create($model);
 
         $this->assertSame("INSERT INTO `users` (`name`, `description`) VALUES (?, ?)", $result->query);
         $this->assertSame(["O'Connor", "It's a test with \"quotes\" and 'apostrophes'"], $result->values);
@@ -123,8 +123,8 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
             public string $table = 'products';
         };
 
-        $queries = new Mysql($model);
-        $result  = $queries->create();
+        $queries = new Mysql();
+        $result  = $queries->create($model);
 
         $this->assertSame("INSERT INTO `products` (`id`, `price`, `active`) VALUES (?, ?, ?)", $result->query);
         $this->assertSame([1, 19.99, true], $result->values);
@@ -143,8 +143,8 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
             public string $table = 'users';
         };
 
-        $queries = new Mysql($model);
-        $result  = $queries->create();
+        $queries = new Mysql();
+        $result  = $queries->create($model);
 
         $this->assertSame("INSERT INTO `users` (`name`, `age`) VALUES (?, ?)", $result->query);
         $this->assertSame([null, null], $result->values);
@@ -160,8 +160,8 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
             public string $table = 'user_profiles';
         };
 
-        $queries = new Mysql($model);
-        $result  = $queries->create();
+        $queries = new Mysql();
+        $result  = $queries->create($model);
 
         $this->assertSame("INSERT INTO `user_profiles` (`name`) VALUES (?)", $result->query);
         $this->assertSame(['Test'], $result->values);
@@ -189,8 +189,8 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
             public string $table = 'mixed_data';
         };
 
-        $queries = new Mysql($model);
-        $result  = $queries->create();
+        $queries = new Mysql();
+        $result  = $queries->create($model);
 
         $this->assertSame("INSERT INTO `mixed_data` (`id`, `name`, `description`, `is_active`, `score`) VALUES (?, ?, ?, ?, ?)", $result->query);
         $this->assertSame([1, 'Test User', 'A test description', false, 95.5], $result->values);
@@ -207,12 +207,12 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
             public int $id = 1;
         };
 
-        $queries = new Mysql($model);
+        $queries = new Mysql();
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('No columns found in ' . $model::class);
 
-        $queries->update();
+        $queries->update($model);
     }
 
     #[Test]
@@ -229,8 +229,8 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
             public string $name = 'John Doe';
         };
 
-        $queries = new Mysql($model);
-        $result  = $queries->update();
+        $queries = new Mysql();
+        $result  = $queries->update($model);
 
         $this->assertSame("UPDATE `users` SET `name` = ? WHERE `id` = ?", $result->query);
         $this->assertSame(['name' => 'John Doe', 'id' => 1], $result->values);
@@ -253,8 +253,8 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
             public int $age = 30;
         };
 
-        $queries = new Mysql($model);
-        $result  = $queries->update();
+        $queries = new Mysql();
+        $result  = $queries->update($model);
 
         $this->assertSame("UPDATE `users` SET `name` = ?, `age` = ? WHERE `id` = ?", $result->query);
         $this->assertSame(['name' => 'John Doe', 'age' => 30, 'id' => 1], $result->values);
@@ -270,8 +270,8 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Model must have a primary key');
 
-        $queries = new Mysql($model);
-        $queries->delete();
+        $queries = new Mysql();
+        $queries->delete($model);
     }
 
     #[Test]
@@ -285,8 +285,8 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
             public int $id = 1;
         };
 
-        $queries = new Mysql($model);
-        $result  = $queries->delete();
+        $queries = new Mysql();
+        $result  = $queries->delete($model);
 
         $this->assertSame("DELETE FROM `users` WHERE `id` = ?", $result->query);
         $this->assertSame([1], $result->values);
