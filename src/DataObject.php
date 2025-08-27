@@ -4,6 +4,7 @@ namespace RayanLevert\Model;
 
 use PDO;
 use PDOException;
+use RayanLevert\Model\Queries\Statement;
 
 /** Abstraction layer accessing and interacting with a database through PHP's Data Objects (PDO) */
 class DataObject
@@ -39,8 +40,10 @@ class DataObject
      *
      * @throws PDOException If the attempt to connect to the requested database fails
      */
-    public function __construct(protected readonly Connection $connection, protected readonly Queries $queries)
-    {
+    public function __construct(
+        protected readonly Connection $connection,
+        public protected(set) readonly Queries $queries
+    ) {
         $this->start();
     }
 
@@ -128,5 +131,23 @@ class DataObject
     public function isConnected(): bool
     {
         return $this->backedPDO !== null;
+    }
+
+    /**
+     * Prepares a statement and executes it
+     *
+     * @param Statement $statement The statement to prepare and execute
+     *
+     * @throws Exception If the attempt to prepare and execute the statement fails
+     *
+     * @return bool True if the statement was executed successfully (should never returns false but throws exception)
+     */
+    public function prepareAndExecute(Statement $statement): bool
+    {
+        try {
+            return $this->pdo->prepare($statement->query)->execute($statement->values);
+        } catch (PDOException $e) {
+            throw new Exception(static::class . ': ' . $e->getMessage(), $e->getCode(), $e);
+        }
     }
 }

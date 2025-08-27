@@ -2,6 +2,8 @@
 
 namespace RayanLevert\Model\Tests;
 
+use PDO;
+use PDOStatement;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -16,6 +18,7 @@ use RayanLevert\Model\State;
 use RayanLevert\Model\Queries\Mysql;
 use RayanLevert\Model\DataObject;
 use RayanLevert\Model\Connections\Mysql as ConnectionsMysql;
+use RayanLevert\Model\Queries\Statement;
 
 #[CoversClass(Model::class)]
 class ModelTest extends TestCase
@@ -146,8 +149,8 @@ class ModelTest extends TestCase
             public string $table = 'test_table';
         };
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Cannot update an instance that is not persistent yet');
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Cannot update an instance that is not persistent or detached');
 
         $model->update();
     }
@@ -155,18 +158,36 @@ class ModelTest extends TestCase
     #[Test]
     public function updateDoesNotThrowExceptionWhenModelIsPersistent(): void
     {
+        $oDataObjectMock = $this->getMockBuilder(DataObject::class)
+            ->setConstructorArgs([new ConnectionsMysql('percona', 'root', 'root-password'), new Mysql()])
+            ->onlyMethods(['prepareAndExecute'])
+            ->getMock();
+
+        $oDataObjectMock->expects($this->once())
+            ->method('prepareAndExecute')
+            ->with($this->callback(function (Statement $statement) {
+                return $statement->query === 'UPDATE `test_table` SET `name` = ? WHERE `id` = ?';
+            }))
+            ->willReturn(true);
+
+        Model::$dataObject = $oDataObjectMock;
+
         $model = new class extends Model {
             public string $table = 'test_table';
+
+            #[PrimaryKey]
+            #[Column(Type::INTEGER)]
+            public ?int $id = null;
+
+            #[Column(Type::VARCHAR)]
+            public string $name = 'John Doe';
         };
 
         // Use reflection to set the state to PERSISTENT
         $reflection = new \ReflectionProperty($model, 'state');
         $reflection->setValue($model, State::PERSISTENT);
 
-        // This should not throw an exception
         $model->update();
-
-        $this->assertTrue(true); // Assert that we reached this point
     }
 
     #[Test]
@@ -180,10 +201,10 @@ class ModelTest extends TestCase
         $reflection = new \ReflectionProperty($model, 'state');
         $reflection->setValue($model, State::DETACHED);
 
-        // This should not throw an exception
-        $model->update();
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Cannot update an instance that is not persistent or detached');
 
-        $this->assertTrue(true); // Assert that we reached this point
+        $model->update();
     }
 
     #[Test]

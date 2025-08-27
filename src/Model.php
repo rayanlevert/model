@@ -39,9 +39,11 @@ abstract class Model
      */
     public function update(): void
     {
-        if (State::TRANSIANT === $this->state) {
-            throw new Exception('Cannot update an instance that is not persistent yet');
+        if (State::PERSISTENT !== $this->state) {
+            throw new Exception('Cannot update an instance that is not persistent or detached');
         }
+
+        static::$dataObject->prepareAndExecute(static::$dataObject->queries->update($this));
     }
 
     /**
