@@ -80,6 +80,20 @@ abstract class Model
     }
 
     /**
+     * Saves the instance to the database
+     *
+     * @throws Exception If the instance is not transiant or persistent or the query cannot be generated
+     */
+    public function save(): void
+    {
+        match ($this->state) {
+            State::TRANSIANT  => $this->create(),
+            State::PERSISTENT => $this->update(),
+            State::DETACHED   => throw new Exception('Cannot save an instance that is not transiant or persistent')
+        };
+    }
+
+    /**
      * Validate all properties with Validation attributes
      * 
      * @throws ValidationException If any validation fails

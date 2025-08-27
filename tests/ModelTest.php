@@ -486,4 +486,89 @@ class ModelTest extends TestCase
 
         $model->delete();
     }
+
+    #[Test]
+    public function saveThrowsExceptionWhenModelIsNotTransiantOrPersistent(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+        };
+
+        // Use reflection to set the state to DETACHED
+        $reflection = new \ReflectionProperty($model, 'state');
+        $reflection->setValue($model, State::DETACHED);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Cannot save an instance that is not transiant or persistent');
+
+        $model->save();
+    }
+
+    #[Test]
+    public function saveTransiant(): void
+    {
+        $oDataObjectMock = $this->getMockBuilder(DataObject::class)
+            ->setConstructorArgs([new ConnectionsMysql('percona', 'root', 'root-password'), new Mysql()])
+            ->onlyMethods(['prepareAndExecute'])
+            ->getMock();
+
+        $oDataObjectMock->expects($this->once())
+            ->method('prepareAndExecute')
+            ->with($this->callback(function (Statement $statement) {
+                return $statement->query === 'INSERT INTO `test_table` (`name`) VALUES (?)';
+            }))
+            ->willReturn(true);
+
+        Model::$dataObject = $oDataObjectMock;
+
+        $model = new class extends Model {
+            public string $table = 'test_table';
+
+            #[PrimaryKey]
+            #[Column(Type::INTEGER)]
+            #[AutoIncrement]
+            public ?int $id = null;
+
+            #[Column(Type::VARCHAR)]
+            public string $name = 'John Doe';
+        };
+
+        $model->save();
+    }
+
+    #[Test]
+    public function savePersistent(): void
+    {
+        $oDataObjectMock = $this->getMockBuilder(DataObject::class)
+            ->setConstructorArgs([new ConnectionsMysql('percona', 'root', 'root-password'), new Mysql()])
+            ->onlyMethods(['prepareAndExecute'])
+            ->getMock();
+
+        $oDataObjectMock->expects($this->once())
+            ->method('prepareAndExecute')
+            ->with($this->callback(function (Statement $statement) {
+                return $statement->query === 'UPDATE `test_table` SET `name` = ? WHERE `id` = ?';
+            }))
+            ->willReturn(true);
+
+        Model::$dataObject = $oDataObjectMock;
+
+        $model = new class extends Model {
+            public string $table = 'test_table';
+
+            #[PrimaryKey]
+            #[Column(Type::INTEGER)]
+            #[AutoIncrement]
+            public int $id = 1;
+
+            #[Column(Type::VARCHAR)]
+            public string $name = 'John Doe';
+        };
+
+        // Use reflection to set the state to PERSISTENT
+        $reflection = new \ReflectionProperty($model, 'state');
+        $reflection->setValue($model, State::PERSISTENT);
+
+        $model->save();
+    }
 }
