@@ -441,4 +441,49 @@ class ModelTest extends TestCase
 
         $model->create();
     }
+
+    #[Test]
+    public function deleteThrowsExceptionWhenModelIsNotPersistent(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+        };
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Cannot delete an instance that is not persistent');
+
+        $model->delete();
+    }
+
+    #[Test]
+    public function deleteOk(): void
+    {
+        $oDataObjectMock = $this->getMockBuilder(DataObject::class)
+            ->setConstructorArgs([new ConnectionsMysql('percona', 'root', 'root-password'), new Mysql()])
+            ->onlyMethods(['prepareAndExecute'])
+            ->getMock();
+
+        $oDataObjectMock->expects($this->once())
+            ->method('prepareAndExecute')
+            ->with($this->callback(function (Statement $statement) {
+                return $statement->query === 'DELETE FROM `test_table` WHERE `id` = ?';
+            }))
+            ->willReturn(true);
+
+        Model::$dataObject = $oDataObjectMock;
+
+        $model = new class extends Model {
+            public string $table = 'test_table';
+
+            #[PrimaryKey]
+            #[Column(Type::INTEGER)]
+            public int $id = 1;
+        };
+
+        // Use reflection to set the state to PERSISTENT
+        $reflection = new \ReflectionProperty($model, 'state');
+        $reflection->setValue($model, State::PERSISTENT);
+
+        $model->delete();
+    }
 }

@@ -66,6 +66,20 @@ abstract class Model
     }
 
     /**
+     * Deletes the instance from the database
+     *
+     * @throws Exception If the instance is not detached
+     */
+    public function delete(): void
+    {
+        if (State::PERSISTENT !== $this->state) {
+            throw new Exception('Cannot delete an instance that is not persistent');
+        }
+
+        static::$dataObject->prepareAndExecute(static::$dataObject->queries->delete($this));
+    }
+
+    /**
      * Validate all properties with Validation attributes
      * 
      * @throws ValidationException If any validation fails
