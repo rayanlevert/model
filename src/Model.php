@@ -2,11 +2,8 @@
 
 namespace RayanLevert\Model;
 
-use RayanLevert\Model\Attributes\Column;
-use RayanLevert\Model\Attributes\Validation;
-use RayanLevert\Model\Exceptions\ValidationException;
+use RayanLevert\Model\Attributes;
 use ReflectionClass;
-
 
 abstract class Model
 {
@@ -42,20 +39,20 @@ abstract class Model
      */
     public function validate(): void
     {
-        Validation::validateProperties($this);
+        Attributes\Validation::validateProperties($this);
     }
 
     /**
      * Returns the columns and their values to be used in a query
      *
-     * @throws Exception If a property's value cannot be used in a query
+     * @throws Exception If a property's value cannot be used in a query or no column is found
      *
      * @return array<string, mixed> The columns (database column name => PHP value)
      */
     public function columns(): array
     {
         foreach (new ReflectionClass($this)->getProperties() as $property) {
-            if (!$attributes = $property->getAttributes(Column::class)) {
+            if (!$attributes = $property->getAttributes(Attributes\Column::class)) {
                 continue;
             }
 
@@ -68,6 +65,10 @@ abstract class Model
             }
 
             $columns[$oColumn->name ?: $property->getName()] = $phpValue;
+        }
+
+        if (empty($columns)) {
+            throw new Exception('No columns found in ' . static::class);
         }
 
         return $columns ?? [];

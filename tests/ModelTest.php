@@ -172,28 +172,6 @@ class ModelTest extends TestCase
     }
 
     #[Test]
-    public function columnsNoAttributes(): void
-    {
-        $model = new class extends Model {
-            public string $table = 'test_table';
-        };
-
-        $this->assertSame([], $model->columns());
-    }
-
-    #[Test]
-    public function columnsOnePropertyNoAttribute(): void
-    {
-        $model = new class extends Model {
-            public string $name;
-
-            public string $table = 'test_table';
-        };
-
-        $this->assertSame([], $model->columns());
-    }
-
-    #[Test]
     public function columnsOnePropertyNoName(): void
     {
         $model = new class extends Model {
@@ -252,6 +230,19 @@ class ModelTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage($model::class . '::$name : cannot use a value of type resource as a value for a column');
+
+        $model->columns();
+    }
+
+    #[Test]
+    public function columnsNoColumns(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+        };
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('No columns found in ' . $model::class);
 
         $model->columns();
     }
