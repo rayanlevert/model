@@ -7,6 +7,7 @@ use PDOStatement;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use RayanLevert\Model\Attributes\AutoIncrement;
 use RayanLevert\Model\Attributes\Column;
 use RayanLevert\Model\Attributes\PrimaryKey;
 use RayanLevert\Model\Attributes\Validation;
@@ -369,5 +370,75 @@ class ModelTest extends TestCase
 
         $this->assertSame(1, $model->getPrimaryKey()->value);
         $this->assertSame('id_test', $model->getPrimaryKey()->column);
+    }
+
+    #[Test]
+    public function createThrowsExceptionWhenModelIsNotTransiant(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+        };
+
+        // Use reflection to set the state to PERSISTENT
+        $reflection = new \ReflectionProperty($model, 'state');
+        $reflection->setValue($model, State::PERSISTENT);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Cannot create an instance that is not transiant');
+
+        $model->create();
+    }
+
+    #[Test]
+    public function createValidatesThrowsException(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+
+            #[PrimaryKey]
+            #[Column(Type::INTEGER)]
+            public ?int $id = null;
+
+            #[Column(Type::VARCHAR)]
+            #[Validation\Required]
+            public ?string $name = null;
+        };
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('name is required');
+
+        $model->create();
+    }
+
+    #[Test]
+    public function createOk(): void
+    {
+        $oDataObjectMock = $this->getMockBuilder(DataObject::class)
+            ->setConstructorArgs([new ConnectionsMysql('percona', 'root', 'root-password'), new Mysql()])
+            ->onlyMethods(['prepareAndExecute'])
+            ->getMock();
+
+        $oDataObjectMock->expects($this->once())
+            ->method('prepareAndExecute')
+            ->with($this->callback(function (Statement $statement) {
+                return $statement->query === 'INSERT INTO `test_table` (`name`) VALUES (?)';
+            }))
+            ->willReturn(true);
+
+        Model::$dataObject = $oDataObjectMock;
+
+        $model = new class extends Model {
+            public string $table = 'test_table';
+
+            #[PrimaryKey]
+            #[AutoIncrement]
+            #[Column(Type::INTEGER)]
+            public ?int $id = null;
+
+            #[Column(Type::VARCHAR)]
+            public string $name = 'John Doe';
+        };
+
+        $model->create();
     }
 }

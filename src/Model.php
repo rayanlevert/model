@@ -6,6 +6,7 @@ use RayanLevert\Model\Attributes;
 use ReflectionClass;
 use stdClass;
 
+
 abstract class Model
 {
     /** DataObject instance to communicate with the database */
@@ -31,6 +32,22 @@ abstract class Model
 
     /** Called at the end of the constructor */
     public function onConstruct(): void {}
+
+    /**
+     * Creates the instance in the database
+     *
+     * @throws Exception If the instance is not transiant
+     */
+    public function create(): void
+    {
+        if (State::TRANSIANT !== $this->state) {
+            throw new Exception('Cannot create an instance that is not transiant');
+        }
+        
+        $this->validate();
+
+        static::$dataObject->prepareAndExecute(static::$dataObject->queries->create($this));
+    }
 
     /**
      * Updates the instance to the database
@@ -82,7 +99,7 @@ abstract class Model
     }
 
     /**
-     * Returns the columns and their values to be used in a query
+     * Returns the columns and their values to be used in a query (no AutoIncrement)
      *
      * @throws Exception If a property's value cannot be used in a query or no column is found
      *
@@ -92,6 +109,8 @@ abstract class Model
     {
         foreach (new ReflectionClass($this)->getProperties() as $property) {
             if (!$attributes = $property->getAttributes(Attributes\Column::class)) {
+                continue;
+            } elseif ($property->getAttributes(Attributes\AutoIncrement::class)) {
                 continue;
             }
 
