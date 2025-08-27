@@ -51,7 +51,7 @@ abstract class Model
      *
      * @return object{column: string, value: mixed} The primary key with the column name and its value
      */
-    final public function getPrimaryKeyProperty(): stdClass
+    final public function getPrimaryKey(): stdClass
     {
         foreach (new ReflectionClass($this)->getProperties() as $property) {
             $oColumn = $property->getAttributes(Attributes\Column::class)[0] ?? null;

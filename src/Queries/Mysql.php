@@ -3,6 +3,7 @@
 namespace RayanLevert\Model\Queries;
 
 use PDO;
+use RayanLevert\Model\Exception;
 
 use function implode;
 use function array_map;
@@ -21,6 +22,25 @@ class Mysql extends \RayanLevert\Model\Queries
         $values   = implode(', ', array_map(fn(mixed $value) => self::quote($pdo, $value), $aColumns));
 
         return "INSERT INTO `{$this->model->table}` ($columns) VALUES ($values)";
+    }
+
+    public function update(PDO $pdo): Statements\Update
+    {
+        $oPrimaryKey = $this->model->getPrimaryKey();
+
+        $aColumns = $this->model->columns();
+        unset($aColumns[$oPrimaryKey->column]);
+
+        if (!$aColumns) {
+            throw new Exception('No columns found in ' . $this->model::class);
+        }
+
+        $columns = implode(', ', array_map(fn(string $column) => "`$column` = ?", array_keys($aColumns)));
+
+        return new Statements\Update(
+            "UPDATE `{$this->model->table}` SET $columns WHERE `{$oPrimaryKey->column}` = ?",
+            ...$aColumns + [$oPrimaryKey->column => $oPrimaryKey->value]
+        );
     }
 
     /** Transforms a value to a string to be used in a query */

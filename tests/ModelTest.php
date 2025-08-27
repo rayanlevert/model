@@ -248,7 +248,7 @@ class ModelTest extends TestCase
     }
 
     #[Test]
-    public function getPrimaryKeyPropertyNoPrimaryKey(): void
+    public function getPrimaryKeyNoPrimaryKey(): void
     {
         $model = new class extends Model {
             public string $table = 'test_table';
@@ -257,11 +257,11 @@ class ModelTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Model must have a primary key');
 
-        $model->getPrimaryKeyProperty();
+        $model->getPrimaryKey();
     }
 
     #[Test]
-    public function getPrimaryKeyPropertyNoColumn(): void
+    public function getPrimaryKeyNoColumn(): void
     {
         $model = new class extends Model {
             public string $table = 'test_table';
@@ -273,11 +273,11 @@ class ModelTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Model must have a primary key');
 
-        $model->getPrimaryKeyProperty();
+        $model->getPrimaryKey();
     }
 
     #[Test]
-    public function getPrimaryKeyProperty(): void
+    public function getPrimaryKey(): void
     {
         $model = new class extends Model {
             public string $table = 'test_table';
@@ -287,12 +287,12 @@ class ModelTest extends TestCase
             public int $id = 1;
         };
 
-        $this->assertSame(1, $model->getPrimaryKeyProperty()->value);
-        $this->assertSame('id', $model->getPrimaryKeyProperty()->column);
+        $this->assertSame(1, $model->getPrimaryKey()->value);
+        $this->assertSame('id', $model->getPrimaryKey()->column);
     }
 
     #[Test]
-    public function getPrimaryKeyPropertyMultiplePrimaryKeys(): void
+    public function getPrimaryKeyMultiplePrimaryKeys(): void
     {
         $model = new class extends Model {
             public string $table = 'test_table';
@@ -306,7 +306,7 @@ class ModelTest extends TestCase
             public string $name = 'Test';
         };
 
-        $this->assertSame(1, $model->getPrimaryKeyProperty()->value);
-        $this->assertSame('id_test', $model->getPrimaryKeyProperty()->column);
+        $this->assertSame(1, $model->getPrimaryKey()->value);
+        $this->assertSame('id_test', $model->getPrimaryKey()->column);
     }
 }

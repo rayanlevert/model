@@ -2,13 +2,13 @@
 
 namespace RayanLevert\Model\Tests\Queries;
 
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\DataProvider;
+use Exception;
+use PDO;
+use PHPUnit\Framework\Attributes\{CoversClass, Test};
 use RayanLevert\Model\Queries\Mysql;
 use RayanLevert\Model\Attributes\Column;
+use RayanLevert\Model\Attributes\PrimaryKey;
 use RayanLevert\Model\Columns\Type;
-use PDO;
 
 #[CoversClass(Mysql::class)]
 class MysqlTest extends \PHPUnit\Framework\TestCase
@@ -23,9 +23,10 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         $queries = new Mysql($model);
         $pdo = $this->createMock(PDO::class);
 
-        $result = $queries->create($pdo);
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('No columns found in ' . $model::class);
 
-        $this->assertSame('INSERT INTO `users` () VALUES ()', $result);
+        $queries->create($pdo);
     }
 
     #[Test]
@@ -235,5 +236,74 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         $result = $queries->create($pdo);
 
         $this->assertSame("INSERT INTO `mixed_data` (`id`, `name`, `description`, `is_active`, `score`) VALUES (1, 'Test User', 'A test description', 0, 95.5)", $result);
+    }
+
+    #[Test]
+    public function updateWithNoColumns(): void
+    {
+        $model = new class extends \RayanLevert\Model\Model {
+            public string $table = 'users';
+
+            #[PrimaryKey]
+            #[Column(Type::INTEGER)]
+            public int $id = 1;
+        };
+
+        $queries = new Mysql($model);
+        $pdo     = $this->createMock(PDO::class);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('No columns found in ' . $model::class);
+
+        $queries->update($pdo);
+    }
+
+    #[Test]
+    public function updateWithOneColumn(): void
+    {
+        $model = new class extends \RayanLevert\Model\Model {
+            public string $table = 'users';
+
+            #[PrimaryKey]
+            #[Column(Type::INTEGER)]
+            public int $id = 1;
+
+            #[Column(Type::VARCHAR)]
+            public string $name = 'John Doe';
+        };
+
+        $queries = new Mysql($model);
+        $pdo     = $this->createMock(PDO::class);
+
+        $result = $queries->update($pdo);
+
+        $this->assertSame("UPDATE `users` SET `name` = ? WHERE `id` = ?", $result->query);
+        $this->assertSame(['name' => 'John Doe', 'id' => 1], $result->values);
+    }
+
+    #[Test]
+    public function updateWithMultipleColumns(): void
+    {
+        $model = new class extends \RayanLevert\Model\Model {
+            public string $table = 'users';
+
+            #[PrimaryKey]
+            #[Column(Type::INTEGER)]
+            public int $id = 1;
+
+            #[Column(Type::VARCHAR)]
+            public string $name = 'John Doe';
+
+            #[Column(Type::INTEGER)]
+            public int $age = 30;
+        };
+
+        $queries = new Mysql($model);
+        $pdo     = $this->createMock(PDO::class);
+
+        $result = $queries->update($pdo);
+
+        $this->assertSame("UPDATE `users` SET `name` = ?, `age` = ? WHERE `id` = ?", $result->query);
+        $this->assertSame(['name' => 'John Doe', 'age' => 30, 'id' => 1], $result->values);
     }
 }

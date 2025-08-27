@@ -3,6 +3,7 @@
 namespace RayanLevert\Model;
 
 use PDO;
+use RayanLevert\Model\Queries\Statements\Update;
 
 /** Abstract class for generating queries for a specific model */
 abstract class Queries
@@ -23,9 +24,9 @@ abstract class Queries
     /**
      * Generate a query to update a record in the database
      *
-     * @return string The query to update a record in the database
+     * @return Statements\Update The query to update a record in the database with possible placeholders
      */
-    // abstract public function update(): string;
+    abstract public function update(PDO $pdo): Update;
 
     /**
      * Generate a query to delete a record in the database
