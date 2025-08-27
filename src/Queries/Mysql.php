@@ -2,29 +2,31 @@
 
 namespace RayanLevert\Model\Queries;
 
-use PDO;
 use RayanLevert\Model\Exception;
 
 use function implode;
 use function array_map;
 use function array_keys;
-use function is_string;
-use function is_null;
-use function is_bool;
+use function array_values;
+use function array_fill;
+use function count;
 
 /** Queries for MySQL databases */
 class Mysql extends \RayanLevert\Model\Queries
 {
-    public function create(PDO $pdo): string
+    public function create(): Statement
     {
-        $aColumns = $this->model->columns();
-        $columns  = implode(', ', array_map(fn(string $column) => "`$column`", array_keys($aColumns)));
-        $values   = implode(', ', array_map(fn(mixed $value) => self::quote($pdo, $value), $aColumns));
+        $aColumns     = $this->model->columns();
+        $columns      = implode(', ', array_map(fn(string $column) => "`$column`", array_keys($aColumns)));
+        $placeholders = implode(', ', array_fill(0, count($aColumns), '?'));
 
-        return "INSERT INTO `{$this->model->table}` ($columns) VALUES ($values)";
+        return new Statement(
+            "INSERT INTO `{$this->model->table}` ($columns) VALUES ($placeholders)",
+            ...array_values($aColumns)
+        );
     }
 
-    public function update(PDO $pdo): Statement
+    public function update(): Statement
     {
         $oPrimaryKey = $this->model->getPrimaryKey();
 
@@ -43,7 +45,7 @@ class Mysql extends \RayanLevert\Model\Queries
         );
     }
 
-    public function delete(PDO $pdo): Statement
+    public function delete(): Statement
     {
         $oPrimaryKey = $this->model->getPrimaryKey();
 
@@ -51,16 +53,5 @@ class Mysql extends \RayanLevert\Model\Queries
             "DELETE FROM `{$this->model->table}` WHERE `{$oPrimaryKey->column}` = ?",
             $oPrimaryKey->value
         );
-    }
-
-    /** Transforms a value to a string to be used in a query */
-    private static function quote(PDO $pdo, mixed $value): string
-    {
-        return match (true) {
-            is_string($value) => $pdo->quote($value),
-            is_null($value)   => 'NULL',
-            is_bool($value)   => (int) $value,
-            default           => $value
-        };
     }
 }

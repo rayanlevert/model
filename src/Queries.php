@@ -15,11 +15,11 @@ abstract class Queries
     /**
      * Generate a query to create a new record in the database
      *
-     * @return string The query to create a new record in the database
+     * @return Statement The query to create a new record in the database with placeholders
      *
      * @throws Exception If the query cannot be generated
      */
-    abstract public function create(PDO $pdo): string;
+    abstract public function create(): Statement;
 
     /**
      * Generate a query to update a record in the database
@@ -28,7 +28,7 @@ abstract class Queries
      *
      * @return Statement The query to update a record in the database with possible placeholders
      */
-    abstract public function update(PDO $pdo): Statement;
+    abstract public function update(): Statement;
 
     /**
      * Generate a query to delete a record in the database
@@ -37,5 +37,5 @@ abstract class Queries
      *
      * @return Statement The query to delete a record in the database with the primary key placeholder
      */
-    abstract public function delete(PDO $pdo): Statement;
+    abstract public function delete(): Statement;
 }

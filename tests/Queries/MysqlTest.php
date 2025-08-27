@@ -3,7 +3,6 @@
 namespace RayanLevert\Model\Tests\Queries;
 
 use Exception;
-use PDO;
 use PHPUnit\Framework\Attributes\{CoversClass, Test};
 use RayanLevert\Model\Queries\Mysql;
 use RayanLevert\Model\Attributes\Column;
@@ -21,12 +20,11 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         };
 
         $queries = new Mysql($model);
-        $pdo = $this->createMock(PDO::class);
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('No columns found in ' . $model::class);
 
-        $queries->create($pdo);
+        $queries->create();
     }
 
     #[Test]
@@ -40,15 +38,10 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         };
 
         $queries = new Mysql($model);
-        $pdo = $this->createMock(PDO::class);
-        $pdo->expects($this->once())
-            ->method('quote')
-            ->with('John Doe')
-            ->willReturn("'John Doe'");
+        $result  = $queries->create();
 
-        $result = $queries->create($pdo);
-
-        $this->assertSame("INSERT INTO `users` (`name`) VALUES ('John Doe')", $result);
+        $this->assertSame("INSERT INTO `users` (`name`) VALUES (?)", $result->query);
+        $this->assertSame(['John Doe'], $result->values);
     }
 
     #[Test]
@@ -68,17 +61,10 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         };
 
         $queries = new Mysql($model);
-        $pdo = $this->createMock(PDO::class);
-        $pdo->expects($this->exactly(2))
-            ->method('quote')
-            ->willReturnMap([
-                ['John', "'John'"],
-                ['Doe', "'Doe'"]
-            ]);
+        $result  = $queries->create();
 
-        $result = $queries->create($pdo);
-
-        $this->assertSame("INSERT INTO `users` (`firstName`, `lastName`, `age`) VALUES ('John', 'Doe', 30)", $result);
+        $this->assertSame("INSERT INTO `users` (`firstName`, `lastName`, `age`) VALUES (?, ?, ?)", $result->query);
+        $this->assertSame(['John', 'Doe', 30], $result->values);
     }
 
     #[Test]
@@ -95,17 +81,10 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         };
 
         $queries = new Mysql($model);
-        $pdo = $this->createMock(PDO::class);
-        $pdo->expects($this->exactly(2))
-            ->method('quote')
-            ->willReturnMap([
-                ['John', "'John'"],
-                ['Doe', "'Doe'"]
-            ]);
+        $result  = $queries->create();
 
-        $result = $queries->create($pdo);
-
-        $this->assertSame("INSERT INTO `users` (`first_name`, `last_name`) VALUES ('John', 'Doe')", $result);
+        $this->assertSame("INSERT INTO `users` (`first_name`, `last_name`) VALUES (?, ?)", $result->query);
+        $this->assertSame(['John', 'Doe'], $result->values);
     }
 
     #[Test]
@@ -122,17 +101,10 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         };
 
         $queries = new Mysql($model);
-        $pdo = $this->createMock(PDO::class);
-        $pdo->expects($this->exactly(2))
-            ->method('quote')
-            ->willReturnMap([
-                ["O'Connor", "'O\\'Connor'"],
-                ["It's a test with \"quotes\" and 'apostrophes'", "'It\\'s a test with \\\"quotes\\\" and \\'apostrophes\\''"]
-            ]);
+        $result  = $queries->create();
 
-        $result = $queries->create($pdo);
-
-        $this->assertSame("INSERT INTO `users` (`name`, `description`) VALUES ('O\\'Connor', 'It\\'s a test with \\\"quotes\\\" and \\'apostrophes\\'')", $result);
+        $this->assertSame("INSERT INTO `users` (`name`, `description`) VALUES (?, ?)", $result->query);
+        $this->assertSame(["O'Connor", "It's a test with \"quotes\" and 'apostrophes'"], $result->values);
     }
 
     #[Test]
@@ -152,11 +124,10 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         };
 
         $queries = new Mysql($model);
-        $pdo = $this->createMock(PDO::class);
+        $result  = $queries->create();
 
-        $result = $queries->create($pdo);
-
-        $this->assertSame("INSERT INTO `products` (`id`, `price`, `active`) VALUES (1, 19.99, 1)", $result);
+        $this->assertSame("INSERT INTO `products` (`id`, `price`, `active`) VALUES (?, ?, ?)", $result->query);
+        $this->assertSame([1, 19.99, true], $result->values);
     }
 
     #[Test]
@@ -173,11 +144,10 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         };
 
         $queries = new Mysql($model);
-        $pdo = $this->createMock(PDO::class);
+        $result  = $queries->create();
 
-        $result = $queries->create($pdo);
-
-        $this->assertSame("INSERT INTO `users` (`name`, `age`) VALUES (NULL, NULL)", $result);
+        $this->assertSame("INSERT INTO `users` (`name`, `age`) VALUES (?, ?)", $result->query);
+        $this->assertSame([null, null], $result->values);
     }
 
     #[Test]
@@ -191,15 +161,10 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         };
 
         $queries = new Mysql($model);
-        $pdo = $this->createMock(PDO::class);
-        $pdo->expects($this->once())
-            ->method('quote')
-            ->with('Test')
-            ->willReturn("'Test'");
+        $result  = $queries->create();
 
-        $result = $queries->create($pdo);
-
-        $this->assertSame("INSERT INTO `user_profiles` (`name`) VALUES ('Test')", $result);
+        $this->assertSame("INSERT INTO `user_profiles` (`name`) VALUES (?)", $result->query);
+        $this->assertSame(['Test'], $result->values);
     }
 
     #[Test]
@@ -225,17 +190,10 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         };
 
         $queries = new Mysql($model);
-        $pdo = $this->createMock(PDO::class);
-        $pdo->expects($this->exactly(2))
-            ->method('quote')
-            ->willReturnMap([
-                ['Test User', "'Test User'"],
-                ['A test description', "'A test description'"]
-            ]);
+        $result  = $queries->create();
 
-        $result = $queries->create($pdo);
-
-        $this->assertSame("INSERT INTO `mixed_data` (`id`, `name`, `description`, `is_active`, `score`) VALUES (1, 'Test User', 'A test description', 0, 95.5)", $result);
+        $this->assertSame("INSERT INTO `mixed_data` (`id`, `name`, `description`, `is_active`, `score`) VALUES (?, ?, ?, ?, ?)", $result->query);
+        $this->assertSame([1, 'Test User', 'A test description', false, 95.5], $result->values);
     }
 
     #[Test]
@@ -250,12 +208,11 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         };
 
         $queries = new Mysql($model);
-        $pdo     = $this->createMock(PDO::class);
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('No columns found in ' . $model::class);
 
-        $queries->update($pdo);
+        $queries->update();
     }
 
     #[Test]
@@ -273,9 +230,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         };
 
         $queries = new Mysql($model);
-        $pdo     = $this->createMock(PDO::class);
-
-        $result = $queries->update($pdo);
+        $result  = $queries->update();
 
         $this->assertSame("UPDATE `users` SET `name` = ? WHERE `id` = ?", $result->query);
         $this->assertSame(['name' => 'John Doe', 'id' => 1], $result->values);
@@ -299,9 +254,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         };
 
         $queries = new Mysql($model);
-        $pdo     = $this->createMock(PDO::class);
-
-        $result = $queries->update($pdo);
+        $result  = $queries->update();
 
         $this->assertSame("UPDATE `users` SET `name` = ?, `age` = ? WHERE `id` = ?", $result->query);
         $this->assertSame(['name' => 'John Doe', 'age' => 30, 'id' => 1], $result->values);
@@ -318,9 +271,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         $this->expectExceptionMessage('Model must have a primary key');
 
         $queries = new Mysql($model);
-        $pdo     = $this->createMock(PDO::class);
-
-        $queries->delete($pdo);
+        $queries->delete();
     }
 
     #[Test]
@@ -335,9 +286,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         };
 
         $queries = new Mysql($model);
-        $pdo     = $this->createMock(PDO::class);
-
-        $result = $queries->delete($pdo);
+        $result  = $queries->delete();
 
         $this->assertSame("DELETE FROM `users` WHERE `id` = ?", $result->query);
         $this->assertSame([1], $result->values);
