@@ -10,6 +10,7 @@ use RayanLevert\Model\Connection;
 use RayanLevert\Model\Connections\Mysql;
 use RayanLevert\Model\DataObject;
 use RayanLevert\Model\Exception;
+use RayanLevert\Model\Queries\Mysql as QueriesMysql;
 use ReflectionProperty;
 
 #[CoversClass(DataObject::class)]
@@ -28,13 +29,13 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
 
         $this->expectException(PDOException::class);
 
-        new DataObject($oC);
+        new DataObject($oC, new QueriesMysql());
     }
 
     #[Test]
     public function connectionOk(): void
     {
-        $oDataObject = new DataObject($this->getConnectionClass());
+        $oDataObject = new DataObject($this->getConnectionClass(), new QueriesMysql());
 
         $this->assertSame('mysql', $oDataObject->driverName);
     }
@@ -42,7 +43,7 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function commitNoTransaction(): void
     {
-        $oDataObject = new DataObject($this->getConnectionClass());
+        $oDataObject = new DataObject($this->getConnectionClass(), new QueriesMysql());
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('There is no active transaction');
@@ -55,14 +56,14 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
     {
         $this->expectNotToPerformAssertions();
 
-        $oDataObject = new DataObject($this->getConnectionClass());
+        $oDataObject = new DataObject($this->getConnectionClass(), new QueriesMysql());
         $oDataObject->startTransaction();
     }
 
     #[Test]
     public function startTransactionWithCommitBefore(): void
     {
-        $oDataObject = new DataObject($this->getConnectionClass());
+        $oDataObject = new DataObject($this->getConnectionClass(), new QueriesMysql());
         $oDataObject->startTransaction();
 
         $this->expectException(Exception::class);
@@ -77,7 +78,7 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('The connection to database has been closed, no transaction can be started');
 
-        $oDataObject = new DataObject($this->getConnectionClass());
+        $oDataObject = new DataObject($this->getConnectionClass(), new QueriesMysql());
         $oDataObject->close();
         $oDataObject->startTransaction();
     }
@@ -87,7 +88,7 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
     {
         $this->expectNotToPerformAssertions();
 
-        $oDataObject = new DataObject($this->getConnectionClass());
+        $oDataObject = new DataObject($this->getConnectionClass(), new QueriesMysql());
         $oDataObject->startTransaction();
         $oDataObject->commit();
     }
@@ -95,7 +96,7 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function destruct(): void
     {
-        $oDataObject = new DataObject($this->getConnectionClass());
+        $oDataObject = new DataObject($this->getConnectionClass(), new QueriesMysql());
         $oDataObject->__destruct();
 
         $this->expectExceptionMessage('Connection to the database has been closed, no PDO is available');
@@ -106,7 +107,7 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function close(): void
     {
-        $oDataObject = new DataObject($this->getConnectionClass());
+        $oDataObject = new DataObject($this->getConnectionClass(), new QueriesMysql());
         $oDataObject->close();
 
         $this->expectExceptionMessage('Connection to the database has been closed, no PDO is available');
@@ -117,7 +118,7 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function start(): void
     {
-        $oDataObject = new DataObject($this->getConnectionClass());
+        $oDataObject = new DataObject($this->getConnectionClass(), new QueriesMysql());
 
         $oPdo = new ReflectionProperty($oDataObject, 'pdo')->getValue($oDataObject);
 
@@ -132,7 +133,7 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function getPdo(): void
     {
-        $oDataObject = new DataObject($this->getConnectionClass());
+        $oDataObject = new DataObject($this->getConnectionClass(), new QueriesMysql());
 
         $this->assertInstanceOf(PDO::class, $oDataObject->pdo);
 
@@ -144,7 +145,7 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function rollbackNoTransaction(): void
     {
-        $oDataObject = new DataObject($this->getConnectionClass());
+        $oDataObject = new DataObject($this->getConnectionClass(), new QueriesMysql());
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('There is no active transaction to rollback');
@@ -157,7 +158,7 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
     {
         $this->expectNotToPerformAssertions();
 
-        $oDataObject = new DataObject($this->getConnectionClass());
+        $oDataObject = new DataObject($this->getConnectionClass(), new QueriesMysql());
         $oDataObject->startTransaction();
         $oDataObject->rollback();
     }
@@ -165,7 +166,7 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function isConnectedWhenConnected(): void
     {
-        $oDataObject = new DataObject($this->getConnectionClass());
+        $oDataObject = new DataObject($this->getConnectionClass(), new QueriesMysql());
 
         $this->assertTrue($oDataObject->isConnected());
     }
@@ -173,7 +174,7 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function isConnectedWhenDisconnected(): void
     {
-        $oDataObject = new DataObject($this->getConnectionClass());
+        $oDataObject = new DataObject($this->getConnectionClass(), new QueriesMysql());
         $oDataObject->close();
 
         $this->assertFalse($oDataObject->isConnected());
@@ -187,7 +188,7 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
             ->method('beginTransaction')
             ->willThrowException(new PDOException('Test exception'));
 
-        $dataObject = new class($this->createMock(Connection::class)) extends DataObject {
+        $dataObject = new class($this->createMock(Connection::class), new QueriesMysql()) extends DataObject {
             public function setBackedPDO(?PDO $pdo): void
             {
                 $this->backedPDO = $pdo;
@@ -215,7 +216,7 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
             ->method('inTransaction')
             ->willReturn(true);
 
-        $dataObject = new class($this->createMock(Connection::class)) extends DataObject {
+        $dataObject = new class($this->createMock(Connection::class), new QueriesMysql()) extends DataObject {
             public function setBackedPDO(?PDO $pdo): void
             {
                 $this->backedPDO = $pdo;

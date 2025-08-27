@@ -14,18 +14,20 @@ use RayanLevert\Model\Exceptions\ValidationException;
 use RayanLevert\Model\Model;
 use RayanLevert\Model\State;
 use RayanLevert\Model\Queries\Mysql;
+use RayanLevert\Model\DataObject;
+use RayanLevert\Model\Connections\Mysql as ConnectionsMysql;
 
 #[CoversClass(Model::class)]
 class ModelTest extends TestCase
 {
     protected function setUp(): void
     {
-        Model::$queries = new Mysql();
+        Model::$dataObject = new DataObject(new ConnectionsMysql('percona', 'root', 'root-password'), new Mysql());
     }
 
     protected function tearDown(): void
     {
-        Model::$queries = null;
+        Model::$dataObject = null;
     }
 
     #[Test]
@@ -80,7 +82,7 @@ class ModelTest extends TestCase
 
     public static function invalidModelsProvider(): array
     {
-        Model::$queries = new Mysql();
+        Model::$dataObject = new DataObject(new ConnectionsMysql('percona', 'root', 'root-password'), new Mysql());
 
         return [
             'required property is null' => [

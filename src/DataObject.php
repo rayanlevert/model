@@ -35,10 +35,11 @@ class DataObject
      * Initialises the connection to the database
      *
      * @param Connection $connection Database-specific parameters used to connect
+     * @param Queries $queries Queries class to communicate with the database
      *
      * @throws PDOException If the attempt to connect to the requested database fails
      */
-    public function __construct(protected readonly Connection $connection)
+    public function __construct(protected readonly Connection $connection, protected readonly Queries $queries)
     {
         $this->start();
     }

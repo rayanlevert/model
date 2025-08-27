@@ -8,8 +8,8 @@ use stdClass;
 
 abstract class Model
 {
-    /** Queries class to communicate with the database */
-    public static ?Queries $queries = null;
+    /** DataObject instance to communicate with the database */
+    public static ?DataObject $dataObject = null;
 
     /** State of the instance */
     public protected(set) State $state = State::TRANSIANT;
@@ -22,8 +22,8 @@ abstract class Model
      */
     final public function __construct()
     {
-        if (!static::$queries) {
-            throw new Exception('Queries class not set, it must be set via the static property $queries');
+        if (!static::$dataObject) {
+            throw new Exception('DataObject class not set, it must be set via the static property $dataObject');
         }
 
         $this->onConstruct();
