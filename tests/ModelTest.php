@@ -13,10 +13,21 @@ use RayanLevert\Model\Exception;
 use RayanLevert\Model\Exceptions\ValidationException;
 use RayanLevert\Model\Model;
 use RayanLevert\Model\State;
+use RayanLevert\Model\Queries\Mysql;
 
 #[CoversClass(Model::class)]
 class ModelTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        Model::$queries = new Mysql();
+    }
+
+    protected function tearDown(): void
+    {
+        Model::$queries = null;
+    }
+
     #[Test]
     public function table(): void
     {
@@ -69,6 +80,8 @@ class ModelTest extends TestCase
 
     public static function invalidModelsProvider(): array
     {
+        Model::$queries = new Mysql();
+
         return [
             'required property is null' => [
                 new class extends Model {

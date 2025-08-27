@@ -4,18 +4,28 @@ namespace RayanLevert\Model;
 
 use RayanLevert\Model\Attributes;
 use ReflectionClass;
-use ReflectionProperty;
 use stdClass;
 
 abstract class Model
 {
+    /** Queries class to communicate with the database */
+    public static ?Queries $queries = null;
+
+    /** State of the instance */
     public protected(set) State $state = State::TRANSIANT;
 
     /** @var string The database table name */
     abstract public string $table { get; }
 
+    /**
+     * @throws Exception If the queries class is not set (to be able to generate queries according to the database used)
+     */
     final public function __construct()
     {
+        if (!static::$queries) {
+            throw new Exception('Queries class not set, it must be set via the static property $queries');
+        }
+
         $this->onConstruct();
     }
 

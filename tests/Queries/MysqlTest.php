@@ -8,10 +8,21 @@ use RayanLevert\Model\Queries\Mysql;
 use RayanLevert\Model\Attributes\Column;
 use RayanLevert\Model\Attributes\PrimaryKey;
 use RayanLevert\Model\Columns\Type;
+use RayanLevert\Model\Model;
 
 #[CoversClass(Mysql::class)]
 class MysqlTest extends \PHPUnit\Framework\TestCase
 {
+    protected function setUp(): void
+    {
+        Model::$queries = new Mysql();
+    }
+
+    protected function tearDown(): void
+    {
+        Model::$queries = null;
+    }
+
     #[Test]
     public function createWithNoColumns(): void
     {
