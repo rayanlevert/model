@@ -4,6 +4,8 @@ namespace RayanLevert\Model;
 
 use RayanLevert\Model\Attributes;
 use ReflectionClass;
+use ReflectionProperty;
+use stdClass;
 
 abstract class Model
 {
@@ -43,6 +45,29 @@ abstract class Model
     }
 
     /**
+     * Returns the first property with PrimaryKey attribute
+     *
+     * @throws Exception If no primary key property is found
+     *
+     * @return object{column: string, value: mixed} The primary key with the column name and its value
+     */
+    final public function getPrimaryKeyProperty(): stdClass
+    {
+        foreach (new ReflectionClass($this)->getProperties() as $property) {
+            $oColumn = $property->getAttributes(Attributes\Column::class)[0] ?? null;
+
+            if ($property->getAttributes(Attributes\PrimaryKey::class) && $oColumn) {
+                return (object) [
+                    'column' => $oColumn->newInstance()->name ?: $property->getName(),
+                    'value'  => $property->getValue($this)
+                ];
+            }
+        }
+        
+        throw new Exception('Model must have a primary key');
+    }
+
+    /**
      * Returns the columns and their values to be used in a query
      *
      * @throws Exception If a property's value cannot be used in a query or no column is found
@@ -67,10 +92,6 @@ abstract class Model
             $columns[$oColumn->name ?: $property->getName()] = $phpValue;
         }
 
-        if (empty($columns)) {
-            throw new Exception('No columns found in ' . static::class);
-        }
-
-        return $columns ?? [];
+        return $columns ?? throw new Exception('No columns found in ' . static::class);
     }
 }

@@ -6,13 +6,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use RayanLevert\Model\Attributes\Column;
+use RayanLevert\Model\Attributes\PrimaryKey;
 use RayanLevert\Model\Attributes\Validation;
 use RayanLevert\Model\Columns\Type;
 use RayanLevert\Model\Exception;
 use RayanLevert\Model\Exceptions\ValidationException;
 use RayanLevert\Model\Model;
 use RayanLevert\Model\State;
-use stdClass;
 
 #[CoversClass(Model::class)]
 class ModelTest extends TestCase
@@ -245,5 +245,68 @@ class ModelTest extends TestCase
         $this->expectExceptionMessage('No columns found in ' . $model::class);
 
         $model->columns();
+    }
+
+    #[Test]
+    public function getPrimaryKeyPropertyNoPrimaryKey(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+        };
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Model must have a primary key');
+
+        $model->getPrimaryKeyProperty();
+    }
+
+    #[Test]
+    public function getPrimaryKeyPropertyNoColumn(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+
+            #[PrimaryKey]
+            public int $id = 1;
+        };
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Model must have a primary key');
+
+        $model->getPrimaryKeyProperty();
+    }
+
+    #[Test]
+    public function getPrimaryKeyProperty(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+
+            #[PrimaryKey]
+            #[Column(Type::INTEGER)]
+            public int $id = 1;
+        };
+
+        $this->assertSame(1, $model->getPrimaryKeyProperty()->value);
+        $this->assertSame('id', $model->getPrimaryKeyProperty()->column);
+    }
+
+    #[Test]
+    public function getPrimaryKeyPropertyMultiplePrimaryKeys(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+
+            #[PrimaryKey]
+            #[Column(Type::INTEGER, 'id_test')]
+            public int $id = 1;
+    
+            #[PrimaryKey]
+            #[Column(Type::VARCHAR)]
+            public string $name = 'Test';
+        };
+
+        $this->assertSame(1, $model->getPrimaryKeyProperty()->value);
+        $this->assertSame('id_test', $model->getPrimaryKeyProperty()->column);
     }
 }
