@@ -1,11 +1,11 @@
 <?php
 
-namespace RayanLevert\Model\Queries\Statements;
+namespace RayanLevert\Model\Queries;
 
 /**
- * Represents an UPDATE query with the whole SQL query and the values for placeholders (in order)
+ * Represents a SQL query with the whole SQL query and the values for placeholders (in order)
  */
-readonly class Update
+final readonly class Statement
 {
     public array $values;
 

@@ -3,7 +3,7 @@
 namespace RayanLevert\Model;
 
 use PDO;
-use RayanLevert\Model\Queries\Statements\Update;
+use RayanLevert\Model\Queries\Statement;
 
 /** Abstract class for generating queries for a specific model */
 abstract class Queries
@@ -24,14 +24,18 @@ abstract class Queries
     /**
      * Generate a query to update a record in the database
      *
-     * @return Statements\Update The query to update a record in the database with possible placeholders
+     * @throws Exception If the query cannot be generated (no columns)
+     *
+     * @return Statement The query to update a record in the database with possible placeholders
      */
-    abstract public function update(PDO $pdo): Update;
+    abstract public function update(PDO $pdo): Statement;
 
     /**
      * Generate a query to delete a record in the database
      *
-     * @return string The query to delete a record in the database
+     * @throws Exception If the query cannot be generated (no primary key)
+     *
+     * @return Statement The query to delete a record in the database with the primary key placeholder
      */
-    // abstract public function delete(): string;
+    abstract public function delete(PDO $pdo): Statement;
 }
