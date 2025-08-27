@@ -35,13 +35,15 @@ abstract class Model
     /**
      * Updates the instance to the database
      *
-     * @throws Exception If the instance is not persistent yet
+     * @throws Exception If the instance is not persistent or detached
      */
     public function update(): void
     {
         if (State::PERSISTENT !== $this->state) {
             throw new Exception('Cannot update an instance that is not persistent or detached');
         }
+
+        $this->validate();
 
         static::$dataObject->prepareAndExecute(static::$dataObject->queries->update($this));
     }

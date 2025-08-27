@@ -208,6 +208,31 @@ class ModelTest extends TestCase
     }
 
     #[Test]
+    public function updateValidatesThrowsException(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+
+            #[PrimaryKey]
+            #[Column(Type::INTEGER)]
+            public ?int $id = null;
+
+            #[Column(Type::VARCHAR)]
+            #[Validation\Required]
+            public ?string $name = null;
+        };
+
+        // Use reflection to set the state to PERSISTENT
+        $reflection = new \ReflectionProperty($model, 'state');
+        $reflection->setValue($model, State::PERSISTENT);
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('name is required');
+
+        $model->update();
+    }
+
+    #[Test]
     public function columnsOnePropertyNoName(): void
     {
         $model = new class extends Model {
@@ -336,7 +361,7 @@ class ModelTest extends TestCase
             #[PrimaryKey]
             #[Column(Type::INTEGER, 'id_test')]
             public int $id = 1;
-    
+
             #[PrimaryKey]
             #[Column(Type::VARCHAR)]
             public string $name = 'Test';
