@@ -246,7 +246,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         $result  = $queries->update($model);
 
         $this->assertSame("UPDATE `users` SET `name` = ? WHERE `id` = ?", $result->query);
-        $this->assertSame(['name' => 'John Doe', 'id' => 1], $result->values);
+        $this->assertSame(['John Doe', 1], $result->values);
     }
 
     #[Test]
@@ -270,7 +270,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         $result  = $queries->update($model);
 
         $this->assertSame("UPDATE `users` SET `name` = ?, `age` = ? WHERE `id` = ?", $result->query);
-        $this->assertSame(['name' => 'John Doe', 'age' => 30, 'id' => 1], $result->values);
+        $this->assertSame(['John Doe', 30, 1], $result->values);
     }
 
     #[Test]

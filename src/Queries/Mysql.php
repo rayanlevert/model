@@ -42,7 +42,7 @@ class Mysql extends \RayanLevert\Model\Queries
 
         return new Statement(
             "UPDATE `{$model->table}` SET $columns WHERE `{$oPrimaryKey->column}` = ?",
-            ...$aColumns + [$oPrimaryKey->column => $oPrimaryKey->value]
+            ...[...array_values($aColumns), $oPrimaryKey->value]
         );
     }
 
