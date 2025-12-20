@@ -3,6 +3,7 @@
 namespace RayanLevert\Model;
 
 use RayanLevert\Model\Attributes;
+use RayanLevert\Model\Exceptions\ValidationException;
 use ReflectionClass;
 use stdClass;
 
@@ -34,19 +35,26 @@ abstract class Model
     public function onConstruct(): void {}
 
     /**
-     * Creates the instance in the database
+     * Creates the instance in the database (and assigns the primary key to the model)
      *
-     * @throws Exception If the instance is not transiant
+     * @throws Exception If the instance is not transiant or any error when generating the query
+     * @throws ValidationException If any model validation fails
      */
     public function create(): void
     {
         if (State::TRANSIANT !== $this->state) {
             throw new Exception('Cannot create an instance that is not transiant');
         }
-        
+
         $this->validate();
 
         static::$dataObject->prepareAndExecute(static::$dataObject->queries->create($this));
+
+        if (!$aiColumn = $this->getAutoIncrementColumn()) {
+            return;
+        }
+
+        $this->{$aiColumn} = static::$dataObject->pdo->lastInsertId();
     }
 
     /**
@@ -122,12 +130,30 @@ abstract class Model
                 ];
             }
         }
-        
+
         throw new Exception('Model must have a primary key');
     }
 
     /**
-     * Returns the columns and their values to be used in a query (no AutoIncrement)
+     * Returns the AutoIncrement column
+     *
+     * @throws Exception If no AutoIncrement column is found
+     *
+     * @return ?string The AutoIncrement column name
+     */
+    public function getAutoIncrementColumn(): ?string
+    {
+        foreach (new ReflectionClass($this)->getProperties() as $property) {
+            if ($property->getAttributes(Attributes\AutoIncrement::class)) {
+                return $property->getName();
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the columns and their values to be used in a query (excluding AutoIncrement columns)
      *
      * @throws Exception If a property's value cannot be used in a query or no column is found
      *

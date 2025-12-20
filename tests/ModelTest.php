@@ -373,6 +373,30 @@ class ModelTest extends TestCase
     }
 
     #[Test]
+    public function getAutoIncrementColumnNoAutoIncrement(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+        };
+
+        $this->assertNull($model->getAutoIncrementColumn());
+    }
+    
+    #[Test]
+    public function getAutoIncrementColumn(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+
+            #[AutoIncrement]
+            #[Column(Type::INTEGER)]
+            public ?int $id = null;
+        };
+
+        $this->assertSame('id', $model->getAutoIncrementColumn());
+    }
+
+    #[Test]
     public function createThrowsExceptionWhenModelIsNotTransiant(): void
     {
         $model = new class extends Model {
@@ -411,7 +435,7 @@ class ModelTest extends TestCase
     }
 
     #[Test]
-    public function createOk(): void
+    public function createWithAutoIncrementOk(): void
     {
         $oDataObjectMock = $this->getMockBuilder(DataObject::class)
             ->setConstructorArgs([new ConnectionsMysql('percona', 'root', 'root-password'), new Mysql()])
@@ -434,6 +458,36 @@ class ModelTest extends TestCase
             #[AutoIncrement]
             #[Column(Type::INTEGER)]
             public ?int $id = null;
+
+            #[Column(Type::VARCHAR)]
+            public string $name = 'John Doe';
+        };
+
+        $model->create();
+
+        // Mocked DataObject returns 0 for lastInsertId
+        $this->assertSame(0, $model->id);
+    }
+
+    #[Test]
+    public function createWithoutAutoIncrementOk(): void
+    {
+        $oDataObjectMock = $this->getMockBuilder(DataObject::class)
+            ->setConstructorArgs([new ConnectionsMysql('percona', 'root', 'root-password'), new Mysql()])
+            ->onlyMethods(['prepareAndExecute'])
+            ->getMock();
+
+        $oDataObjectMock->expects($this->once())
+            ->method('prepareAndExecute')
+            ->with($this->callback(function (Statement $statement) {
+                return $statement->query === 'INSERT INTO `test_table` (`name`) VALUES (?)';
+            }))
+            ->willReturn(true);
+
+        Model::$dataObject = $oDataObjectMock;
+
+        $model = new class extends Model {
+            public string $table = 'test_table';
 
             #[Column(Type::VARCHAR)]
             public string $name = 'John Doe';
