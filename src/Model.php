@@ -5,8 +5,8 @@ namespace RayanLevert\Model;
 use RayanLevert\Model\Attributes;
 use RayanLevert\Model\Exceptions\ValidationException;
 use ReflectionClass;
+use ReflectionProperty;
 use stdClass;
-
 
 abstract class Model
 {
@@ -145,13 +145,10 @@ abstract class Model
      */
     public function getAutoIncrementColumn(): ?string
     {
-        foreach (new ReflectionClass($this)->getProperties() as $property) {
-            if ($property->getAttributes(Attributes\AutoIncrement::class)) {
-                return $property->getName();
-            }
-        }
-
-        return null;
+        return array_find(
+            new ReflectionClass($this)->getProperties(),
+            fn(ReflectionProperty $property) => $property->getAttributes(Attributes\AutoIncrement::class)
+        )?->getName();
     }
 
     /**
