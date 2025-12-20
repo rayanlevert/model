@@ -7,6 +7,10 @@ services:
     working_dir: /app
     volumes:
       - .:/app
+    networks:
+      - app-network
+    depends_on:
+      - percona
 
   percona:
     image: percona:8.0
@@ -18,3 +22,9 @@ services:
     restart: "no"
     environment:
       - MYSQL_ROOT_PASSWORD=root-password
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
