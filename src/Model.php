@@ -2,8 +2,10 @@
 
 namespace RayanLevert\Model;
 
+use PDO;
 use RayanLevert\Model\Attributes;
 use RayanLevert\Model\Exceptions\ValidationException;
+use RayanLevert\Model\Queries\Statement;
 use ReflectionClass;
 use ReflectionProperty;
 use stdClass;
@@ -18,6 +20,30 @@ abstract class Model
 
     /** @var string The database table name */
     abstract public string $table { get; }
+
+    /**
+     * Finds the first instance of the model by its primary key
+     *
+     * @param int|string $value The value of the primary key
+     *
+     * @throws Exception If the model doesn't have a primary key
+     *
+     * @return ?static The first instance of the model or null if no instance is found
+     */
+    public static function findFirstByPrimaryKey(int|string $value): ?static
+    {
+        $oModel     = new static();
+        $oSelect    = static::$dataObject->queries->selectByPrimaryKey($oModel, $value);
+        $oStatement = static::$dataObject->prepareAndExecute($oSelect);
+
+        if (!$aResults = $oStatement->fetch(PDO::FETCH_ASSOC)) {
+            return null;
+        }
+
+        $oModel->assign($aResults);
+
+        return $oModel;
+    }
 
     /**
      * @throws Exception If the queries class is not set (to be able to generate queries according to the database used)
@@ -179,5 +205,18 @@ abstract class Model
         }
 
         return $columns ?? throw new Exception('No columns found in ' . static::class);
+    }
+
+    /** Assigns the properties of the model from an array */
+    public function assign(array $results): void
+    {
+        foreach ($results as $column => $value) {
+            if (!property_exists($this, $column)) {
+                continue;
+            }
+
+            // @todo Maybe verify before the type of the propery to avoid TypeErrors
+            $this->{$column} = $value;
+        }
     }
 }

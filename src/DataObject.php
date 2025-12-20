@@ -4,6 +4,7 @@ namespace RayanLevert\Model;
 
 use PDO;
 use PDOException;
+use PDOStatement;
 use RayanLevert\Model\Queries\Statement;
 
 /** Abstraction layer accessing and interacting with a database through PHP's Data Objects (PDO) */
@@ -139,13 +140,14 @@ class DataObject
      * @param Statement $statement The statement to prepare and execute
      *
      * @throws Exception If the attempt to prepare and execute the statement fails
-     *
-     * @return bool True if the statement was executed successfully (should never returns false but throws exception)
      */
-    public function prepareAndExecute(Statement $statement): bool
+    public function prepareAndExecute(Statement $statement): PDOStatement
     {
         try {
-            return $this->pdo->prepare($statement->query)->execute($statement->values);
+            $oStatement = $this->pdo->prepare($statement->query);
+            $oStatement->execute($statement->values);
+
+            return $oStatement;
         } catch (PDOException $e) {
             throw new Exception(static::class . ': ' . $e->getMessage(), $e->getCode(), $e);
         }

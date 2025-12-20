@@ -304,4 +304,39 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         $this->assertSame("DELETE FROM `users` WHERE `id` = ?", $result->query);
         $this->assertSame([1], $result->values);
     }
+
+    #[Test]
+    public function selectByPrimaryKeyWithNoPrimaryKey(): void
+    {
+        $model = new class extends \RayanLevert\Model\Model {
+            public string $table = 'users';
+        };
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Model must have a primary key');
+
+        $queries = new Mysql();
+        $queries->selectByPrimaryKey($model, 1);
+    }
+
+    #[Test]
+    public function selectByPrimaryKeyWithPrimaryKey(): void
+    {
+        $model = new class extends \RayanLevert\Model\Model {
+            public string $table = 'users';
+
+            #[PrimaryKey]
+            #[Column(Type::INTEGER)]
+            public int $id = 1;
+
+            #[Column(Type::VARCHAR)]
+            public string $name = 'John Doe';
+        };
+
+        $queries = new Mysql();
+        $result  = $queries->selectByPrimaryKey($model, 1);
+
+        $this->assertSame("SELECT * FROM `users` WHERE `id` = ?", $result->query);
+        $this->assertSame([1], $result->values);
+    }
 }

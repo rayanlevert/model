@@ -169,7 +169,7 @@ class ModelTest extends TestCase
             ->with($this->callback(function (Statement $statement) {
                 return $statement->query === 'UPDATE `test_table` SET `name` = ? WHERE `id` = ?';
             }))
-            ->willReturn(true);
+            ->willReturn(new PDOStatement);
 
         Model::$dataObject = $oDataObjectMock;
 
@@ -381,7 +381,7 @@ class ModelTest extends TestCase
 
         $this->assertNull($model->getAutoIncrementColumn());
     }
-    
+
     #[Test]
     public function getAutoIncrementColumn(): void
     {
@@ -447,7 +447,7 @@ class ModelTest extends TestCase
             ->with($this->callback(function (Statement $statement) {
                 return $statement->query === 'INSERT INTO `test_table` (`name`) VALUES (?)';
             }))
-            ->willReturn(true);
+            ->willReturn(new PDOStatement);
 
         Model::$dataObject = $oDataObjectMock;
 
@@ -484,7 +484,7 @@ class ModelTest extends TestCase
             ->with($this->callback(function (Statement $statement) {
                 return $statement->query === 'INSERT INTO `test_table` (`name`) VALUES (?)';
             }))
-            ->willReturn(true);
+            ->willReturn(new PDOStatement);
 
         Model::$dataObject = $oDataObjectMock;
 
@@ -526,7 +526,7 @@ class ModelTest extends TestCase
             ->with($this->callback(function (Statement $statement) {
                 return $statement->query === 'DELETE FROM `test_table` WHERE `id` = ?';
             }))
-            ->willReturn(true);
+            ->willReturn(new PDOStatement);
 
         Model::$dataObject = $oDataObjectMock;
 
@@ -577,7 +577,7 @@ class ModelTest extends TestCase
             ->with($this->callback(function (Statement $statement) {
                 return $statement->query === 'INSERT INTO `test_table` (`name`) VALUES (?)';
             }))
-            ->willReturn(true);
+            ->willReturn(new PDOStatement);
 
         Model::$dataObject = $oDataObjectMock;
 
@@ -611,7 +611,7 @@ class ModelTest extends TestCase
             ->with($this->callback(function (Statement $statement) {
                 return $statement->query === 'UPDATE `test_table` SET `name` = ? WHERE `id` = ?';
             }))
-            ->willReturn(true);
+            ->willReturn(new PDOStatement);
 
         Model::$dataObject = $oDataObjectMock;
 
@@ -634,5 +634,48 @@ class ModelTest extends TestCase
         $model->save();
 
         $this->assertSame(State::PERSISTENT, $model->state);
+    }
+
+    #[Test]
+    public function findFirstByPrimaryKey(): void
+    {
+        $oDataObjectMock = $this->getMockBuilder(DataObject::class)
+            ->setConstructorArgs([new ConnectionsMysql('percona', 'root', 'root-password'), new Mysql()])
+            ->onlyMethods(['prepareAndExecute'])
+            ->getMock();
+
+        $oPDOStatementMock = $this->getMockBuilder(PDOStatement::class)
+            ->onlyMethods(['fetch'])
+            ->getMock();
+
+        $oPDOStatementMock->expects($this->once())
+            ->method('fetch')
+            ->willReturn(['id' => 1, 'name' => 'John Doe', 'property_not_in_model' => 'value']);
+
+        $oDataObjectMock->expects($this->once())
+            ->method('prepareAndExecute')
+            ->with($this->callback(function (Statement $statement) {
+                return $statement->query === 'SELECT * FROM `test_table` WHERE `id` = ?';
+            }))
+            ->willReturn($oPDOStatementMock);
+
+        Model::$dataObject = $oDataObjectMock;
+
+        $model = new class extends Model {
+            public string $table = 'test_table';
+
+            #[PrimaryKey]
+            #[Column(Type::INTEGER)]
+            #[AutoIncrement]
+            public int $id = 1;
+
+            #[Column(Type::VARCHAR)]
+            public string $name = 'John Doe';
+        };
+
+        $result = $model->findFirstByPrimaryKey(1);
+
+        $this->assertSame(1, $result->id);
+        $this->assertSame('John Doe', $result->name);
     }
 }

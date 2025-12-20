@@ -94,7 +94,7 @@ class MysqlTest extends TestCase
         $oStatement = $this->dataObject->pdo->prepare('SELECT * FROM user');
 
         $this->assertTrue($oStatement->execute());
-        $this->assertNull($oStatement->fetch(PDO::FETCH_ASSOC));
+        $this->assertEmpty($oStatement->fetch(PDO::FETCH_ASSOC));
         $this->assertSame(0, $oStatement->rowCount());
 
         $this->assertSame(State::DETACHED, $model->state);

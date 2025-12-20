@@ -52,4 +52,11 @@ class Mysql extends \RayanLevert\Model\Queries
 
         return new Statement("DELETE FROM `{$model->table}` WHERE `{$oPrimaryKey->column}` = ?", $oPrimaryKey->value);
     }
+
+    public function selectByPrimaryKey(Model $model, int|string $value): Statement
+    {
+        $oPrimaryKey = $model->getPrimaryKey();
+
+        return new Statement("SELECT * FROM `{$model->table}` WHERE `{$oPrimaryKey->column}` = ?", $value);
+    }
 }
