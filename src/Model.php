@@ -35,7 +35,7 @@ abstract class Model
     public function onConstruct(): void {}
 
     /**
-     * Creates the instance in the database (and assigns the primary key to the model)
+     * Creates the instance in the database (and assigns the AutoIncrement column value to the model)
      *
      * @throws Exception If the instance is not transiant or any error when generating the query
      * @throws ValidationException If any model validation fails
@@ -50,11 +50,11 @@ abstract class Model
 
         static::$dataObject->prepareAndExecute(static::$dataObject->queries->create($this));
 
-        if (!$aiColumn = $this->getAutoIncrementColumn()) {
-            return;
+        if ($aiColumn = $this->getAutoIncrementColumn()) {
+            $this->{$aiColumn} = static::$dataObject->pdo->lastInsertId();
         }
 
-        $this->{$aiColumn} = static::$dataObject->pdo->lastInsertId();
+        $this->state = State::PERSISTENT;
     }
 
     /**
@@ -85,6 +85,8 @@ abstract class Model
         }
 
         static::$dataObject->prepareAndExecute(static::$dataObject->queries->delete($this));
+
+        $this->state = State::DETACHED;
     }
 
     /**

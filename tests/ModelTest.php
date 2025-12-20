@@ -467,6 +467,8 @@ class ModelTest extends TestCase
 
         // Mocked DataObject returns 0 for lastInsertId
         $this->assertSame(0, $model->id);
+
+        $this->assertSame(State::PERSISTENT, $model->state);
     }
 
     #[Test]
@@ -494,6 +496,8 @@ class ModelTest extends TestCase
         };
 
         $model->create();
+
+        $this->assertSame(State::PERSISTENT, $model->state);
     }
 
     #[Test]
@@ -539,6 +543,8 @@ class ModelTest extends TestCase
         $reflection->setValue($model, State::PERSISTENT);
 
         $model->delete();
+
+        $this->assertSame(State::DETACHED, $model->state);
     }
 
     #[Test]
@@ -588,6 +594,8 @@ class ModelTest extends TestCase
         };
 
         $model->save();
+
+        $this->assertSame(State::PERSISTENT, $model->state);
     }
 
     #[Test]
@@ -624,5 +632,7 @@ class ModelTest extends TestCase
         $reflection->setValue($model, State::PERSISTENT);
 
         $model->save();
+
+        $this->assertSame(State::PERSISTENT, $model->state);
     }
 }
