@@ -637,6 +637,41 @@ class ModelTest extends TestCase
     }
 
     #[Test]
+    public function assignThrowsException(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+
+            #[Column(Type::VARCHAR)]
+            public string $name = 'John Doe';
+        };
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Setting property name failed, Cannot assign array to property');
+
+        $model->assign(['name' => []]);
+    }
+
+    #[Test]
+    public function assignOk(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+
+            #[Column(Type::VARCHAR)]
+            public ?string $name = null;
+
+            #[Column(Type::INTEGER)]
+            public ?int $age = null;
+        };
+
+        $model->assign(['name' => 'John Doe', 'age' => 30]);
+
+        $this->assertSame('John Doe', $model->name);
+        $this->assertSame(30, $model->age);
+    }
+
+    #[Test]
     public function findFirstByPrimaryKey(): void
     {
         $oDataObjectMock = $this->getMockBuilder(DataObject::class)
@@ -667,15 +702,63 @@ class ModelTest extends TestCase
             #[PrimaryKey]
             #[Column(Type::INTEGER)]
             #[AutoIncrement]
-            public int $id = 1;
+            public ?int $id = null;
 
             #[Column(Type::VARCHAR)]
-            public string $name = 'John Doe';
+            public string $name = '';
         };
 
         $result = $model->findFirstByPrimaryKey(1);
 
         $this->assertSame(1, $result->id);
         $this->assertSame('John Doe', $result->name);
+    }
+
+    #[Test]
+    public function findFirstByPrimaryKeyColumnNotSameTypeOfProperty(): void
+    {
+        $oDataObjectMock = $this->getMockBuilder(DataObject::class)
+            ->setConstructorArgs([new ConnectionsMysql('percona', 'root', 'root-password'), new Mysql()])
+            ->onlyMethods(['prepareAndExecute'])
+            ->getMock();
+
+        $oPDOStatementMock = $this->getMockBuilder(PDOStatement::class)
+            ->onlyMethods(['fetch'])
+            ->getMock();
+
+        $oPDOStatementMock->expects($this->once())
+            ->method('fetch')
+            ->willReturn(['id' => 1, 'name' => []]);
+
+        $oDataObjectMock->expects($this->once())
+            ->method('prepareAndExecute')
+            ->with($this->callback(function (Statement $statement) {
+                return $statement->query === 'SELECT * FROM `test_table` WHERE `id` = ?';
+            }))
+            ->willReturn($oPDOStatementMock);
+
+        Model::$dataObject = $oDataObjectMock;
+
+        $model = new class extends Model {
+            public string $table = 'test_table';
+
+            #[PrimaryKey]
+            #[Column(Type::INTEGER)]
+            #[AutoIncrement]
+            public int $id = 1;
+
+            #[Column(Type::VARCHAR)]
+            public string $name = 'John Doe';
+        };
+
+        try {
+            $model->findFirstByPrimaryKey(1);
+        } catch (Exception $e) {
+            $this->assertStringStartsWith('Setting property name failed, Cannot assign array to property', $e->getMessage());
+
+            return;
+        }
+
+        $this->fail('Expected exception not thrown');
     }
 }

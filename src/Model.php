@@ -207,7 +207,11 @@ abstract class Model
         return $columns ?? throw new Exception('No columns found in ' . static::class);
     }
 
-    /** Assigns the properties of the model from an array */
+    /**
+     * Assigns the properties of the model from an array
+     *
+     * @throws Exception If a value doesn't have the same type of a property
+     */
     public function assign(array $results): void
     {
         foreach ($results as $column => $value) {
@@ -215,7 +219,12 @@ abstract class Model
                 continue;
             }
 
-            // @todo Maybe verify before the type of the propery to avoid TypeErrors
+            try {
+                $this->{$column} = $value;
+            } catch (\TypeError $error) {
+                throw new Exception("Setting property $column failed, " . $error->getMessage(), 0, $error);
+            }
+
             $this->{$column} = $value;
         }
     }
