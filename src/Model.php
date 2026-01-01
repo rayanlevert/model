@@ -207,24 +207,72 @@ abstract class Model
     }
 
     /**
-     * Assigns the properties of the model from an array
+     * Assigns the properties of the model from an array (property name or database column name)
      *
      * @throws Exception If a value doesn't have the same type of a property
      */
     public function assign(array $results): void
     {
         foreach ($results as $column => $value) {
-            if (!property_exists($this, $column)) {
+            try {
+                $propertyName = $this->getPropertyColumnName($column);
+            } catch (Exception $e) {
                 continue;
             }
 
             try {
-                $this->{$column} = $value;
+                $this->{$propertyName} = $value;
             } catch (\TypeError $error) {
                 throw new Exception("Setting property $column failed, " . $error->getMessage(), 0, $error);
             }
-
-            $this->{$column} = $value;
         }
+    }
+
+    /**
+     * Returns the database column name for a given property name
+     *
+     * @param string $propertyName The property name
+     * 
+     * @throws Exception If the property is not found in the model
+     *
+     * @return string The database column name
+     */
+    public function getDatabaseColumnName(string $propertyName): string
+    {
+        try {
+            if (!$oColumn = new ReflectionProperty($this, $propertyName)->getAttributes(Attributes\Column::class)[0] ?? null) {
+                throw new Exception("Property $propertyName does not have a Column attribute in " . static::class);
+            }
+        } catch (\ReflectionException $e) {
+            throw new Exception($e->getMessage(), 0, $e);
+        }
+
+        return $oColumn->newInstance()->name ?: $propertyName;
+    }
+
+    /**
+     * Returns the property name for a given database column name
+     *
+     * @param string $databaseColumnName The database column name
+     *
+     * @throws Exception If the property is not found in the model
+     *
+     * @return string The property name
+     */
+    public function getPropertyColumnName(string $columnName): string
+    {
+        foreach (new ReflectionClass($this)->getProperties() as $property) {
+            if ($property->getName() === $columnName) {
+                return $columnName;
+            }
+
+            if ($oColumn = $property->getAttributes(Attributes\Column::class)[0] ?? null) {
+                if ($oColumn->newInstance()->name === $columnName) {
+                    return $property->getName();
+                }
+            }
+        }
+
+        throw new Exception('Property for column ' . $columnName . ' not found in ' . static::class);
     }
 }

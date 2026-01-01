@@ -2,7 +2,6 @@
 
 namespace RayanLevert\Model\Tests;
 
-use PDO;
 use PDOStatement;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -672,6 +671,25 @@ class ModelTest extends TestCase
     }
 
     #[Test]
+    public function assignOkColumnNameDifferentThanProperty(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+
+            #[Column(Type::VARCHAR, 'first_name')]
+            public ?string $name = null;
+
+            #[Column(Type::INTEGER)]
+            public ?int $age = null;
+        };
+
+        $model->assign(['first_name' => 'John Doe', 'age' => 30]);
+
+        $this->assertSame('John Doe', $model->name);
+        $this->assertSame(30, $model->age);
+    }
+
+    #[Test]
     public function findFirstByPrimaryKey(): void
     {
         $oDataObjectMock = $this->getMockBuilder(DataObject::class)
@@ -760,5 +778,97 @@ class ModelTest extends TestCase
         }
 
         $this->fail('Expected exception not thrown');
+    }
+
+    #[Test]
+    public function getDatabaseColumnNamePropertyNotFound(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+        };
+
+        $this->expectException(Exception::class);
+
+        $model->getDatabaseColumnName('test');
+    }
+
+    #[Test]
+    public function getDatabaseColumnNamePropertyFoundNoColumn(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+
+            public string $name = 'John Doe';
+        };
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("Property name does not have a Column attribute in " . $model::class);
+
+        $model->getDatabaseColumnName('name');
+    }
+
+    #[Test]
+    public function getDatabaseColumnNameOk(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+
+            #[Column(Type::VARCHAR)]
+            public string $name = 'John Doe';
+        };
+
+        $this->assertSame('name', $model->getDatabaseColumnName('name'));
+    }
+
+    #[Test]
+    public function getDatabaseColumnNameWithColumnName(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+
+            #[Column(Type::VARCHAR, 'first_name')]
+            public string $name = 'John Doe';
+        };
+
+        $this->assertSame('first_name', $model->getDatabaseColumnName('name'));
+    }
+
+    #[Test]
+    public function getPropertyColumnNamePropertyNotFound(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+        };
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("Property for column test not found in " . $model::class);
+
+        $model->getPropertyColumnName('test');
+    }
+
+    #[Test]
+    public function getPropertyColumnNameOk(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+
+            #[Column(Type::VARCHAR)]
+            public string $name = 'John Doe';
+        };
+
+        $this->assertSame('name', $model->getPropertyColumnName('name'));
+    }
+
+    #[Test]
+    public function getPropertyColumnNameWithColumnName(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+
+            #[Column(Type::VARCHAR, 'first_name')]
+            public string $name = 'John Doe';
+        };
+
+        $this->assertSame('name', $model->getPropertyColumnName('first_name'));
     }
 }
