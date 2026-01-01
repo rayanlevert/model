@@ -45,6 +45,28 @@ abstract class Model
     }
 
     /**
+     * Finds the first instance of the model by the given columns
+     *
+     * @param array<string, mixed> $columns The columns and their values to search by
+     *
+     * @return ?static The first instance of the model or null if no instance is found
+     */
+    public static function findFirstByColumns(array $columns): ?static
+    {
+        $oModel     = new static();
+        $oSelect    = static::$dataObject->queries->selectByColumns($oModel, $columns);
+        $oStatement = static::$dataObject->prepareAndExecute($oSelect);
+
+        if (!$aResults = $oStatement->fetch(PDO::FETCH_ASSOC)) {
+            return null;
+        }
+
+        $oModel->assign($aResults);
+
+        return $oModel;
+    }
+
+    /**
      * @throws Exception If the queries class is not set (to be able to generate queries according to the database used)
      */
     final public function __construct()

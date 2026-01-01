@@ -28,7 +28,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function createWithNoColumns(): void
     {
-        $model = new class extends \RayanLevert\Model\Model {
+        $model = new class extends Model {
             public string $table = 'users';
         };
 
@@ -43,7 +43,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function createWithOneColumn(): void
     {
-        $model = new class extends \RayanLevert\Model\Model {
+        $model = new class extends Model {
             #[Column(Type::VARCHAR)]
             public string $name = 'John Doe';
 
@@ -60,7 +60,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function createWithMultipleColumns(): void
     {
-        $model = new class extends \RayanLevert\Model\Model {
+        $model = new class extends Model {
             #[Column(Type::VARCHAR)]
             public string $firstName = 'John';
 
@@ -83,7 +83,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function createWithCustomColumnNames(): void
     {
-        $model = new class extends \RayanLevert\Model\Model {
+        $model = new class extends Model {
             #[Column(Type::VARCHAR, 'first_name')]
             public string $firstName = 'John';
 
@@ -103,7 +103,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function createWithSpecialCharactersInValues(): void
     {
-        $model = new class extends \RayanLevert\Model\Model {
+        $model = new class extends Model {
             #[Column(Type::VARCHAR)]
             public string $name = "O'Connor";
 
@@ -123,7 +123,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function createWithNumericValues(): void
     {
-        $model = new class extends \RayanLevert\Model\Model {
+        $model = new class extends Model {
             #[Column(Type::INTEGER)]
             public int $id = 1;
 
@@ -146,7 +146,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function createWithNullValues(): void
     {
-        $model = new class extends \RayanLevert\Model\Model {
+        $model = new class extends Model {
             #[Column(Type::VARCHAR)]
             public ?string $name = null;
 
@@ -166,7 +166,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function createWithTableNameContainingSpecialCharacters(): void
     {
-        $model = new class extends \RayanLevert\Model\Model {
+        $model = new class extends Model {
             #[Column(Type::VARCHAR)]
             public string $name = 'Test';
 
@@ -183,7 +183,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function createWithMixedColumnTypes(): void
     {
-        $model = new class extends \RayanLevert\Model\Model {
+        $model = new class extends Model {
             #[Column(Type::INTEGER)]
             public int $id = 1;
 
@@ -212,7 +212,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function updateWithNoColumns(): void
     {
-        $model = new class extends \RayanLevert\Model\Model {
+        $model = new class extends Model {
             public string $table = 'users';
 
             #[PrimaryKey]
@@ -231,7 +231,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function updateWithOneColumn(): void
     {
-        $model = new class extends \RayanLevert\Model\Model {
+        $model = new class extends Model {
             public string $table = 'users';
 
             #[PrimaryKey]
@@ -252,7 +252,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function updateWithMultipleColumns(): void
     {
-        $model = new class extends \RayanLevert\Model\Model {
+        $model = new class extends Model {
             public string $table = 'users';
 
             #[PrimaryKey]
@@ -276,7 +276,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function deleteWithNoPrimaryKey(): void
     {
-        $model = new class extends \RayanLevert\Model\Model {
+        $model = new class extends Model {
             public string $table = 'users';
         };
 
@@ -290,7 +290,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function deleteWithPrimaryKey(): void
     {
-        $model = new class extends \RayanLevert\Model\Model {
+        $model = new class extends Model {
             public string $table = 'users';
 
             #[PrimaryKey]
@@ -308,7 +308,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function selectByPrimaryKeyWithNoPrimaryKey(): void
     {
-        $model = new class extends \RayanLevert\Model\Model {
+        $model = new class extends Model {
             public string $table = 'users';
         };
 
@@ -322,7 +322,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function selectByPrimaryKeyWithPrimaryKey(): void
     {
-        $model = new class extends \RayanLevert\Model\Model {
+        $model = new class extends Model {
             public string $table = 'users';
 
             #[PrimaryKey]
@@ -338,5 +338,96 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
 
         $this->assertSame("SELECT * FROM `users` WHERE `id` = ?", $result->query);
         $this->assertSame([1], $result->values);
+    }
+
+    #[Test]
+    public function selectByColumnsWithNoColumns(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'users';
+        };
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('No columns found in ' . $model::class);
+
+        $queries = new Mysql();
+        $queries->selectByColumns($model, []);
+    }
+
+    #[Test]
+    public function selectByColumnsWithOneColumnDoesNotExist(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'users';
+
+            #[Column(Type::VARCHAR)]
+            public string $name = 'John Doe';
+        };
+
+        $queries = new Mysql();
+
+        try {
+            $queries->selectByColumns($model, ['test' => 'John Doe']);
+        } catch (Exception $e) {
+            $this->assertStringEndsWith('test does not exist', $e->getMessage());
+
+            return;
+        }
+
+        $this->fail('Exception should have been thrown');
+    }
+
+    #[Test]
+    public function selectByColumnsWithOneColumnNotSameColumnNameFromAttribute(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'users';
+
+            #[Column(Type::VARCHAR, 'first_name')]
+            public string $name = 'John Doe';
+        };
+
+        $queries = new Mysql();
+        $result  = $queries->selectByColumns($model, ['name' => 'John Doe']);
+
+        $this->assertSame("SELECT * FROM `users` WHERE `first_name` = ?", $result->query);
+        $this->assertSame(['John Doe'], $result->values);
+    }
+
+    #[Test]
+    public function selectByColumnsWithOneColumn(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'users';
+
+            #[Column(Type::VARCHAR)]
+            public string $name;
+        };
+
+        $queries = new Mysql();
+        $result  = $queries->selectByColumns($model, ['name' => 'John Doe']);
+
+        $this->assertSame("SELECT * FROM `users` WHERE `name` = ?", $result->query);
+        $this->assertSame(['John Doe'], $result->values);
+    }
+
+    #[Test]
+    public function selectByColumnsWithMultipleColumns(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'users';
+
+            #[Column(Type::VARCHAR)]
+            public string $name = 'John Doe';
+
+            #[Column(Type::INTEGER)]
+            public int $age;
+        };
+
+        $queries = new Mysql();
+        $result  = $queries->selectByColumns($model, ['name' => 'John Doe', 'age' => 30]);
+
+        $this->assertSame("SELECT * FROM `users` WHERE `name` = ? AND `age` = ?", $result->query);
+        $this->assertSame(['John Doe', 30], $result->values);
     }
 }

@@ -45,4 +45,16 @@ interface Queries
      * @return Statement The query to select a record by its primary key with the primary key value as placeholder
      */
     public function selectByPrimaryKey(Model $model, int|string $value): Statement;
+
+    /**
+     * Generate a query to select a record by the given columns
+     *
+     * @param Model $model The model to generate the query for
+     * @param array<string, mixed> $columns The columns and their values to search by
+     *
+     * @throws Exception If the query cannot be generated (no columns)
+     *
+     * @return Statement The query to select a record by the given columns with the columns values as placeholders
+     */
+    public function selectByColumns(Model $model, array $columns): Statement;
 }

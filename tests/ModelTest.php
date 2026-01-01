@@ -871,4 +871,88 @@ class ModelTest extends TestCase
 
         $this->assertSame('name', $model->getPropertyColumnName('first_name'));
     }
+
+    #[Test]
+    public function findFirstByColumnsOne(): void
+    {
+        $oDataObjectMock = $this->getMockBuilder(DataObject::class)
+            ->setConstructorArgs([new ConnectionsMysql('percona', 'root', 'root-password'), new Mysql()])
+            ->onlyMethods(['prepareAndExecute'])
+            ->getMock();
+
+        $oPDOStatementMock = $this->getMockBuilder(PDOStatement::class)
+            ->onlyMethods(['fetch'])
+            ->getMock();
+
+        $oPDOStatementMock->expects($this->once())
+            ->method('fetch')
+            ->willReturn(['first_name' => 'John', 'property_not_in_model' => 'value']);
+
+        $oDataObjectMock->expects($this->once())
+            ->method('prepareAndExecute')
+            ->with($this->callback(function (Statement $statement) {
+                return $statement->query === 'SELECT * FROM `test_table` WHERE `first_name` = ?';
+            }))
+            ->willReturn($oPDOStatementMock);
+
+        Model::$dataObject = $oDataObjectMock;
+
+        $model = new class extends Model {
+            public string $table = 'test_table';
+
+            #[Column(Type::VARCHAR, 'first_name')]
+            public string $name = '';
+        };
+
+        $result = $model->findFirstByColumns(['name' => 'John']);
+
+        $this->assertSame('John', $result->name);
+    }
+
+    #[Test]
+    public function findFirstByColumnsMultiple(): void
+    {
+        $oDataObjectMock = $this->getMockBuilder(DataObject::class)
+            ->setConstructorArgs([new ConnectionsMysql('percona', 'root', 'root-password'), new Mysql()])
+            ->onlyMethods(['prepareAndExecute'])
+            ->getMock();
+
+        $oPDOStatementMock = $this->getMockBuilder(PDOStatement::class)
+            ->onlyMethods(['fetch'])
+            ->getMock();
+
+        $oPDOStatementMock->expects($this->once())
+            ->method('fetch')
+            ->willReturn(['first_name' => 'John', 'age' => 30, 'id' => 10]);
+
+        $oDataObjectMock->expects($this->once())
+            ->method('prepareAndExecute')
+            ->with($this->callback(function (Statement $statement) {
+                return $statement->query === 'SELECT * FROM `test_table` WHERE `first_name` = ? AND `age` = ?';
+            }))
+            ->willReturn($oPDOStatementMock);
+
+        Model::$dataObject = $oDataObjectMock;
+
+        $model = new class extends Model {
+            public string $table = 'test_table';
+
+            #[PrimaryKey]
+            #[Column(Type::INTEGER)]
+            #[AutoIncrement]
+            public ?int $id = null;
+
+            #[Column(Type::VARCHAR, 'first_name')]
+            public string $name = '';
+
+            #[Column(Type::INTEGER)]
+            public int $age = 0;
+        };
+
+        $result = $model->findFirstByColumns(['name' => 'John', 'age' => 30]);
+
+        $this->assertSame('John', $result->name);
+        $this->assertSame(30, $result->age);
+        $this->assertSame(10, $result->id);
+    }
 }

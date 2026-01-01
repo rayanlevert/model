@@ -59,4 +59,16 @@ class Mysql implements \RayanLevert\Model\Queries
 
         return new Statement("SELECT * FROM `{$model->table}` WHERE `{$oPrimaryKey->column}` = ?", $value);
     }
+
+    public function selectByColumns(Model $model, array $columns): Statement
+    {
+        if (!$columns) {
+            throw new Exception('No columns found in ' . $model::class);
+        }
+
+        $aColumns     = array_map(fn(string $column) => "`{$model->getDatabaseColumnName($column)}` = ?", array_keys($columns));
+        $placeholders = implode(' AND ', $aColumns);
+
+        return new Statement("SELECT * FROM `{$model->table}` WHERE $placeholders", ...array_values($columns));
+    }
 }
