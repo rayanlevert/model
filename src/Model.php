@@ -31,17 +31,7 @@ abstract class Model
      */
     public static function findFirstByPrimaryKey(int|string $value): ?static
     {
-        $oModel     = new static();
-        $oSelect    = static::$dataObject->queries->selectByPrimaryKey($oModel, $value);
-        $oStatement = static::$dataObject->prepareAndExecute($oSelect);
-
-        if (!$aResults = $oStatement->fetch(PDO::FETCH_ASSOC)) {
-            return null;
-        }
-
-        $oModel->assign($aResults);
-
-        return $oModel;
+        return self::findFirst('selectByPrimaryKey', $value);
     }
 
     /**
@@ -53,17 +43,7 @@ abstract class Model
      */
     public static function findFirstByColumns(array $columns): ?static
     {
-        $oModel     = new static();
-        $oSelect    = static::$dataObject->queries->selectByColumns($oModel, $columns);
-        $oStatement = static::$dataObject->prepareAndExecute($oSelect);
-
-        if (!$aResults = $oStatement->fetch(PDO::FETCH_ASSOC)) {
-            return null;
-        }
-
-        $oModel->assign($aResults);
-
-        return $oModel;
+        return self::findFirst('selectByColumns', $columns);
     }
 
     /**
@@ -296,5 +276,21 @@ abstract class Model
         }
 
         throw new Exception('Property for column ' . $columnName . ' not found in ' . static::class);
+    }
+
+    /** Finds the first instance of the model by the given method of Queries and arguments */
+    private static function findFirst(string $method, mixed $arguments): ?static
+    {
+        $oModel     = new static();
+        $oSelect    = static::$dataObject->queries->$method($oModel, $arguments);
+        $oStatement = static::$dataObject->prepareAndExecute($oSelect);
+
+        if (!$aResults = $oStatement->fetch(PDO::FETCH_ASSOC)) {
+            return null;
+        }
+
+        $oModel->assign($aResults);
+
+        return $oModel;
     }
 }
