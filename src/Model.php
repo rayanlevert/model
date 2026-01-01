@@ -213,12 +213,12 @@ abstract class Model
      *
      * @throws Exception If a value doesn't have the same type of a property
      */
-    public function assign(array $results): void
+    public function assign(array $results): self
     {
         foreach ($results as $column => $value) {
             try {
                 $propertyName = $this->getPropertyColumnName($column);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 continue;
             }
 
@@ -228,6 +228,8 @@ abstract class Model
                 throw new Exception("Setting property $column failed, " . $error->getMessage(), 0, $error);
             }
         }
+
+        return $this;
     }
 
     /**
@@ -289,8 +291,6 @@ abstract class Model
             return null;
         }
 
-        $oModel->assign($aResults);
-
-        return $oModel;
+        return $oModel->assign($aResults);
     }
 }
