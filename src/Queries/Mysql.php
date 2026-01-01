@@ -13,7 +13,7 @@ use function array_fill;
 use function count;
 
 /** Queries for MySQL databases */
-class Mysql extends \RayanLevert\Model\Queries
+class Mysql implements \RayanLevert\Model\Queries
 {
     public function create(Model $model): Statement
     {

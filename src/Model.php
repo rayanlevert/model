@@ -5,7 +5,6 @@ namespace RayanLevert\Model;
 use PDO;
 use RayanLevert\Model\Attributes;
 use RayanLevert\Model\Exceptions\ValidationException;
-use RayanLevert\Model\Queries\Statement;
 use ReflectionClass;
 use ReflectionProperty;
 use stdClass;
