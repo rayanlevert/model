@@ -13,7 +13,6 @@ use function array_filter;
 use function function_exists;
 
 /** Abstract base class for all validation attributes */
-#[Attribute(Attribute::TARGET_PROPERTY)]
 abstract class Validation
 {
     /**

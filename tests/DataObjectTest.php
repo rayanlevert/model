@@ -181,14 +181,18 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
     }
 
     #[Test]
-    public function testStartTransactionThrowsExceptionWhenPDOThrowsException(): void
+    public function startTransactionThrowsExceptionWhenPDOThrowsException(): void
     {
         $mockPDO = $this->createMock(PDO::class);
         $mockPDO->expects($this->once())
             ->method('beginTransaction')
             ->willThrowException(new PDOException('Test exception'));
 
-        $dataObject = new class($this->createMock(Connection::class), new QueriesMysql()) extends DataObject {
+        $oConnection = $this->createMock(Connection::class);
+        $oConnection->expects($this->never())
+            ->method('getPDOParameters');
+
+        $dataObject = new class($oConnection, new QueriesMysql()) extends DataObject {
             public function setBackedPDO(?PDO $pdo): void
             {
                 $this->backedPDO = $pdo;
@@ -205,7 +209,7 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
     }
 
     #[Test]
-    public function testRollbackThrowsExceptionWhenPDOThrowsException(): void
+    public function rollbackThrowsExceptionWhenPDOThrowsException(): void
     {
         $mockPDO = $this->createMock(PDO::class);
         $mockPDO->expects($this->once())
@@ -216,7 +220,11 @@ class DataObjectTest extends \PHPUnit\Framework\TestCase
             ->method('inTransaction')
             ->willReturn(true);
 
-        $dataObject = new class($this->createMock(Connection::class), new QueriesMysql()) extends DataObject {
+        $oConnection = $this->createMock(Connection::class);
+        $oConnection->expects($this->never())
+            ->method('getPDOParameters');
+
+        $dataObject = new class($oConnection, new QueriesMysql()) extends DataObject {
             public function setBackedPDO(?PDO $pdo): void
             {
                 $this->backedPDO = $pdo;
