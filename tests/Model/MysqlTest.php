@@ -3,18 +3,9 @@
 namespace RayanLevert\Model\Tests\Model;
 
 use PDO;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
-use RayanLevert\Model\Attributes\AutoIncrement;
-use RayanLevert\Model\Attributes\Column;
-use RayanLevert\Model\Attributes\PrimaryKey;
-use RayanLevert\Model\Attributes\Validation\Required;
-use RayanLevert\Model\Columns\Type;
+use RayanLevert\Model\Tests\Fixtures\User;
 use RayanLevert\Model\Connections\Mysql;
-use RayanLevert\Model\DataObject;
-use RayanLevert\Model\Model;
-use RayanLevert\Model\Queries\Mysql as QueriesMysql;
 use RayanLevert\Model\State;
 
 /**
@@ -26,25 +17,8 @@ use RayanLevert\Model\State;
  * - last_name VARCHAR(45) NOT NULL
  * - first_name VARCHAR(45) NOT NULL
  */
-class MysqlTest extends TestCase
+class MysqlTest extends \RayanLevert\Model\Tests\TransactionTestCase
 {
-    private DataObject $dataObject;
-
-    protected function setUp(): void
-    {
-        $this->dataObject = new DataObject($this->getConnectionClass(), new QueriesMysql());
-        $this->dataObject->startTransaction();
-
-        Model::$dataObject = $this->dataObject;
-    }
-
-    protected function tearDown(): void
-    {
-        $this->dataObject->rollback();
-
-        Model::$dataObject = null;
-    }
-
     #[Test]
     public function createSaveAndDeleteSuccessfully(): void
     {
@@ -99,27 +73,4 @@ class MysqlTest extends TestCase
 
         $this->assertSame(State::DETACHED, $model->state);
     }
-
-    /** Returns a working DataObject to the mysql database */
-    private function getConnectionClass(): Mysql
-    {
-        return new Mysql('percona', 'root', 'root-password', ['dbname' => 'model']);
-    }
-}
-
-class User extends Model
-{
-    public string $table = 'user';
-
-    #[PrimaryKey]
-    #[Column(Type::INTEGER)]
-    #[AutoIncrement]
-    public ?int $id = null;
-
-    #[Column(Type::VARCHAR, 'last_name')]
-    public ?string $lastName = null;
-
-    #[Column(Type::VARCHAR, 'first_name')]
-    #[Required]
-    public ?string $firstName = null;
 }

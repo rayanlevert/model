@@ -44,6 +44,21 @@ class ModelTest extends TestCase
     }
 
     #[Test]
+    public function onConstructCalled(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'users';
+
+            public function onConstruct(): void
+            {
+                $this->table = 'test_table';
+            }
+        };
+
+        $this->assertSame('test_table', $model->table);
+    }
+
+    #[Test]
     public function validateValidModel(): void
     {
         $model = new class extends Model {
