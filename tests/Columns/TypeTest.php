@@ -5,17 +5,81 @@ namespace RayanLevert\Model\Tests\Columns;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
+use JsonSerializable;
 use PHPUnit\Framework\Attributes\CoversClass;
-use Stringable;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use RayanLevert\Model\Columns\Type;
 use RayanLevert\Model\Exception;
-use JsonSerializable;
 
 #[CoversClass(Type::class)]
 class TypeTest extends \PHPUnit\Framework\TestCase
 {
+    public static function provideNumericTypes(): array
+    {
+        return [
+            'INTEGER'           => [Type::INTEGER],
+            'UNSIGNED_INTEGER'  => [Type::UNSIGNED_INTEGER],
+            'SMALL_INTEGER'     => [Type::SMALL_INTEGER],
+            'TINY_INTEGER'      => [Type::TINY_INTEGER]
+        ];
+    }
+
+    public static function provideStringTypes(): array
+    {
+        return [
+            'CHAR'          => [Type::CHAR],
+            'VARCHAR'       => [Type::VARCHAR],
+            'TEXT'          => [Type::TEXT],
+            'MEDIUM_TEXT'   => [Type::MEDIUM_TEXT],
+            'LONG_TEXT'     => [Type::LONG_TEXT],
+            'BINARY'        => [Type::BINARY],
+            'VARBINARY'     => [Type::VARBINARY],
+            'BLOB'          => [Type::BLOB],
+            'MEDIUM_BLOB'   => [Type::MEDIUM_BLOB],
+            'LONG_BLOB'     => [Type::LONG_BLOB]
+        ];
+    }
+
+    public static function provideDateTimeTypes(): array
+    {
+        return [
+            'DATE'      => [Type::DATE],
+            'TIME'      => [Type::TIME],
+            'DATETIME'  => [Type::DATETIME],
+            'TIMESTAMP' => [Type::TIMESTAMP]
+        ];
+    }
+
+    public static function provideScalarValues(): array
+    {
+        return [
+            'integer' => [42],
+            'float' => [3.14],
+            'string' => ['test string'],
+            'boolean true' => [true],
+            'boolean false' => [false],
+            'null' => [null]
+        ];
+    }
+
+    public static function provideDateTimeValues(): array
+    {
+        $dateTime = new DateTime('2023-01-15 14:30:45');
+        $dateTimeImmutable = new DateTimeImmutable('2023-01-15 14:30:45');
+
+        return [
+            'DATE with DateTime' => [Type::DATE, $dateTime, '2023-01-15'],
+            'DATE with DateTimeImmutable' => [Type::DATE, $dateTimeImmutable, '2023-01-15'],
+            'TIME with DateTime' => [Type::TIME, $dateTime, '14:30:45'],
+            'TIME with DateTimeImmutable' => [Type::TIME, $dateTimeImmutable, '14:30:45'],
+            'DATETIME with DateTime' => [Type::DATETIME, $dateTime, '2023-01-15 14:30:45'],
+            'DATETIME with DateTimeImmutable' => [Type::DATETIME, $dateTimeImmutable, '2023-01-15 14:30:45'],
+            'TIMESTAMP with DateTime' => [Type::TIMESTAMP, $dateTime, '2023-01-15 14:30:45'],
+            'TIMESTAMP with DateTimeImmutable' => [Type::TIMESTAMP, $dateTimeImmutable, '2023-01-15 14:30:45']
+        ];
+    }
+
     #[Test]
     public function integerType(): void
     {
@@ -185,7 +249,9 @@ class TypeTest extends \PHPUnit\Framework\TestCase
     public function getValueOkForCallableTypeAfterCalledWithCorrectType(): void
     {
         $type = Type::VARCHAR;
-        $callable = function() { return 'test'; };
+        $callable = function () {
+            return 'test';
+        };
 
         $this->assertSame('test', $type->getValue($callable));
     }
@@ -213,71 +279,6 @@ class TypeTest extends \PHPUnit\Framework\TestCase
         $serialized = $type->getValue($object);
         $this->assertStringContainsString('legacy serialized', $serialized);
     }
-
-    public static function provideNumericTypes(): array
-    {
-        return [
-            'INTEGER'           => [Type::INTEGER],
-            'UNSIGNED_INTEGER'  => [Type::UNSIGNED_INTEGER],
-            'SMALL_INTEGER'     => [Type::SMALL_INTEGER],
-            'TINY_INTEGER'      => [Type::TINY_INTEGER]
-        ];
-    }
-
-    public static function provideStringTypes(): array
-    {
-        return [
-            'CHAR'          => [Type::CHAR],
-            'VARCHAR'       => [Type::VARCHAR],
-            'TEXT'          => [Type::TEXT],
-            'MEDIUM_TEXT'   => [Type::MEDIUM_TEXT],
-            'LONG_TEXT'     => [Type::LONG_TEXT],
-            'BINARY'        => [Type::BINARY],
-            'VARBINARY'     => [Type::VARBINARY],
-            'BLOB'          => [Type::BLOB],
-            'MEDIUM_BLOB'   => [Type::MEDIUM_BLOB],
-            'LONG_BLOB'     => [Type::LONG_BLOB]
-        ];
-    }
-
-    public static function provideDateTimeTypes(): array
-    {
-        return [
-            'DATE'      => [Type::DATE],
-            'TIME'      => [Type::TIME],
-            'DATETIME'  => [Type::DATETIME],
-            'TIMESTAMP' => [Type::TIMESTAMP]
-        ];
-    }
-
-    public static function provideScalarValues(): array
-    {
-        return [
-            'integer' => [42],
-            'float' => [3.14],
-            'string' => ['test string'],
-            'boolean true' => [true],
-            'boolean false' => [false],
-            'null' => [null]
-        ];
-    }
-
-    public static function provideDateTimeValues(): array
-    {
-        $dateTime = new DateTime('2023-01-15 14:30:45');
-        $dateTimeImmutable = new DateTimeImmutable('2023-01-15 14:30:45');
-
-        return [
-            'DATE with DateTime' => [Type::DATE, $dateTime, '2023-01-15'],
-            'DATE with DateTimeImmutable' => [Type::DATE, $dateTimeImmutable, '2023-01-15'],
-            'TIME with DateTime' => [Type::TIME, $dateTime, '14:30:45'],
-            'TIME with DateTimeImmutable' => [Type::TIME, $dateTimeImmutable, '14:30:45'],
-            'DATETIME with DateTime' => [Type::DATETIME, $dateTime, '2023-01-15 14:30:45'],
-            'DATETIME with DateTimeImmutable' => [Type::DATETIME, $dateTimeImmutable, '2023-01-15 14:30:45'],
-            'TIMESTAMP with DateTime' => [Type::TIMESTAMP, $dateTime, '2023-01-15 14:30:45'],
-            'TIMESTAMP with DateTimeImmutable' => [Type::TIMESTAMP, $dateTimeImmutable, '2023-01-15 14:30:45']
-        ];
-    }
 }
 
 class SerializableTestClass
@@ -294,4 +295,4 @@ class LegacySerializableTestClass
     {
         return ['data' => 'legacy serialized'];
     }
-} 
+}

@@ -23,7 +23,8 @@ class Range extends Validation
     public function __construct(
         public readonly float|int $min,
         public readonly float|int $max
-    ) {}
+    ) {
+    }
 
     public function validate(mixed $value): bool
     {

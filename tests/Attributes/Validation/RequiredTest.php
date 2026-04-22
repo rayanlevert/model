@@ -12,6 +12,18 @@ use ReflectionProperty;
 #[CoversClass(Required::class)]
 class RequiredTest extends TestCase
 {
+    public static function validationProvider(): array
+    {
+        return [
+            'null value'        => [null, false],
+            'empty string'      => ['', false],
+            'non-empty string'  => ['test', true],
+            'zero'              => [0, true],
+            'false'             => [false, true],
+            'empty array'       => [[], true]
+        ];
+    }
+
     #[Test]
     public function requiredAttributeOnProperty(): void
     {
@@ -40,16 +52,4 @@ class RequiredTest extends TestCase
         $required = new Required();
         $this->assertSame('%s is required', $required->getMessage());
     }
-
-    public static function validationProvider(): array
-    {
-        return [
-            'null value'        => [null, false],
-            'empty string'      => ['', false],
-            'non-empty string'  => ['test', true],
-            'zero'              => [0, true],
-            'false'             => [false, true],
-            'empty array'       => [[], true]
-        ];
-    }
-} 
+}

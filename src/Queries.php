@@ -10,9 +10,8 @@ interface Queries
     /**
      * Generate a query to create a new record in the database
      *
-     * @return Statement The query to create a new record in the database with the columns values as placeholders
-     *
      * @throws Exception If the query cannot be generated
+     * @return Statement The query to create a new record in the database with the columns values as placeholders
      */
     public function create(Model $model): Statement;
 

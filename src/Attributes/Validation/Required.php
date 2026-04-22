@@ -20,7 +20,9 @@ use RayanLevert\Model\Attributes\Validation;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Required extends Validation
 {
-    public function __construct() {}
+    public function __construct()
+    {
+    }
 
     public function validate(mixed $value): bool
     {

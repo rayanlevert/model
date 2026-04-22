@@ -12,6 +12,20 @@ use ReflectionProperty;
 #[CoversClass(Pattern::class)]
 class PatternTest extends TestCase
 {
+    public static function validationProvider(): array
+    {
+        return [
+            'null value'                            => [null, false],
+            'non-string value'                      => [123, false],
+            'empty string'                          => ['', false],
+            'valid alphanumeric string'             => ['username123', true],
+            'valid string with underscore'          => ['user_name', true],
+            'string with spaces'                    => ['user name', false],
+            'string with special characters'        => ['user@name', false],
+            'string with uppercase and lowercase'   => ['UserName', true]
+        ];
+    }
+
     #[Test]
     public function patternAttributeOnProperty(): void
     {
@@ -41,18 +55,4 @@ class PatternTest extends TestCase
         $pattern = new Pattern('/^[a-zA-Z0-9_]+$/');
         $this->assertSame('%s must match the pattern /^[a-zA-Z0-9_]+$/', $pattern->getMessage());
     }
-
-    public static function validationProvider(): array
-    {
-        return [
-            'null value'                            => [null, false],
-            'non-string value'                      => [123, false],
-            'empty string'                          => ['', false],
-            'valid alphanumeric string'             => ['username123', true],
-            'valid string with underscore'          => ['user_name', true],
-            'string with spaces'                    => ['user name', false],
-            'string with special characters'        => ['user@name', false],
-            'string with uppercase and lowercase'   => ['UserName', true]
-        ];
-    }
-} 
+}

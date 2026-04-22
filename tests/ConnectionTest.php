@@ -13,8 +13,7 @@ class ConnectionTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function constructOnlyHost(): void
     {
-        $o = new class('test-host') extends Connection
-        {
+        $o = new class('test-host') extends Connection {
             public function dsn(): string
             {
                 return 'test-dsn';
@@ -34,8 +33,7 @@ class ConnectionTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function constructUsernameAndPassword(): void
     {
-        $o = new class('test-host', 'test-username', 'test-password') extends Connection
-        {
+        $o = new class('test-host', 'test-username', 'test-password') extends Connection {
             public function dsn(): string
             {
                 return $this->username . ':' . $this->password;
@@ -58,8 +56,7 @@ class ConnectionTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function constructOptions(): void
     {
-        $o = new class('test-host', options: ['test-option' => 'test-value']) extends Connection
-        {
+        $o = new class('test-host', options: ['test-option' => 'test-value']) extends Connection {
             public function dsn(): string
             {
                 return '';
@@ -76,8 +73,7 @@ class ConnectionTest extends \PHPUnit\Framework\TestCase
         $this->assertSame('test-value-2', $o->getOption('test-option-2'));
         $this->assertSame(['test-option' => 'test-value', 'test-option-2' => 'test-value-2'], $o->options);
 
-        $o = new class('test-host', options: ['test-option' => 'test-value', 'another-option' => []]) extends Connection
-        {
+        $o = new class('test-host', options: ['test-option' => 'test-value', 'another-option' => []]) extends Connection {
             public function dsn(): string
             {
                 return '';
@@ -90,8 +86,7 @@ class ConnectionTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function debugInfo(): void
     {
-        $o = new class('test-host', 'test-username', 'test-password', ['test-option' => 'test-value']) extends Connection
-        {
+        $o = new class('test-host', 'test-username', 'test-password', ['test-option' => 'test-value']) extends Connection {
             public function dsn(): string
             {
                 return '';
@@ -110,94 +105,84 @@ class ConnectionTest extends \PHPUnit\Framework\TestCase
     public function testToString(): void
     {
         // Test with only host
-        $o = new class('test-host') extends Connection
-        {
+        $o = new class('test-host') extends Connection {
             public function dsn(): string
             {
                 return '';
             }
         };
 
-        $this->assertStringContainsString('prefix: ', (string)$o);
-        $this->assertStringContainsString('host: test-host', (string)$o);
-        $this->assertStringNotContainsString('username: ', (string)$o);
-        $this->assertStringNotContainsString('password: ', (string)$o);
-        $this->assertStringNotContainsString('options: ', (string)$o);
+        $this->assertStringContainsString('prefix: ', (string) $o);
+        $this->assertStringContainsString('host: test-host', (string) $o);
+        $this->assertStringNotContainsString('username: ', (string) $o);
+        $this->assertStringNotContainsString('password: ', (string) $o);
+        $this->assertStringNotContainsString('options: ', (string) $o);
 
         // Test with username
-        $o = new class('test-host', 'test-username') extends Connection
-        {
+        $o = new class('test-host', 'test-username') extends Connection {
             public function dsn(): string
             {
                 return '';
             }
         };
 
-        $this->assertStringContainsString('prefix: ', (string)$o);
-        $this->assertStringContainsString('host: test-host', (string)$o);
-        $this->assertStringContainsString('username: test-username', (string)$o);
-        $this->assertStringNotContainsString('password: ', (string)$o);
-        $this->assertStringNotContainsString('options: ', (string)$o);
+        $this->assertStringContainsString('prefix: ', (string) $o);
+        $this->assertStringContainsString('host: test-host', (string) $o);
+        $this->assertStringContainsString('username: test-username', (string) $o);
+        $this->assertStringNotContainsString('password: ', (string) $o);
+        $this->assertStringNotContainsString('options: ', (string) $o);
 
         // Test with username and password
-        $o = new class('test-host', 'test-username', 'test-password') extends Connection
-        {
+        $o = new class('test-host', 'test-username', 'test-password') extends Connection {
             public function dsn(): string
             {
                 return '';
             }
         };
 
-        $this->assertStringContainsString('prefix: ', (string)$o);
-        $this->assertStringContainsString('host: test-host', (string)$o);
-        $this->assertStringContainsString('username: test-username', (string)$o);
-        $this->assertStringContainsString('password: ' . Connection::MASKED_VALUE, (string)$o);
-        $this->assertStringNotContainsString('options: ', (string)$o);
+        $this->assertStringContainsString('prefix: ', (string) $o);
+        $this->assertStringContainsString('host: test-host', (string) $o);
+        $this->assertStringContainsString('username: test-username', (string) $o);
+        $this->assertStringContainsString('password: ' . Connection::MASKED_VALUE, (string) $o);
+        $this->assertStringNotContainsString('options: ', (string) $o);
 
         // Test with options
-        $o = new class('test-host', options: ['test-option' => 'test-value']) extends Connection
-        {
+        $o = new class('test-host', options: ['test-option' => 'test-value']) extends Connection {
             public function dsn(): string
             {
                 return '';
             }
         };
 
-        $this->assertStringContainsString('prefix: ', (string)$o);
-        $this->assertStringContainsString('host: test-host', (string)$o);
-        $this->assertStringNotContainsString('username: ', (string)$o);
-        $this->assertStringNotContainsString('password: ', (string)$o);
-        $this->assertStringContainsString('options: ', (string)$o);
-        $this->assertStringContainsString('test-option', (string)$o);
-        $this->assertStringContainsString('test-value', (string)$o);
+        $this->assertStringContainsString('prefix: ', (string) $o);
+        $this->assertStringContainsString('host: test-host', (string) $o);
+        $this->assertStringNotContainsString('username: ', (string) $o);
+        $this->assertStringNotContainsString('password: ', (string) $o);
+        $this->assertStringContainsString('options: ', (string) $o);
+        $this->assertStringContainsString('test-option', (string) $o);
+        $this->assertStringContainsString('test-value', (string) $o);
 
         // Test with all properties
-        $o = new class('test-host', 'test-username', 'test-password', ['test-option' => 'test-value']) extends Connection
-        {
+        $o = new class('test-host', 'test-username', 'test-password', ['test-option' => 'test-value']) extends Connection {
             public function dsn(): string
             {
                 return '';
             }
         };
 
-        $this->assertStringContainsString('prefix: ', (string)$o);
-        $this->assertStringContainsString('host: test-host', (string)$o);
-        $this->assertStringContainsString('username: test-username', (string)$o);
-        $this->assertStringContainsString('password: ' . Connection::MASKED_VALUE, (string)$o);
-        $this->assertStringContainsString('options: ', (string)$o);
-        $this->assertStringContainsString('test-option', (string)$o);
-        $this->assertStringContainsString('test-value', (string)$o);
+        $this->assertStringContainsString('prefix: ', (string) $o);
+        $this->assertStringContainsString('host: test-host', (string) $o);
+        $this->assertStringContainsString('username: test-username', (string) $o);
+        $this->assertStringContainsString('password: ' . Connection::MASKED_VALUE, (string) $o);
+        $this->assertStringContainsString('options: ', (string) $o);
+        $this->assertStringContainsString('test-option', (string) $o);
+        $this->assertStringContainsString('test-value', (string) $o);
     }
 
     #[Test]
     public function testGetPDOParametersReturnsCorrectParameters(): void
     {
-        $connection = new class(
-            'test-host',
-            'test-user',
-            'test-password',
-            ['test-option' => 'test-value']
-        ) extends Connection {
+        $connection = new class('test-host', 'test-user', 'test-password', ['test-option' => 'test-value']) extends Connection {
             public function dsn(): string
             {
                 return 'test-dsn';
@@ -217,12 +202,7 @@ class ConnectionTest extends \PHPUnit\Framework\TestCase
     #[Test]
     public function testGetPDOParametersWithDifferentCredentials(): void
     {
-        $connection = new class(
-            'another-host',
-            'another-user',
-            'another-password',
-            ['another-option' => 'another-value']
-        ) extends Connection {
+        $connection = new class('another-host', 'another-user', 'another-password', ['another-option' => 'another-value']) extends Connection {
             public function dsn(): string
             {
                 return 'another-dsn';

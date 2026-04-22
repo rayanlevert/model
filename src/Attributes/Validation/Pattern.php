@@ -18,13 +18,15 @@ use function sprintf;
  * {
  *     #[Pattern('/^[a-zA-Z0-9_]+$/')]
  *     private string $username;
- * }    
+ * }
  * ```
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Pattern extends Validation
 {
-    public function __construct(public readonly string $pattern) {}
+    public function __construct(public readonly string $pattern)
+    {
+    }
 
     public function validate(mixed $value): bool
     {

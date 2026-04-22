@@ -2,6 +2,9 @@
 
 namespace RayanLevert\Model\Connections;
 
+use function array_filter;
+use function rtrim;
+
 /**
  * Connection to MySQL databases
  *
@@ -28,10 +31,11 @@ class Mysql extends \RayanLevert\Model\Connection
         ];
 
         $dsn = '';
-        foreach (\array_filter($options) as $name => $value) {
+
+        foreach (array_filter($options) as $name => $value) {
             $dsn .= "$name=$value;";
         }
 
-        return \rtrim(self::PREFIX . ":$dsn", ';');
+        return rtrim(self::PREFIX . ":$dsn", ';');
     }
 }

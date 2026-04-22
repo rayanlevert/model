@@ -12,7 +12,9 @@ use PDOStatement;
 class Resultset implements \IteratorAggregate, Countable
 {
     /** @param T $model */
-    public function __construct(protected Model $model, protected PDOStatement $statement) {}
+    public function __construct(protected Model $model, protected PDOStatement $statement)
+    {
+    }
 
     /** @return ?T */
     public function current(): ?Model

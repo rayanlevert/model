@@ -23,7 +23,9 @@ use function sprintf;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Min extends Validation
 {
-    public function __construct(public readonly float|int $value) {}
+    public function __construct(public readonly float|int $value)
+    {
+    }
 
     public function validate(mixed $value): bool
     {

@@ -11,6 +11,28 @@ use RayanLevert\Model\Exceptions\ValidationException;
 #[CoversClass(ValidationException::class)]
 class ValidationExceptionTest extends TestCase
 {
+    public static function errorsProvider(): array
+    {
+        return [
+            'empty array' => [
+                [],
+                ''
+            ],
+            'single error' => [
+                ['name is required'],
+                'name is required'
+            ],
+            'multiple errors' => [
+                ['name is required', 'age must be at least 18', 'email is invalid'],
+                'name is required, age must be at least 18, email is invalid'
+            ],
+            'errors with special characters' => [
+                ['name contains "quotes"', 'age < 18', 'email@example.com is invalid'],
+                'name contains "quotes", age < 18, email@example.com is invalid'
+            ]
+        ];
+    }
+
     #[Test]
     public function constructorWithSingleError(): void
     {
@@ -37,28 +59,6 @@ class ValidationExceptionTest extends TestCase
 
         $this->assertSame($errors, $exception->getErrors());
         $this->assertSame($expectedMessage, $exception->getMessage());
-    }
-
-    public static function errorsProvider(): array
-    {
-        return [
-            'empty array' => [
-                [],
-                ''
-            ],
-            'single error' => [
-                ['name is required'],
-                'name is required'
-            ],
-            'multiple errors' => [
-                ['name is required', 'age must be at least 18', 'email is invalid'],
-                'name is required, age must be at least 18, email is invalid'
-            ],
-            'errors with special characters' => [
-                ['name contains "quotes"', 'age < 18', 'email@example.com is invalid'],
-                'name contains "quotes", age < 18, email@example.com is invalid'
-            ]
-        ];
     }
 
     #[Test]

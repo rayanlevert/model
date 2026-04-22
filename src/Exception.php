@@ -5,9 +5,9 @@ namespace RayanLevert\Model;
 /** All exceptions thrown in RayanLevert\Model\* will use this class */
 class Exception extends \Exception
 {
-    protected string|int $realCode;
+    protected int|string $realCode;
 
-    public function __construct(string $message = '', string|int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $message = '', int|string $code = 0, ?\Throwable $previous = null)
     {
         $this->realCode = $code;
 
@@ -17,9 +17,9 @@ class Exception extends \Exception
     /**
      * Returns the real code of the exception (string from PDOException, int from Exception)
      *
-     * @return string|int The real code of the exception
+     * @return int|string The real code of the exception
      */
-    public function getRealCode(): string|int
+    public function getRealCode(): int|string
     {
         return $this->realCode;
     }

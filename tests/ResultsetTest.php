@@ -6,7 +6,6 @@ use PDOStatement;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use RayanLevert\Model\Exception;
-use RayanLevert\Model\Model;
 use RayanLevert\Model\Queries\Statement;
 use RayanLevert\Model\Resultset;
 use RayanLevert\Model\Tests\Fixtures\User;
@@ -127,7 +126,7 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oUser->lastName = 'Doe';
         $oUser->firstName = 'John';
         $oUser->create();
-        
+
         $oUser2 = new User();
         $oUser2->lastName = 'Doe';
         $oUser2->firstName = 'Jane';

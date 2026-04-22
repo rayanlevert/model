@@ -12,6 +12,29 @@ use ReflectionProperty;
 #[CoversClass(Range::class)]
 class RangeTest extends TestCase
 {
+    public static function validationProvider(): array
+    {
+        return [
+            'null value'                     => [null, false],
+            'non-numeric string'             => ['abc', false],
+            'value less than min'            => [-10, false],
+            'value equal to min'             => [0, true],
+            'value between min and max'      => [50, true],
+            'value equal to max'             => [100, true],
+            'value greater than max'         => [150, false],
+            'zero'                           => [0, true],
+            'negative value'                 => [-50, false],
+            'float less than min'            => [-0.5, false],
+            'float equal to min'             => [0.0, true],
+            'float between min and max'      => [50.5, true],
+            'float equal to max'             => [100.0, true],
+            'float greater than max'         => [100.5, false],
+            'float with many decimals'       => [99.99999, true],
+            'float with scientific notation' => [1e1, true],
+            'float with negative exponent'   => [1e-2, true]
+        ];
+    }
+
     #[Test]
     public function rangeAttributeOnProperty(): void
     {
@@ -42,27 +65,4 @@ class RangeTest extends TestCase
         $range = new Range(0, 100);
         $this->assertSame('%s must be between 0 and 100', $range->getMessage());
     }
-
-    public static function validationProvider(): array
-    {
-        return [
-            'null value'                     => [null, false],
-            'non-numeric string'             => ['abc', false],
-            'value less than min'            => [-10, false],
-            'value equal to min'             => [0, true],
-            'value between min and max'      => [50, true],
-            'value equal to max'             => [100, true],
-            'value greater than max'         => [150, false],
-            'zero'                           => [0, true],
-            'negative value'                 => [-50, false],
-            'float less than min'            => [-0.5, false],
-            'float equal to min'             => [0.0, true],
-            'float between min and max'      => [50.5, true],
-            'float equal to max'             => [100.0, true],
-            'float greater than max'         => [100.5, false],
-            'float with many decimals'       => [99.99999, true],
-            'float with scientific notation' => [1e1, true],
-            'float with negative exponent'   => [1e-2, true]
-        ];
-    }
-} 
+}

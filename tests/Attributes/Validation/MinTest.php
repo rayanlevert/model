@@ -12,6 +12,25 @@ use ReflectionProperty;
 #[CoversClass(Min::class)]
 class MinTest extends TestCase
 {
+    public static function validationProvider(): array
+    {
+        return [
+            'null value'                        => [null, false],
+            'non-numeric string'                => ['abc', false],
+            'value less than min'               => [-50, false],
+            'value equal to min'                => [0, true],
+            'value greater than min'            => [50, true],
+            'zero'                              => [0, true],
+            'positive value'                    => [100, true],
+            'float less than min'               => [-0.5, false],
+            'float equal to min'                => [0.0, true],
+            'float greater than min'            => [0.5, true],
+            'float with many decimals'          => [0.00001, true],
+            'float with scientific notation'    => [1e-1, true],
+            'float with negative exponent'      => [-1e-1, false]
+        ];
+    }
+
     #[Test]
     public function minAttributeOnProperty(): void
     {
@@ -41,23 +60,4 @@ class MinTest extends TestCase
         $min = new Min(0);
         $this->assertSame('%s must be at least 0', $min->getMessage());
     }
-
-    public static function validationProvider(): array
-    {
-        return [
-            'null value'                        => [null, false],
-            'non-numeric string'                => ['abc', false],
-            'value less than min'               => [-50, false],
-            'value equal to min'                => [0, true],
-            'value greater than min'            => [50, true],
-            'zero'                              => [0, true],
-            'positive value'                    => [100, true],
-            'float less than min'               => [-0.5, false],
-            'float equal to min'                => [0.0, true],
-            'float greater than min'            => [0.5, true],
-            'float with many decimals'          => [0.00001, true],
-            'float with scientific notation'    => [1e-1, true],
-            'float with negative exponent'      => [-1e-1, false]
-        ];
-    }
-} 
+}

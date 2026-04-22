@@ -4,13 +4,13 @@ namespace RayanLevert\Model\Tests\Queries;
 
 use Exception;
 use PHPUnit\Framework\Attributes\{CoversClass, Test};
-use RayanLevert\Model\Queries\Mysql;
 use RayanLevert\Model\Attributes\Column;
 use RayanLevert\Model\Attributes\PrimaryKey;
 use RayanLevert\Model\Columns\Type;
 use RayanLevert\Model\Connections\Mysql as ConnectionsMysql;
 use RayanLevert\Model\DataObject;
 use RayanLevert\Model\Model;
+use RayanLevert\Model\Queries\Mysql;
 
 #[CoversClass(Mysql::class)]
 class MysqlTest extends \PHPUnit\Framework\TestCase
@@ -53,7 +53,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         $queries = new Mysql();
         $result  = $queries->create($model);
 
-        $this->assertSame("INSERT INTO `users` (`name`) VALUES (?)", $result->query);
+        $this->assertSame('INSERT INTO `users` (`name`) VALUES (?)', $result->query);
         $this->assertSame(['John Doe'], $result->values);
     }
 
@@ -76,7 +76,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         $queries = new Mysql();
         $result  = $queries->create($model);
 
-        $this->assertSame("INSERT INTO `users` (`firstName`, `lastName`, `age`) VALUES (?, ?, ?)", $result->query);
+        $this->assertSame('INSERT INTO `users` (`firstName`, `lastName`, `age`) VALUES (?, ?, ?)', $result->query);
         $this->assertSame(['John', 'Doe', 30], $result->values);
     }
 
@@ -96,7 +96,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         $queries = new Mysql();
         $result  = $queries->create($model);
 
-        $this->assertSame("INSERT INTO `users` (`first_name`, `last_name`) VALUES (?, ?)", $result->query);
+        $this->assertSame('INSERT INTO `users` (`first_name`, `last_name`) VALUES (?, ?)', $result->query);
         $this->assertSame(['John', 'Doe'], $result->values);
     }
 
@@ -116,7 +116,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         $queries = new Mysql();
         $result  = $queries->create($model);
 
-        $this->assertSame("INSERT INTO `users` (`name`, `description`) VALUES (?, ?)", $result->query);
+        $this->assertSame('INSERT INTO `users` (`name`, `description`) VALUES (?, ?)', $result->query);
         $this->assertSame(["O'Connor", "It's a test with \"quotes\" and 'apostrophes'"], $result->values);
     }
 
@@ -139,7 +139,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         $queries = new Mysql();
         $result  = $queries->create($model);
 
-        $this->assertSame("INSERT INTO `products` (`id`, `price`, `active`) VALUES (?, ?, ?)", $result->query);
+        $this->assertSame('INSERT INTO `products` (`id`, `price`, `active`) VALUES (?, ?, ?)', $result->query);
         $this->assertSame([1, 19.99, true], $result->values);
     }
 
@@ -159,7 +159,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         $queries = new Mysql();
         $result  = $queries->create($model);
 
-        $this->assertSame("INSERT INTO `users` (`name`, `age`) VALUES (?, ?)", $result->query);
+        $this->assertSame('INSERT INTO `users` (`name`, `age`) VALUES (?, ?)', $result->query);
         $this->assertSame([null, null], $result->values);
     }
 
@@ -176,7 +176,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         $queries = new Mysql();
         $result  = $queries->create($model);
 
-        $this->assertSame("INSERT INTO `user_profiles` (`name`) VALUES (?)", $result->query);
+        $this->assertSame('INSERT INTO `user_profiles` (`name`) VALUES (?)', $result->query);
         $this->assertSame(['Test'], $result->values);
     }
 
@@ -205,7 +205,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         $queries = new Mysql();
         $result  = $queries->create($model);
 
-        $this->assertSame("INSERT INTO `mixed_data` (`id`, `name`, `description`, `is_active`, `score`) VALUES (?, ?, ?, ?, ?)", $result->query);
+        $this->assertSame('INSERT INTO `mixed_data` (`id`, `name`, `description`, `is_active`, `score`) VALUES (?, ?, ?, ?, ?)', $result->query);
         $this->assertSame([1, 'Test User', 'A test description', false, 95.5], $result->values);
     }
 
@@ -245,7 +245,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         $queries = new Mysql();
         $result  = $queries->update($model);
 
-        $this->assertSame("UPDATE `users` SET `name` = ? WHERE `id` = ?", $result->query);
+        $this->assertSame('UPDATE `users` SET `name` = ? WHERE `id` = ?', $result->query);
         $this->assertSame(['John Doe', 1], $result->values);
     }
 
@@ -269,7 +269,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         $queries = new Mysql();
         $result  = $queries->update($model);
 
-        $this->assertSame("UPDATE `users` SET `name` = ?, `age` = ? WHERE `id` = ?", $result->query);
+        $this->assertSame('UPDATE `users` SET `name` = ?, `age` = ? WHERE `id` = ?', $result->query);
         $this->assertSame(['John Doe', 30, 1], $result->values);
     }
 
@@ -301,7 +301,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         $queries = new Mysql();
         $result  = $queries->delete($model);
 
-        $this->assertSame("DELETE FROM `users` WHERE `id` = ?", $result->query);
+        $this->assertSame('DELETE FROM `users` WHERE `id` = ?', $result->query);
         $this->assertSame([1], $result->values);
     }
 
@@ -336,7 +336,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         $queries = new Mysql();
         $result  = $queries->selectByPrimaryKey($model, 1);
 
-        $this->assertSame("SELECT * FROM `users` WHERE `id` = ?", $result->query);
+        $this->assertSame('SELECT * FROM `users` WHERE `id` = ?', $result->query);
         $this->assertSame([1], $result->values);
     }
 
@@ -390,7 +390,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         $queries = new Mysql();
         $result  = $queries->selectByColumns($model, ['name' => 'John Doe']);
 
-        $this->assertSame("SELECT * FROM `users` WHERE `first_name` = ?", $result->query);
+        $this->assertSame('SELECT * FROM `users` WHERE `first_name` = ?', $result->query);
         $this->assertSame(['John Doe'], $result->values);
     }
 
@@ -407,7 +407,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         $queries = new Mysql();
         $result  = $queries->selectByColumns($model, ['name' => 'John Doe']);
 
-        $this->assertSame("SELECT * FROM `users` WHERE `name` = ?", $result->query);
+        $this->assertSame('SELECT * FROM `users` WHERE `name` = ?', $result->query);
         $this->assertSame(['John Doe'], $result->values);
     }
 
@@ -427,7 +427,7 @@ class MysqlTest extends \PHPUnit\Framework\TestCase
         $queries = new Mysql();
         $result  = $queries->selectByColumns($model, ['name' => 'John Doe', 'age' => 30]);
 
-        $this->assertSame("SELECT * FROM `users` WHERE `name` = ? AND `age` = ?", $result->query);
+        $this->assertSame('SELECT * FROM `users` WHERE `name` = ? AND `age` = ?', $result->query);
         $this->assertSame(['John Doe', 30], $result->values);
     }
 }

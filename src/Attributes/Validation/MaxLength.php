@@ -23,7 +23,9 @@ use function sprintf;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class MaxLength extends Validation
 {
-    public function __construct(public readonly int $length) {}
+    public function __construct(public readonly int $length)
+    {
+    }
 
     public function validate(mixed $value): bool
     {

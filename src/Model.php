@@ -3,7 +3,6 @@
 namespace RayanLevert\Model;
 
 use PDO;
-use RayanLevert\Model\Attributes;
 use RayanLevert\Model\Exceptions\ValidationException;
 use ReflectionClass;
 use ReflectionProperty;
@@ -19,6 +18,11 @@ abstract class Model
 
     /** @var string The database table name */
     abstract public string $table { get; }
+
+    /** Called at the end of the constructor */
+    public function onConstruct(): void
+    {
+    }
 
     /**
      * Finds the first instance of the model by its primary key
@@ -57,9 +61,6 @@ abstract class Model
 
         $this->onConstruct();
     }
-
-    /** Called at the end of the constructor */
-    public function onConstruct(): void {}
 
     /**
      * Creates the instance in the database (and assigns the AutoIncrement column value to the model)
@@ -132,7 +133,7 @@ abstract class Model
 
     /**
      * Validate all properties with Validation attributes
-     * 
+     *
      * @throws ValidationException If any validation fails
      */
     public function validate(): void
@@ -174,7 +175,7 @@ abstract class Model
     {
         return array_find(
             new ReflectionClass($this)->getProperties(),
-            fn(ReflectionProperty $property) => $property->getAttributes(Attributes\AutoIncrement::class)
+            fn (ReflectionProperty $property) => $property->getAttributes(Attributes\AutoIncrement::class)
         )?->getName();
     }
 
@@ -236,7 +237,7 @@ abstract class Model
      * Returns the database column name for a given property name
      *
      * @param string $propertyName The property name
-     * 
+     *
      * @throws Exception If the property is not found in the model
      *
      * @return string The database column name
@@ -256,8 +257,6 @@ abstract class Model
 
     /**
      * Returns the property name for a given database column name
-     *
-     * @param string $databaseColumnName The database column name
      *
      * @throws Exception If the property is not found in the model
      *

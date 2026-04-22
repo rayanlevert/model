@@ -12,6 +12,20 @@ use ReflectionProperty;
 #[CoversClass(MinLength::class)]
 class MinLengthTest extends TestCase
 {
+    public static function validationProvider(): array
+    {
+        return [
+            'null value'                     => [null, false],
+            'non-string value'               => [123, false],
+            'empty string'                   => ['', false],
+            'string shorter than min length' => ['ab', false],
+            'string equal to min length'     => ['abc', true],
+            'string longer than min length'  => ['abcd', true],
+            'string with spaces'             => ['a b', true],
+            'string with special characters' => ['a@b', true]
+        ];
+    }
+
     #[Test]
     public function minLengthAttributeOnProperty(): void
     {
@@ -41,18 +55,4 @@ class MinLengthTest extends TestCase
         $minLength = new MinLength(3);
         $this->assertSame('%s must be at least 3 characters long', $minLength->getMessage());
     }
-
-    public static function validationProvider(): array
-    {
-        return [
-            'null value'                     => [null, false],
-            'non-string value'               => [123, false],
-            'empty string'                   => ['', false],
-            'string shorter than min length' => ['ab', false],
-            'string equal to min length'     => ['abc', true],
-            'string longer than min length'  => ['abcd', true],
-            'string with spaces'             => ['a b', true],
-            'string with special characters' => ['a@b', true]
-        ];
-    }
-} 
+}

@@ -12,6 +12,20 @@ use ReflectionProperty;
 #[CoversClass(MaxLength::class)]
 class MaxLengthTest extends TestCase
 {
+    public static function validationProvider(): array
+    {
+        return [
+            'null value'                     => [null, false],
+            'non-string value'               => [123, false],
+            'empty string'                   => ['', true],
+            'string shorter than max length' => ['abc', true],
+            'string equal to max length'     => ['abcde', true],
+            'string longer than max length'  => ['abcdef', false],
+            'string with spaces'             => ['a b c', true],
+            'string with special characters' => ['a@b#c', true]
+        ];
+    }
+
     #[Test]
     public function maxLengthAttributeOnProperty(): void
     {
@@ -39,18 +53,4 @@ class MaxLengthTest extends TestCase
     {
         $this->assertSame('%s must be at most 5 characters long', new MaxLength(5)->getMessage());
     }
-
-    public static function validationProvider(): array
-    {
-        return [
-            'null value'                     => [null, false],
-            'non-string value'               => [123, false],
-            'empty string'                   => ['', true],
-            'string shorter than max length' => ['abc', true],
-            'string equal to max length'     => ['abcde', true],
-            'string longer than max length'  => ['abcdef', false],
-            'string with spaces'             => ['a b c', true],
-            'string with special characters' => ['a@b#c', true]
-        ];
-    }
-} 
+}

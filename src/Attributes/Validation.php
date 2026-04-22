@@ -2,40 +2,29 @@
 
 namespace RayanLevert\Model\Attributes;
 
-use Attribute;
 use RayanLevert\Model\Exceptions\ValidationException;
 use ReflectionAttribute;
 use ReflectionClass;
 
-use function sprintf;
-use function is_subclass_of;
 use function array_filter;
 use function function_exists;
+use function is_subclass_of;
+use function sprintf;
 
 /** Abstract base class for all validation attributes */
 abstract class Validation
 {
     /**
      * Validate the given value
-     * 
+     *
      * @param mixed $value The value to validate
      * @return bool Whether the value is valid
      */
     abstract public function validate(mixed $value): bool;
 
     /**
-     * Returns the validation error message
-     *
-     * `sprintf()` is used to format the message with the property name (%s)
-     */
-    public function getMessage(): string
-    {
-        return '%s is invalid';
-    }
-
-    /**
      * Validate all properties of an object having Validation attributes
-     * 
+     *
      * @param object $object The object to validate
      *
      * @throws ValidationException If any validation fails
@@ -46,7 +35,7 @@ abstract class Validation
             // Get all attributes that extend Validation
             $attributes = array_filter(
                 $property->getAttributes(),
-                fn(ReflectionAttribute $attribute) => is_subclass_of($attribute->getName(), static::class)
+                fn (ReflectionAttribute $attribute) => is_subclass_of($attribute->getName(), static::class)
             );
 
             // Add an error if the validation fails, every property is validated then returned in the error array
@@ -60,6 +49,16 @@ abstract class Validation
         if (isset($errors)) {
             throw new ValidationException(...$errors);
         }
+    }
+
+    /**
+     * Returns the validation error message
+     *
+     * `sprintf()` is used to format the message with the property name (%s)
+     */
+    public function getMessage(): string
+    {
+        return '%s is invalid';
     }
 
     /** Returns the function to use for string operations, either with the extension `mbstring` or native `string` */

@@ -2,6 +2,10 @@
 
 namespace RayanLevert\Model;
 
+use function array_merge;
+use function get_object_vars;
+use function is_scalar;
+
 /**
  * Informations to connect to a database via the PDO `__construct`
  *
@@ -13,7 +17,7 @@ abstract class Connection implements \Stringable
     public const string PREFIX = '';
 
     /** String used to mask sensitive information like passwords */
-    public final const string MASKED_VALUE = '*****';
+    final public const string MASKED_VALUE = '*****';
 
     /** Generates the DSN required to connect to the database from PHP's PDO */
     abstract public function dsn(): string;
@@ -24,27 +28,42 @@ abstract class Connection implements \Stringable
      * @param string $host Mandatory host to the database
      * @param string $username Optional username used to connect to the database
      * @param string $password Optional password used to connect to the database
-     * @param array<string, string|int|float|bool> $options PDO options
+     * @param array<string, bool|float|int|string> $options PDO options
      */
     final public function __construct(
         public readonly string $host,
         public readonly ?string $username = null,
-        #[\SensitiveParameter] protected readonly ?string $password = null,
+        #[\SensitiveParameter]
+        protected readonly ?string $password = null,
         public private(set) array $options = []
     ) {
-        $this->options = \array_filter($this->options, fn(mixed $value) => \is_scalar($value));
+        $this->options = \array_filter($this->options, fn (mixed $value) => is_scalar($value));
     }
 
     /** Dumping this class doesn't display the password */
     public function __debugInfo(): array
     {
-        return \array_merge(\get_object_vars($this), ['password' => self::MASKED_VALUE]);
+        return array_merge(get_object_vars($this), ['password' => self::MASKED_VALUE]);
+    }
+
+    /** Returns a human-readable representation of the connection */
+    public function __toString(): string
+    {
+        $parts = [
+            'prefix: ' . static::PREFIX,
+            "host: {$this->host}",
+            $this->username ? "username: {$this->username}" : null,
+            $this->password ? 'password: ' . self::MASKED_VALUE : null,
+            $this->options ? 'options: ' . json_encode($this->options) : null
+        ];
+
+        return implode(', ', array_filter($parts));
     }
 
     /**
      * Returns PDO ordered parameters to the constructor
      *
-     * @return array{0: string, 1: ?string, 2: ?string, 3: array<string, string|int|float|bool>}
+     * @return array{0: string, 1: ?string, 2: ?string, 3: array<string, bool|float|int|string>}
      */
     public function getPDOParameters(): array
     {
@@ -54,7 +73,7 @@ abstract class Connection implements \Stringable
     /**
      * Sets an option to the PDO connection
      */
-    public function setOption(string $name, string|int|float|bool $value): self
+    public function setOption(string $name, bool|float|int|string $value): self
     {
         $this->options[$name] = $value;
 
@@ -64,24 +83,10 @@ abstract class Connection implements \Stringable
     /**
      * Returns an option set from the constructor, or `::setOption()`
      *
-     * @return string|int|float|bool Returns $default if the option has not been set
+     * @return bool|float|int|string Returns $default if the option has not been set
      */
-    public function getOption(string $name, null|string|float|int|bool $default = null): null|string|float|int|bool
+    public function getOption(string $name, null|bool|float|int|string $default = null): null|bool|float|int|string
     {
         return $this->options[$name] ?? $default;
-    }
-
-    /** Returns a human-readable representation of the connection */
-    public function __toString(): string
-    {
-        $parts = [
-            "prefix: " . static::PREFIX,
-            "host: {$this->host}",
-            $this->username ? "username: {$this->username}" : null,
-            $this->password ? "password: " . self::MASKED_VALUE : null,
-            $this->options ? "options: " . json_encode($this->options) : null
-        ];
-        
-        return implode(', ', array_filter($parts));
     }
 }

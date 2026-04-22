@@ -11,18 +11,77 @@ use RayanLevert\Model\Attributes\Column;
 use RayanLevert\Model\Attributes\PrimaryKey;
 use RayanLevert\Model\Attributes\Validation;
 use RayanLevert\Model\Columns\Type;
+use RayanLevert\Model\Connections\Mysql as ConnectionsMysql;
+use RayanLevert\Model\DataObject;
 use RayanLevert\Model\Exception;
 use RayanLevert\Model\Exceptions\ValidationException;
 use RayanLevert\Model\Model;
-use RayanLevert\Model\State;
 use RayanLevert\Model\Queries\Mysql;
-use RayanLevert\Model\DataObject;
-use RayanLevert\Model\Connections\Mysql as ConnectionsMysql;
 use RayanLevert\Model\Queries\Statement;
+use RayanLevert\Model\State;
 
 #[CoversClass(Model::class)]
 class ModelTest extends TestCase
 {
+    public static function invalidModelsProvider(): array
+    {
+        Model::$dataObject = new DataObject(new ConnectionsMysql('percona', 'root', 'root-password'), new Mysql());
+
+        return [
+            'required property is null' => [
+                new class extends Model {
+                    #[Validation\Required]
+                    public ?string $name = null;
+
+                    public string $table = 'users';
+                },
+                ['name is required']
+            ],
+            'required property is empty string' => [
+                new class extends Model {
+                    #[Validation\Required]
+                    public string $name = '';
+
+                    public string $table = 'users';
+                },
+                ['name is required']
+            ],
+            'min value is less than minimum' => [
+                new class extends Model {
+                    #[Validation\Min(0)]
+                    public float|int $price = -10;
+
+                    public string $table = 'products';
+                },
+                ['price must be at least 0']
+            ],
+            'max value is greater than maximum' => [
+                new class extends Model {
+                    #[Validation\Max(100)]
+                    public float|int $price = 150;
+
+                    public string $table = 'products';
+                },
+                ['price must be at most 100']
+            ],
+            'multiple validation errors' => [
+                new class extends Model {
+                    #[Validation\Required]
+                    public string $name = '';
+
+                    #[Validation\Min(0)]
+                    public float|int $price = -10;
+
+                    public string $table = 'products';
+                },
+                [
+                    'name is required',
+                    'price must be at least 0'
+                ]
+            ]
+        ];
+    }
+
     protected function setUp(): void
     {
         Model::$dataObject = new DataObject(new ConnectionsMysql('percona', 'root', 'root-password'), new Mysql());
@@ -98,65 +157,6 @@ class ModelTest extends TestCase
         }
     }
 
-    public static function invalidModelsProvider(): array
-    {
-        Model::$dataObject = new DataObject(new ConnectionsMysql('percona', 'root', 'root-password'), new Mysql());
-
-        return [
-            'required property is null' => [
-                new class extends Model {
-                    #[Validation\Required]
-                    public ?string $name = null;
-
-                    public string $table = 'users';
-                },
-                ['name is required']
-            ],
-            'required property is empty string' => [
-                new class extends Model {
-                    #[Validation\Required]
-                    public string $name = '';
-
-                    public string $table = 'users';
-                },
-                ['name is required']
-            ],
-            'min value is less than minimum' => [
-                new class extends Model {
-                    #[Validation\Min(0)]
-                    public float|int $price = -10;
-
-                    public string $table = 'products';
-                },
-                ['price must be at least 0']
-            ],
-            'max value is greater than maximum' => [
-                new class extends Model {
-                    #[Validation\Max(100)]
-                    public float|int $price = 150;
-
-                    public string $table = 'products';
-                },
-                ['price must be at most 100']
-            ],
-            'multiple validation errors' => [
-                new class extends Model {
-                    #[Validation\Required]
-                    public string $name = '';
-
-                    #[Validation\Min(0)]
-                    public float|int $price = -10;
-
-                    public string $table = 'products';
-                },
-                [
-                    'name is required',
-                    'price must be at least 0'
-                ]
-            ]
-        ];
-    }
-
     #[Test]
     public function updateThrowsExceptionWhenModelIsTransiant(): void
     {
@@ -183,7 +183,7 @@ class ModelTest extends TestCase
             ->with($this->callback(function (Statement $statement) {
                 return $statement->query === 'UPDATE `test_table` SET `name` = ? WHERE `id` = ?';
             }))
-            ->willReturn(new PDOStatement);
+            ->willReturn(new PDOStatement());
 
         Model::$dataObject = $oDataObjectMock;
 
@@ -461,7 +461,7 @@ class ModelTest extends TestCase
             ->with($this->callback(function (Statement $statement) {
                 return $statement->query === 'INSERT INTO `test_table` (`name`) VALUES (?)';
             }))
-            ->willReturn(new PDOStatement);
+            ->willReturn(new PDOStatement());
 
         Model::$dataObject = $oDataObjectMock;
 
@@ -498,7 +498,7 @@ class ModelTest extends TestCase
             ->with($this->callback(function (Statement $statement) {
                 return $statement->query === 'INSERT INTO `test_table` (`name`) VALUES (?)';
             }))
-            ->willReturn(new PDOStatement);
+            ->willReturn(new PDOStatement());
 
         Model::$dataObject = $oDataObjectMock;
 
@@ -540,7 +540,7 @@ class ModelTest extends TestCase
             ->with($this->callback(function (Statement $statement) {
                 return $statement->query === 'DELETE FROM `test_table` WHERE `id` = ?';
             }))
-            ->willReturn(new PDOStatement);
+            ->willReturn(new PDOStatement());
 
         Model::$dataObject = $oDataObjectMock;
 
@@ -591,7 +591,7 @@ class ModelTest extends TestCase
             ->with($this->callback(function (Statement $statement) {
                 return $statement->query === 'INSERT INTO `test_table` (`name`) VALUES (?)';
             }))
-            ->willReturn(new PDOStatement);
+            ->willReturn(new PDOStatement());
 
         Model::$dataObject = $oDataObjectMock;
 
@@ -625,7 +625,7 @@ class ModelTest extends TestCase
             ->with($this->callback(function (Statement $statement) {
                 return $statement->query === 'UPDATE `test_table` SET `name` = ? WHERE `id` = ?';
             }))
-            ->willReturn(new PDOStatement);
+            ->willReturn(new PDOStatement());
 
         Model::$dataObject = $oDataObjectMock;
 
@@ -817,7 +817,7 @@ class ModelTest extends TestCase
         };
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage("Property name does not have a Column attribute in " . $model::class);
+        $this->expectExceptionMessage('Property name does not have a Column attribute in ' . $model::class);
 
         $model->getDatabaseColumnName('name');
     }
@@ -856,7 +856,7 @@ class ModelTest extends TestCase
         };
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage("Property for column test not found in " . $model::class);
+        $this->expectExceptionMessage('Property for column test not found in ' . $model::class);
 
         $model->getPropertyColumnName('test');
     }

@@ -10,9 +10,6 @@ use RayanLevert\Model\Queries\Statement;
 /** Abstraction layer accessing and interacting with a database through PHP's Data Objects (PDO) */
 class DataObject
 {
-    /** Backed property handling the PDO instance */
-    protected protected(set) ?PDO $backedPDO = null;
-
     /**
      * Virtual property representing the PHP's PDO instance
      *
@@ -32,6 +29,8 @@ class DataObject
     public string $driverName {
         get => $this->backedPDO?->getAttribute(PDO::ATTR_DRIVER_NAME) ?: '';
     }
+    /** Backed property handling the PDO instance */
+    protected protected(set) ?PDO $backedPDO = null;
 
     /**
      * Initialises the connection to the database

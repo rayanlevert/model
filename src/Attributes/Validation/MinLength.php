@@ -22,7 +22,9 @@ use function is_string;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class MinLength extends Validation
 {
-    public function __construct(public readonly int $length) {}
+    public function __construct(public readonly int $length)
+    {
+    }
 
     public function validate(mixed $value): bool
     {
