@@ -15,7 +15,7 @@ class Resultset implements \Countable, \Iterator
     private int $position = 0;
 
     /** Whether the statement has been consumed */
-    private bool $statementPrimed = false;
+    private bool $hasBeenConsumed = false;
 
     /** @param T $model */
     public function __construct(protected Model $model, protected \PDOStatement $statement)
@@ -35,7 +35,7 @@ class Resultset implements \Countable, \Iterator
     public function next(): void
     {
         $this->currentRow      = $this->statement->fetch(PDO::FETCH_ASSOC);
-        $this->statementPrimed = true;
+        $this->hasBeenConsumed = true;
 
         if ($this->currentRow) {
             $this->position++;
@@ -51,7 +51,7 @@ class Resultset implements \Countable, \Iterator
      */
     public function first(): ?Model
     {
-        if ($this->position || $this->statementPrimed) {
+        if ($this->position || $this->hasBeenConsumed) {
             throw new Exception('Cannot fetch the first model if the resultset has already been looped');
         }
 
@@ -70,11 +70,11 @@ class Resultset implements \Countable, \Iterator
     /**
      * Primes the first row for the Iterator
      *
-     * Once the PDO cursor is consumed, it cannot seek back; further calls only reset.
+     * Once the PDO cursor is consumed, it cannot seek back, further calls only reset
      */
     public function rewind(): void
     {
-        if ($this->statementPrimed) {
+        if ($this->hasBeenConsumed) {
             $this->position = 0;
 
             return;
@@ -82,7 +82,7 @@ class Resultset implements \Countable, \Iterator
 
         $this->position        = 0;
         $this->currentRow      = $this->statement->fetch(PDO::FETCH_ASSOC);
-        $this->statementPrimed = true;
+        $this->hasBeenConsumed = true;
     }
 
     public function valid(): bool
