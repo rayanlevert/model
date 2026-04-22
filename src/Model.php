@@ -35,7 +35,7 @@ abstract class Model
      */
     public static function findFirstByPrimaryKey(int|string $value): ?static
     {
-        return self::findFirst('selectByPrimaryKey', $value);
+        return self::find(true, 'selectByPrimaryKey', $value);
     }
 
     /**
@@ -47,7 +47,21 @@ abstract class Model
      */
     public static function findFirstByColumns(array $columns): ?static
     {
-        return self::findFirst('selectByColumns', $columns);
+        return self::find(true, 'selectByColumns', $columns);
+    }
+
+    /**
+     * Finds all instances of the model by the given columns
+     *
+     * @param array<string, mixed> $columns The columns and their values to search by
+     *
+     * @return Resultset<static> The resultset of the model
+     *
+     * @throws Exception Any error when generating the query (e.g. empty array)
+     */
+    public static function findAllByColumns(array $columns): Resultset
+    {
+        return self::find(false, 'selectByColumns', $columns);
     }
 
     /**
@@ -279,17 +293,15 @@ abstract class Model
         throw new Exception('Property for column ' . $columnName . ' not found in ' . static::class);
     }
 
-    /** Finds the first instance of the model by the given method of Queries and arguments */
-    private static function findFirst(string $method, mixed $arguments): ?static
+    /** Finds the first instance or a resultset of the model by the given method of Queries and arguments */
+    private static function find(bool $first, string $method, mixed $arguments): null|static|Resultset
     {
         $oModel     = new static();
         $oSelect    = static::$dataObject->queries->$method($oModel, $arguments);
         $oStatement = static::$dataObject->prepareAndExecute($oSelect);
 
-        if (!$aResults = $oStatement->fetch(PDO::FETCH_ASSOC)) {
-            return null;
-        }
+        $oResultset = new Resultset($oModel, $oStatement);
 
-        return $oModel->assign($aResults);
+        return $first ? $oResultset->first() : $oResultset;
     }
 }
