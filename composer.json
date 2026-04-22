@@ -1,6 +1,6 @@
 {
     "name": "rayanlevert/model",
-    "description": "Dependecy-free model abstraction (M in MVC), interface for accessing databases in PHP",
+    "description": "Dependency-free model abstraction (M in MVC), interface for accessing databases in PHP",
     "type": "library",
     "license": "BSD-3-Clause",
     "keywords": [
@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "php": ">=8.4",
+        "php": ">=8.5",
         "ext-pdo": "*"
     },
     "require-dev": {
