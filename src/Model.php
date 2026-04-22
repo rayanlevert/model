@@ -20,7 +20,7 @@ abstract class Model
     abstract public string $table { get; }
 
     /** Called at the end of the constructor */
-    public function onConstruct(): void
+    protected function onConstruct(): void
     {
     }
 

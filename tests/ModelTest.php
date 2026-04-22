@@ -108,7 +108,7 @@ class ModelTest extends TestCase
         $model = new class extends Model {
             public string $table = 'users';
 
-            public function onConstruct(): void
+            protected function onConstruct(): void
             {
                 $this->table = 'test_table';
             }
@@ -298,7 +298,7 @@ class ModelTest extends TestCase
 
             public string $table = 'test_table';
 
-            public function onConstruct(): void
+            protected function onConstruct(): void
             {
                 $this->name = fopen('php://memory', 'r');
             }
