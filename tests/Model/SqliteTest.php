@@ -4,7 +4,6 @@ namespace RayanLevert\Model\Tests\Model;
 
 use PDO;
 use PHPUnit\Framework\Attributes\Test;
-use RayanLevert\Model\Connection;
 use RayanLevert\Model\Connections\Sqlite;
 use RayanLevert\Model\Model;
 use RayanLevert\Model\Queries\Sqlite as QueriesSqlite;

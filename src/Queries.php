@@ -8,7 +8,7 @@ use RayanLevert\Model\Queries\Statement;
 interface Queries
 {
     /** The escape character to use for the database */
-    public string $escapeCharacter {get;}
+    public string $escapeCharacter {get; }
 
     /**
      * Generates a query to create a new record in the database

@@ -2,8 +2,8 @@
 
 namespace RayanLevert\Model\Tests\Queries;
 
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use RayanLevert\Model\Attributes\Column;
 use RayanLevert\Model\Attributes\PrimaryKey;
 use RayanLevert\Model\Columns\Type;

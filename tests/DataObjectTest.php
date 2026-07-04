@@ -251,7 +251,7 @@ class DataObjectTest extends TransactionTestCase
         $oDataObject = new DataObject($this->getConnection(), new QueriesMysql());
 
         try {
-        $oDataObject->prepareAndExecute(new Statement('SELECT * FROM'));
+            $oDataObject->prepareAndExecute(new Statement('SELECT * FROM'));
         } catch (Exception $e) {
             $this->assertStringContainsString('Syntax error', $e->getMessage());
 
