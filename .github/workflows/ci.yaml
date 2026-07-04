@@ -1,0 +1,63 @@
+# Inspired by Sebastian Bergmann's phpunit action workflow https://github.com/sebastianbergmann/phpunit/blob/main/.github/workflows/ci.yaml
+
+name: "CI"
+
+on:
+    - pull_request
+    - push
+
+jobs:
+    dependency-validation:
+        name: Dependency Validation
+
+        runs-on: ubuntu-latest
+
+        strategy:
+            fail-fast: false
+
+        steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+
+          - name: Install PHP
+            uses: shivammathur/setup-php@v2
+            with:
+              php-version: 8.5
+              extensions: mbstring
+              coverage: none
+              tools: none
+
+          - name: Ensure that composer.json is valid
+            run: composer validate --no-ansi --strict composer.json
+
+          - name: Ensure that dependencies can be installed
+            run: composer install --no-ansi --dry-run
+
+    static-analysis:
+        name: Static analysis
+
+        needs:
+            - dependency-validation
+
+        runs-on: ubuntu-latest
+
+        strategy:
+            fail-fast: false
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Install PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                php-version: 8.5
+                extensions: mbstring
+                coverage: none
+                tools: none
+
+            - name: Install dependencies with Composer
+              run: composer install --no-interaction --no-ansi --no-progress
+
+            - name: PHP-CS-Fixer analysis
+              run: vendor/bin/php-cs-fixer check --show-progress=dots --verbose
