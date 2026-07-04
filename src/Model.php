@@ -2,7 +2,6 @@
 
 namespace RayanLevert\Model;
 
-use PDO;
 use RayanLevert\Model\Exceptions\ValidationException;
 use ReflectionClass;
 use ReflectionProperty;
@@ -55,9 +54,8 @@ abstract class Model
      *
      * @param array<string, mixed> $columns The columns and their values to search by
      *
-     * @return Resultset<static> The resultset of the model
-     *
      * @throws Exception Any error when generating the query (e.g. empty array)
+     * @return Resultset<static> The resultset of the model
      */
     public static function findAllByColumns(array $columns): Resultset
     {
@@ -294,7 +292,7 @@ abstract class Model
     }
 
     /** Finds the first instance or a resultset of the model by the given method of Queries and arguments */
-    private static function find(bool $first, string $method, mixed $arguments): null|static|Resultset
+    private static function find(bool $first, string $method, mixed $arguments): null|Resultset|static
     {
         $oModel     = new static();
         $oSelect    = static::$dataObject->queries->$method($oModel, $arguments);

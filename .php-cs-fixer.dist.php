@@ -1,6 +1,6 @@
 <?php
 
-// Hihgly inspired by https://github.com/sebastianbergmann/phpunit/blob/main/.php-cs-fixer.dist.php
+// Highly inspired by https://github.com/sebastianbergmann/phpunit/blob/main/.php-cs-fixer.dist.php
 
 declare(strict_types=1);
 
@@ -22,7 +22,7 @@ $config->setFinder($finder)
             'use_parentheses' => false
         ],
         'binary_operator_spaces' => [
-            'default' => 'at_least_single_space',
+            'default' => 'at_least_single_space'
         ],
         'blank_line_after_namespace' => true,
         'blank_line_before_statement' => [
@@ -53,7 +53,7 @@ $config->setFinder($finder)
         'cast_spaces' => true,
         'class_attributes_separation' => [
             'elements' => [
-                'method' => 'one',
+                'method' => 'one'
             ]
         ],
         'class_definition' => true,
@@ -235,18 +235,18 @@ $config->setFinder($finder)
             'imports_order' => [
                 'class',
                 'function',
-                'const',
+                'const'
             ]
         ],
         'ordered_interfaces' => [
             'direction' => 'ascend',
-            'order' => 'alpha',
+            'order' => 'alpha'
         ],
         'ordered_traits' => true,
         'ordered_types' => true,
         'php_unit_set_up_tear_down_visibility' => true,
         'php_unit_test_case_static_method_calls' => [
-            'call_type' => 'this',
+            'call_type' => 'this'
         ],
         'phpdoc_add_missing_param_annotation' => false,
         'phpdoc_annotation_without_dot' => true,
@@ -263,7 +263,7 @@ $config->setFinder($finder)
                 'covers',
                 'dataProvider',
                 'throws',
-                'uses',
+                'uses'
             ],
         ],
         'phpdoc_param_order' => true,
@@ -299,7 +299,7 @@ $config->setFinder($finder)
         'single_trait_insert_per_statement' => true,
         'space_after_semicolon' => true,
         'spaces_inside_parentheses' => [
-            'space' => 'none',
+            'space' => 'none'
         ],
         'standardize_increment' => true,
         'standardize_not_equals' => true,
@@ -317,7 +317,7 @@ $config->setFinder($finder)
         'type_declaration_spaces' => [
             'elements' => [
                 'function'
-            ],
+            ]
         ],
         'types_spaces' => true,
         'unary_operator_spaces' => true,
@@ -325,7 +325,7 @@ $config->setFinder($finder)
             'elements' => [
                 'const',
                 'method',
-                'property',
+                'property'
             ],
         ],
         'void_return' => true

@@ -25,6 +25,19 @@ services:
     networks:
       - app-network
 
+  postgres:
+    image: postgres:18
+    platform: linux/x86_64
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/docker
+    ports:
+      - "5432:5432"
+    restart: "no"
+    environment:
+      - POSTGRES_PASSWORD=postgres-password
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge

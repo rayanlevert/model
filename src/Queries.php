@@ -8,7 +8,7 @@ use RayanLevert\Model\Queries\Statement;
 interface Queries
 {
     /**
-     * Generate a query to create a new record in the database
+     * Generates a query to create a new record in the database
      *
      * @throws Exception If the query cannot be generated
      * @return Statement The query to create a new record in the database with the columns values as placeholders
@@ -16,7 +16,7 @@ interface Queries
     public function create(Model $model): Statement;
 
     /**
-     * Generate a query to update a record in the database
+     * Generates a query to update a record in the database
      *
      * @throws Exception If the query cannot be generated (no columns)
      *
@@ -25,7 +25,7 @@ interface Queries
     public function update(Model $model): Statement;
 
     /**
-     * Generate a query to delete a record in the database
+     * Generates a query to delete a record in the database
      *
      * @throws Exception If the query cannot be generated (no primary key)
      *
@@ -34,7 +34,7 @@ interface Queries
     public function delete(Model $model): Statement;
 
     /**
-     * Generate a query to select a record by its primary key
+     * Generates a query to select a record by its primary key
      *
      * @param Model $model The model to generate the query for
      * @param int|string $value The value of the primary key to select by
@@ -46,7 +46,7 @@ interface Queries
     public function selectByPrimaryKey(Model $model, int|string $value): Statement;
 
     /**
-     * Generate a query to select a record by the given columns
+     * Generates a query to select a record by the given columns
      *
      * @param Model $model The model to generate the query for
      * @param array<string, mixed> $columns The columns and their values to search by

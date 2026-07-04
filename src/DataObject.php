@@ -29,6 +29,7 @@ class DataObject
     public string $driverName {
         get => $this->backedPDO?->getAttribute(PDO::ATTR_DRIVER_NAME) ?: '';
     }
+
     /** Backed property handling the PDO instance */
     protected protected(set) ?PDO $backedPDO = null;
 
