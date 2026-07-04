@@ -89,4 +89,23 @@ abstract class Connection implements \Stringable
     {
         return $this->options[$name] ?? $default;
     }
+
+    /**
+     * Concatenates the DSN options into a string separated by semicolons
+     *
+     * @param array<string, bool|float|int|string> $options The options to concatenate
+     *
+     * @return string The concatenated DSN options (options will be filtered)
+     */
+    protected function concatDSN(array $options): string
+    {
+        $dsn = '';
+
+        foreach (array_filter($options) as $name => $value) {
+            $dsn .= "$name=$value;";
+        }
+
+
+        return rtrim(static::PREFIX . ":$dsn", ';');
+    }
 }

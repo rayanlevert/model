@@ -2,11 +2,10 @@
 
 namespace RayanLevert\Model\Connections;
 
-use function array_filter;
-use function rtrim;
-
 /**
  * Connection to MySQL databases
+ *
+ * @see https://www.php.net/manual/en/ref.pdo-mysql.connection.php
  *
  * Additional elements for the DSN to set as options:
  *
@@ -22,20 +21,12 @@ class Mysql extends \RayanLevert\Model\Connection
 
     public function dsn(): string
     {
-        $options = [
+        return $this->concatDSN([
             'host'        => $this->host,
             'port'        => $this->getOption('port'),
             'dbname'      => $this->getOption('dbname'),
             'unix_socket' => $this->getOption('unix_socket'),
             'charset'     => $this->getOption('charset')
-        ];
-
-        $dsn = '';
-
-        foreach (array_filter($options) as $name => $value) {
-            $dsn .= "$name=$value;";
-        }
-
-        return rtrim(self::PREFIX . ":$dsn", ';');
+        ]);
     }
 }

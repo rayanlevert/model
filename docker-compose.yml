@@ -11,6 +11,7 @@ services:
       - app-network
     depends_on:
       - percona
+      - postgres
 
   percona:
     image: percona:8.0
