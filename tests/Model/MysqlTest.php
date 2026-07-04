@@ -4,7 +4,6 @@ namespace RayanLevert\Model\Tests\Model;
 
 use PDO;
 use PHPUnit\Framework\Attributes\Test;
-use RayanLevert\Model\Connections\Mysql;
 use RayanLevert\Model\State;
 use RayanLevert\Model\Tests\Fixtures\User;
 
