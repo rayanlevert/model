@@ -12,6 +12,7 @@ use RayanLevert\Model\DataObject;
 use RayanLevert\Model\Exception;
 use RayanLevert\Model\Queries;
 use RayanLevert\Model\Queries\Mysql as QueriesMysql;
+use RayanLevert\Model\Queries\Statement;
 use ReflectionProperty;
 
 #[CoversClass(DataObject::class)]
@@ -242,6 +243,22 @@ class DataObjectTest extends TransactionTestCase
         $this->expectExceptionMessage('Test exception');
 
         $dataObject->rollback();
+    }
+
+    #[Test]
+    public function prepareAndExecuteThrowsException(): void
+    {
+        $oDataObject = new DataObject($this->getConnection(), new QueriesMysql());
+
+        try {
+        $oDataObject->prepareAndExecute(new Statement('SELECT * FROM'));
+        } catch (Exception $e) {
+            $this->assertStringContainsString('Syntax error', $e->getMessage());
+
+            return;
+        }
+
+        $this->fail('Exception should have been thrown');
     }
 
     /** Returns a working DataObject to the mysql database */

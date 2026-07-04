@@ -94,6 +94,19 @@ class ModelTest extends TestCase
     }
 
     #[Test]
+    public function constructNoDataObject(): void
+    {
+        Model::$dataObject = null;
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('DataObject class not set, it must be set via the static property $dataObject');
+
+        new class extends Model {
+            public string $table = 'users';
+        };
+    }
+
+    #[Test]
     public function table(): void
     {
         $model = new class extends Model {

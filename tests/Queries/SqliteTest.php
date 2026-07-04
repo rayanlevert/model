@@ -45,8 +45,7 @@ class SqliteTest extends \PHPUnit\Framework\TestCase
     {
         $model = new class extends Model {
             #[Column(Type::VARCHAR)]
-            public string $name = 'John Doe';
-
+            public string $name  = 'John Doe';
             public string $table = 'users';
         };
 
@@ -168,8 +167,7 @@ class SqliteTest extends \PHPUnit\Framework\TestCase
     {
         $model = new class extends Model {
             #[Column(Type::VARCHAR)]
-            public string $name = 'Test';
-
+            public string $name  = 'Test';
             public string $table = 'user_profiles';
         };
 
