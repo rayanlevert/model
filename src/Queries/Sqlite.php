@@ -1,0 +1,66 @@
+<?php
+
+namespace RayanLevert\Model\Queries;
+
+use RayanLevert\Model\Exception;
+use RayanLevert\Model\Model;
+
+/** Queries for SQLite databases */
+class Sqlite implements \RayanLevert\Model\Queries
+{
+    public function create(Model $model): Statement
+    {
+        $aColumns     = $model->columns();
+        $columns      = implode(', ', array_map(static fn (string $column) => "\"$column\"", array_keys($aColumns)));
+        $placeholders = implode(', ', array_fill(0, count($aColumns), '?'));
+
+        return new Statement(
+            "INSERT INTO \"{$model->table}\" ($columns) VALUES ($placeholders)",
+            ...array_values($aColumns)
+        );
+    }
+
+    public function update(Model $model): Statement
+    {
+        $oPrimaryKey = $model->getPrimaryKey();
+        $aColumns = $model->columns();
+        unset($aColumns[$oPrimaryKey->column]);
+
+        if (!$aColumns) {
+            throw new \RayanLevert\Model\Exception('No columns found in ' . $model::class);
+        }
+
+        $columns = implode(', ', array_map(static fn (string $column) => "\"$column\" = ?", array_keys($aColumns)));
+
+        return new Statement(
+            "UPDATE \"{$model->table}\" SET $columns WHERE \"{$oPrimaryKey->column}\" = ?",
+            ...[...array_values($aColumns), $oPrimaryKey->value]
+        );
+    }
+
+    public function delete(Model $model): Statement
+    {
+        $oPrimaryKey = $model->getPrimaryKey();
+
+        return new Statement("DELETE FROM \"{$model->table}\" WHERE \"{$oPrimaryKey->column}\" = ?", $oPrimaryKey->value);
+    }
+
+    public function selectByPrimaryKey(Model $model, int|string $value): Statement
+    {
+        $oPrimaryKey = $model->getPrimaryKey();
+
+        return new Statement("SELECT * FROM \"{$model->table}\" WHERE \"{$oPrimaryKey->column}\" = ?", $value);
+    }
+
+    public function selectByColumns(Model $model, array $columns): Statement
+    {
+        if (!$columns) {
+            throw new Exception('No columns found in ' . $model::class);
+        }
+
+        $aColumns     = array_map(static fn (string $column) => "\"{$model->getDatabaseColumnName($column)}\" = ?", array_keys($columns));
+        $placeholders = implode(' AND ', $aColumns);
+
+        return new Statement("SELECT * FROM \"{$model->table}\" WHERE $placeholders", ...array_values($columns));
+    }
+}
