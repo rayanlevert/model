@@ -2,19 +2,25 @@
 
 namespace RayanLevert\Model\Tests;
 
-use RayanLevert\Model\Connections\Mysql as ConnectionsMysql;
+use RayanLevert\Model\Connection;
 use RayanLevert\Model\DataObject;
 use RayanLevert\Model\Model;
-use RayanLevert\Model\Queries\Mysql;
+use RayanLevert\Model\Queries;
 
 /** Test case where actual databases queries (insert, update, delete) are performed */
 abstract class TransactionTestCase extends \PHPUnit\Framework\TestCase
 {
     protected DataObject $dataObject;
 
+    /** Returns a working Connection to the database */
+    abstract protected function getConnection(): Connection;
+
+    /** Returns a Queries object to the database */
+    abstract protected function getQueries(): Queries;
+
     protected function setUp(): void
     {
-        $this->dataObject = new DataObject($this->getConnection(), new Mysql());
+        $this->dataObject = new DataObject($this->getConnection(), $this->getQueries());
         $this->dataObject->startTransaction();
 
         Model::$dataObject = $this->dataObject;
@@ -25,11 +31,5 @@ abstract class TransactionTestCase extends \PHPUnit\Framework\TestCase
         $this->dataObject->rollback();
 
         Model::$dataObject = null;
-    }
-
-    /** Returns a working DataObject to the mysql database */
-    protected function getConnection(): ConnectionsMysql
-    {
-        return new ConnectionsMysql('percona', 'root', 'root-password', ['dbname' => 'model']);
     }
 }

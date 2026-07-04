@@ -5,7 +5,9 @@ namespace RayanLevert\Model\Tests;
 use PDOStatement;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use RayanLevert\Model\Connections\Mysql;
 use RayanLevert\Model\Exception;
+use RayanLevert\Model\Queries\Mysql as QueriesMysql;
 use RayanLevert\Model\Queries\Statement;
 use RayanLevert\Model\Resultset;
 use RayanLevert\Model\Tests\Fixtures\User;
@@ -105,7 +107,7 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
 
         $oStatement = $this->dataObject->prepareAndExecute(new Statement('SELECT * FROM user'));
         $oResulset  = new Resultset($oUser, $oStatement);
-        
+
         $this->assertCount(2, $oResulset);
 
         $oResulset->next();
@@ -178,7 +180,7 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oResulset  = new Resultset($oUser, $oStatement);
 
         $this->assertCount(2, $oResulset);
-    
+
         $oResulset->next();
         $oResulset->next();
 
@@ -208,7 +210,7 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
 
         $oResulset->next();
         $oModel = $oResulset->current();
-        
+
         $this->assertNull($oModel);
     }
 
@@ -331,5 +333,17 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->expectExceptionMessage('Cannot fetch the first model if the resultset has already been looped');
 
         $oResulset->first();
+    }
+
+    /** Returns a working Connection to the database */
+    protected function getConnection(): Mysql
+    {
+        return new Mysql('percona', 'root', 'root-password', ['dbname' => 'model']);
+    }
+
+    /** Returns a working Queries object to the database */
+    protected function getQueries(): QueriesMysql
+    {
+        return new QueriesMysql();
     }
 }

@@ -7,8 +7,10 @@ use PDOException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use RayanLevert\Model\Connection;
+use RayanLevert\Model\Connections\Mysql;
 use RayanLevert\Model\DataObject;
 use RayanLevert\Model\Exception;
+use RayanLevert\Model\Queries;
 use RayanLevert\Model\Queries\Mysql as QueriesMysql;
 use ReflectionProperty;
 
@@ -240,5 +242,17 @@ class DataObjectTest extends TransactionTestCase
         $this->expectExceptionMessage('Test exception');
 
         $dataObject->rollback();
+    }
+
+    /** Returns a working DataObject to the mysql database */
+    protected function getConnection(): Mysql
+    {
+        return new Mysql('percona', 'root', 'root-password', ['dbname' => 'model']);
+    }
+
+    /** Returns a working Queries object to the mysql database */
+    protected function getQueries(): Queries
+    {
+        return new QueriesMysql();
     }
 }

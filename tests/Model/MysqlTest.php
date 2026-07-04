@@ -4,6 +4,8 @@ namespace RayanLevert\Model\Tests\Model;
 
 use PDO;
 use PHPUnit\Framework\Attributes\Test;
+use RayanLevert\Model\Connections\Mysql;
+use RayanLevert\Model\Queries\Mysql as QueriesMysql;
 use RayanLevert\Model\State;
 use RayanLevert\Model\Tests\Fixtures\User;
 
@@ -44,6 +46,12 @@ class MysqlTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertTrue($oStatement->execute());
         $this->assertSame(['id' => $id, 'last_name' => 'Doe', 'first_name' => 'John'], $oStatement->fetch(PDO::FETCH_ASSOC));
 
+        // From the find method as well
+        $this->assertNotNull($oModel = $model->findFirstByPrimaryKey($id));
+        $this->assertSame('John', $oModel->firstName);
+        $this->assertSame('Doe', $oModel->lastName);
+        $this->assertSame($id, $oModel->id);
+
         $model->firstName = 'Jane';
         $model->lastName  = 'Smith';
 
@@ -71,5 +79,17 @@ class MysqlTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame(0, $oStatement->rowCount());
 
         $this->assertSame(State::DETACHED, $model->state);
+    }
+
+    /** Returns a working Connection to the mysql database */
+    protected function getConnection(): Mysql
+    {
+        return new Mysql('percona', 'root', 'root-password', ['dbname' => 'model']);
+    }
+
+    /** Returns a working Queries object to the mysql database */
+    protected function getQueries(): QueriesMysql
+    {
+        return new QueriesMysql();
     }
 }
