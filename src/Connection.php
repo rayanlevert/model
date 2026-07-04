@@ -37,7 +37,7 @@ abstract class Connection implements \Stringable
         protected readonly ?string $password = null,
         public private(set) array $options = []
     ) {
-        $this->options = array_filter($this->options, fn (mixed $value) => is_scalar($value));
+        $this->options = array_filter($this->options, static fn (mixed $value) => is_scalar($value));
     }
 
     /** Dumping this class doesn't display the password */
@@ -104,7 +104,6 @@ abstract class Connection implements \Stringable
         foreach (array_filter($options) as $name => $value) {
             $dsn .= "$name=$value;";
         }
-
 
         return rtrim(static::PREFIX . ":$dsn", ';');
     }

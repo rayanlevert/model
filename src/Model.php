@@ -187,7 +187,7 @@ abstract class Model
     {
         return array_find(
             new ReflectionClass($this)->getProperties(),
-            fn (ReflectionProperty $property) => $property->getAttributes(Attributes\AutoIncrement::class)
+            static fn (ReflectionProperty $property) => $property->getAttributes(Attributes\AutoIncrement::class)
         )?->getName();
     }
 

@@ -39,6 +39,18 @@ services:
     networks:
       - app-network
 
+  sqlite:
+    image: hibitdev/sqlite:latest
+    container_name: sqlite
+    hostname: sqlite
+    ports:
+      - "8191:8191"
+    volumes:
+      - ./data/sqlite:/db
+    command: ["tail", "-f", "/dev/null"]
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge

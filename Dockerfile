@@ -9,8 +9,8 @@ RUN apt-get update -y && \
     git \
     zip
 
-# Enabling xdebug and PDO MySQL
-RUN pecl install xdebug && docker-php-ext-install pdo_mysql && docker-php-ext-enable xdebug pdo_mysql pdo_pgsql
+# Enabling xdebug and PDO MySQL & Sqlite
+RUN pecl install xdebug && docker-php-ext-install pdo_mysql pdo_sqlite && docker-php-ext-enable xdebug pdo_mysql pdo_sqlite
 
 # Installing PDO PostgreSQL
 RUN apt-get update && apt-get install -y libpq-dev \

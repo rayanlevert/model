@@ -11,7 +11,7 @@ class Postgres implements \RayanLevert\Model\Queries
     public function create(Model $model): Statement
     {
         $aColumns     = $model->columns();
-        $columns      = implode(', ', array_map(fn (string $column) => "\"$column\"", array_keys($aColumns)));
+        $columns      = implode(', ', array_map(static fn (string $column) => "\"$column\"", array_keys($aColumns)));
         $placeholders = implode(', ', array_fill(0, count($aColumns), '?'));
 
         return new Statement(
@@ -31,7 +31,7 @@ class Postgres implements \RayanLevert\Model\Queries
             throw new Exception('No columns found in ' . $model::class);
         }
 
-        $columns = implode(', ', array_map(fn (string $column) => "\"$column\" = ?", array_keys($aColumns)));
+        $columns = implode(', ', array_map(static fn (string $column) => "\"$column\" = ?", array_keys($aColumns)));
 
         return new Statement(
             "UPDATE \"{$model->table}\" SET $columns WHERE \"{$oPrimaryKey->column}\" = ?",
@@ -60,7 +60,7 @@ class Postgres implements \RayanLevert\Model\Queries
             throw new Exception('No columns found in ' . $model::class);
         }
 
-        $aColumns     = array_map(fn (string $column) => "\"{$model->getDatabaseColumnName($column)}\" = ?", array_keys($columns));
+        $aColumns     = array_map(static fn (string $column) => "\"{$model->getDatabaseColumnName($column)}\" = ?", array_keys($columns));
         $placeholders = implode(' AND ', $aColumns);
 
         return new Statement("SELECT * FROM \"{$model->table}\" WHERE $placeholders", ...array_values($columns));
