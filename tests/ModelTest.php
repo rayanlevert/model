@@ -1022,7 +1022,7 @@ class ModelTest extends TestCase
         };
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage("Column id not found in " . $model::class);
+        $this->expectExceptionMessage('Column id not found in ' . $model::class);
 
         $model->getColumn('id');
     }

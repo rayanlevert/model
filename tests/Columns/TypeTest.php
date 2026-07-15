@@ -156,7 +156,7 @@ class TypeTest extends \PHPUnit\Framework\TestCase
 
     #[Test]
     #[DataProvider('provideGetPhpValueIntTypes')]
-    public function getPhpValueForIntTypes(Type $type, float|int|string|bool $in, int $expected): void
+    public function getPhpValueForIntTypes(Type $type, bool|float|int|string $in, int $expected): void
     {
         $this->assertSame($expected, $type->getPhpValue($in));
         $this->assertIsInt($type->getPhpValue($in));
@@ -164,7 +164,7 @@ class TypeTest extends \PHPUnit\Framework\TestCase
 
     #[Test]
     #[DataProvider('provideGetPhpValueBoolTypes')]
-    public function getPhpValueForBoolTypes(Type $type, float|int|string|bool $in, bool $expected): void
+    public function getPhpValueForBoolTypes(Type $type, bool|float|int|string $in, bool $expected): void
     {
         $this->assertSame($expected, $type->getPhpValue($in));
         $this->assertIsBool($type->getPhpValue($in));
@@ -172,7 +172,7 @@ class TypeTest extends \PHPUnit\Framework\TestCase
 
     #[Test]
     #[DataProvider('provideGetPhpValueFloatTypes')]
-    public function getPhpValueForFloatTypes(Type $type, float|int|string|bool $in, float $expected): void
+    public function getPhpValueForFloatTypes(Type $type, bool|float|int|string $in, float $expected): void
     {
         $this->assertSame($expected, $type->getPhpValue($in));
         $this->assertIsFloat($type->getPhpValue($in));
@@ -180,7 +180,7 @@ class TypeTest extends \PHPUnit\Framework\TestCase
 
     #[Test]
     #[DataProvider('provideGetPhpValueStringTypes')]
-    public function getPhpValueForStringTypes(Type $type, null|float|int|string|bool $in, string $expected): void
+    public function getPhpValueForStringTypes(Type $type, null|bool|float|int|string $in, string $expected): void
     {
         $this->assertSame($expected, $type->getPhpValue($in ?? ''));
         $this->assertIsString($type->getPhpValue($in ?? ''));
