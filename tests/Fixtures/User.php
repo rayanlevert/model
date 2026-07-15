@@ -2,6 +2,7 @@
 
 namespace RayanLevert\Model\Tests\Fixtures;
 
+use DateTimeImmutable;
 use RayanLevert\Model\Attributes;
 use RayanLevert\Model\Columns\Type;
 use RayanLevert\Model\Model;
@@ -23,4 +24,8 @@ class User extends Model
     #[Attributes\Column(Type::VARCHAR, 'first_name')]
     #[Attributes\Validation\Required]
     public ?string $firstName = null;
+
+    #[Attributes\Column(Type::DATETIME, 'created_at')]
+    #[Attributes\Validation\Required]
+    public ?DateTimeImmutable $createdAt = null;
 }

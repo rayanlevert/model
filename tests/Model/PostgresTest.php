@@ -13,6 +13,7 @@ use RayanLevert\Model\Queries\Postgres as QueriesPostgres;
  * - id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY
  * - first_name character varying(45) NOT NULL
  * - last_name character varying(45) NOT NULL
+ * - created_at TIMESTAMP NOT NULL
  */
 class PostgresTest extends TestCase
 {

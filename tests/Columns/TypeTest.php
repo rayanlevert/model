@@ -5,6 +5,7 @@ namespace RayanLevert\Model\Tests\Columns;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
+use DateTimeZone;
 use JsonSerializable;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -15,6 +16,79 @@ use RayanLevert\Model\Exception;
 #[CoversClass(Type::class)]
 class TypeTest extends \PHPUnit\Framework\TestCase
 {
+    /** Providers for getPhpValue tests (153-163) */
+    public static function provideGetPhpValueIntTypes(): array
+    {
+        return [
+            'INTEGER'          => [Type::INTEGER, 123, 123],
+            'UNSIGNED_INTEGER' => [Type::UNSIGNED_INTEGER, 456, 456],
+            'SMALL_INTEGER'    => [Type::SMALL_INTEGER, 1, 1],
+            'TINY_INTEGER'     => [Type::TINY_INTEGER, '8', 8],
+        ];
+    }
+
+    public static function provideGetPhpValueBoolTypes(): array
+    {
+        return [
+            'BOOLEAN true'  => [Type::BOOLEAN, 1, true],
+            'BOOLEAN false' => [Type::BOOLEAN, 0, false],
+            'BOOLEAN bool true' => [Type::BOOLEAN, true, true],
+            'BOOLEAN bool false' => [Type::BOOLEAN, false, false],
+            'BOOLEAN string' => [Type::BOOLEAN, '0', false],
+        ];
+    }
+
+    public static function provideGetPhpValueFloatTypes(): array
+    {
+        return [
+            'DECIMAL' => [Type::DECIMAL, '3.14', 3.14],
+            'FLOAT'   => [Type::FLOAT, 1.23, 1.23],
+            'DOUBLE'  => [Type::DOUBLE, '2.718', 2.718],
+        ];
+    }
+
+    public static function provideGetPhpValueStringTypes(): array
+    {
+        return [
+            'CHAR'        => [Type::CHAR, 123, '123'],
+            'VARCHAR'     => [Type::VARCHAR, true, '1'],
+            'TEXT'        => [Type::TEXT, 5.67, '5.67'],
+            'MEDIUM_TEXT' => [Type::MEDIUM_TEXT, null, ''],
+            'LONG_TEXT'   => [Type::LONG_TEXT, 'my string', 'my string'],
+        ];
+    }
+
+    public static function provideGetPhpValueDateTypes(): array
+    {
+        return [
+            'DATE' => [Type::DATE, '2024-05-09', new DateTimeImmutable('2024-05-09 00:00:00')],
+            'TIME' => [Type::TIME, '13:05:07', new DateTimeImmutable('1970-01-01 13:05:07')],
+            'DATETIME' => [Type::DATETIME, '2023-12-08 15:16:17', new DateTimeImmutable('2023-12-08 15:16:17')],
+            'TIMESTAMP 1715859045' => [Type::TIMESTAMP, 1715859045, new DateTimeImmutable('2024-05-16 11:30:45', new DateTimeZone('UTC'))],
+        ];
+    }
+
+    public static function provideGetPhpValueBinaryTypes(): array
+    {
+        return [
+            'BINARY'       => [Type::BINARY, '01010100', '01010100'],
+            'VARBINARY'    => [Type::VARBINARY, 'varbinary', 'varbinary'],
+            'BLOB'         => [Type::BLOB, "\x00\x01", "\x00\x01"],
+            'MEDIUM_BLOB'  => [Type::MEDIUM_BLOB, 'medium', 'medium'],
+            'LONG_BLOB'    => [Type::LONG_BLOB, 'longblob', 'longblob']
+        ];
+    }
+
+    public static function provideGetPhpValueJsonTypes(): array
+    {
+        return [
+            'JSON null'      => [Type::JSON, 'null', null],
+            'JSON bool'      => [Type::JSON, 'true', true],
+            'JSON array'     => [Type::JSON, '[1,2]', [1,2]],
+            'JSON assoc'     => [Type::JSON, '{"a":1,"b":2}', (object) ['a' => 1, 'b' => 2]]
+        ];
+    }
+
     public static function provideNumericTypes(): array
     {
         return [
@@ -78,6 +152,62 @@ class TypeTest extends \PHPUnit\Framework\TestCase
             'TIMESTAMP with DateTime' => [Type::TIMESTAMP, $dateTime, '2023-01-15 14:30:45'],
             'TIMESTAMP with DateTimeImmutable' => [Type::TIMESTAMP, $dateTimeImmutable, '2023-01-15 14:30:45']
         ];
+    }
+
+    #[Test]
+    #[DataProvider('provideGetPhpValueIntTypes')]
+    public function getPhpValueForIntTypes(Type $type, float|int|string|bool $in, int $expected): void
+    {
+        $this->assertSame($expected, $type->getPhpValue($in));
+        $this->assertIsInt($type->getPhpValue($in));
+    }
+
+    #[Test]
+    #[DataProvider('provideGetPhpValueBoolTypes')]
+    public function getPhpValueForBoolTypes(Type $type, float|int|string|bool $in, bool $expected): void
+    {
+        $this->assertSame($expected, $type->getPhpValue($in));
+        $this->assertIsBool($type->getPhpValue($in));
+    }
+
+    #[Test]
+    #[DataProvider('provideGetPhpValueFloatTypes')]
+    public function getPhpValueForFloatTypes(Type $type, float|int|string|bool $in, float $expected): void
+    {
+        $this->assertSame($expected, $type->getPhpValue($in));
+        $this->assertIsFloat($type->getPhpValue($in));
+    }
+
+    #[Test]
+    #[DataProvider('provideGetPhpValueStringTypes')]
+    public function getPhpValueForStringTypes(Type $type, null|float|int|string|bool $in, string $expected): void
+    {
+        $this->assertSame($expected, $type->getPhpValue($in ?? ''));
+        $this->assertIsString($type->getPhpValue($in ?? ''));
+    }
+
+    #[Test]
+    #[DataProvider('provideGetPhpValueDateTypes')]
+    public function getPhpValueForDateAndTimeTypes(Type $type, float|int|string $in, DateTimeImmutable $expected): void
+    {
+        $ret = $type->getPhpValue($in);
+        $this->assertInstanceOf(DateTimeImmutable::class, $ret);
+        $this->assertSame($expected->format('Y-m-d H:i:s'), $ret->format('Y-m-d H:i:s'));
+    }
+
+    #[Test]
+    #[DataProvider('provideGetPhpValueBinaryTypes')]
+    public function getPhpValueForBinaryTypes(Type $type, float|int|string $in, string $expected): void
+    {
+        $this->assertSame($expected, $type->getPhpValue($in));
+        $this->assertIsString($type->getPhpValue($in));
+    }
+
+    #[Test]
+    #[DataProvider('provideGetPhpValueJsonTypes')]
+    public function getPhpValueForJsonTypes(Type $type, float|int|string $in, mixed $expected): void
+    {
+        $this->assertEquals($expected, $type->getPhpValue($in));
     }
 
     #[Test]
@@ -157,14 +287,14 @@ class TypeTest extends \PHPUnit\Framework\TestCase
     public function getValueReturnsScalarValuesAsIs(mixed $value): void
     {
         $type = Type::VARCHAR;
-        $this->assertSame($value, $type->getValue($value));
+        $this->assertSame($value, $type->getQueryValue($value));
     }
 
     #[Test]
     #[DataProvider('provideDateTimeValues')]
-    public function getValueFormatsDateTimeInterfaceCorrectly(Type $type, DateTimeInterface $dateTime, string $expected): void
+    public function getValueFormatsDateTimeInterfaceCorrectly(Type $type, DateTimeInterface|int $dateTime, string $expected): void
     {
-        $this->assertSame($expected, $type->getValue($dateTime));
+        $this->assertSame($expected, $type->getQueryValue($dateTime));
     }
 
     #[Test]
@@ -176,7 +306,7 @@ class TypeTest extends \PHPUnit\Framework\TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('incorrect DateTimeInterface/Column type combination');
 
-        $type->getValue($dateTime);
+        $type->getQueryValue($dateTime);
     }
 
     #[Test]
@@ -190,7 +320,7 @@ class TypeTest extends \PHPUnit\Framework\TestCase
         };
 
         $type = Type::VARCHAR;
-        $this->assertSame('test string', $type->getValue($object));
+        $this->assertSame('test string', $type->getQueryValue($object));
     }
 
     #[Test]
@@ -199,7 +329,7 @@ class TypeTest extends \PHPUnit\Framework\TestCase
         $object = new SerializableTestClass();
 
         $type = Type::VARCHAR;
-        $serialized = $type->getValue($object);
+        $serialized = $type->getQueryValue($object);
         $this->assertStringContainsString('serialized', $serialized);
     }
 
@@ -214,7 +344,7 @@ class TypeTest extends \PHPUnit\Framework\TestCase
         };
 
         $type = Type::VARCHAR;
-        $result = $type->getValue($object);
+        $result = $type->getQueryValue($object);
         $this->assertSame('{"key":"value"}', $result);
     }
 
@@ -226,7 +356,7 @@ class TypeTest extends \PHPUnit\Framework\TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('cannot use a value of type array as a value for a column');
 
-        $type->getValue(['array' => 'value']);
+        $type->getQueryValue(['array' => 'value']);
     }
 
     #[Test]
@@ -239,7 +369,7 @@ class TypeTest extends \PHPUnit\Framework\TestCase
         $this->expectExceptionMessage('cannot use a value of type resource as a value for a column');
 
         try {
-            $type->getValue($resource);
+            $type->getQueryValue($resource);
         } finally {
             fclose($resource);
         }
@@ -253,7 +383,7 @@ class TypeTest extends \PHPUnit\Framework\TestCase
             return 'test';
         };
 
-        $this->assertSame('test', $type->getValue($callable));
+        $this->assertSame('test', $type->getQueryValue($callable));
     }
 
     #[Test]
@@ -267,7 +397,7 @@ class TypeTest extends \PHPUnit\Framework\TestCase
         };
 
         $type = Type::VARCHAR;
-        $this->assertSame('stringable object', $type->getValue($object));
+        $this->assertSame('stringable object', $type->getQueryValue($object));
     }
 
     #[Test]
@@ -276,7 +406,7 @@ class TypeTest extends \PHPUnit\Framework\TestCase
         $object = new LegacySerializableTestClass();
 
         $type = Type::VARCHAR;
-        $serialized = $type->getValue($object);
+        $serialized = $type->getQueryValue($object);
         $this->assertStringContainsString('legacy serialized', $serialized);
     }
 }

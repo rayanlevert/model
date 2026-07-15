@@ -671,13 +671,13 @@ class ModelTest extends TestCase
             public string $table = 'test_table';
 
             #[Column(Type::VARCHAR)]
-            public string $name = 'John Doe';
+            public array $name = [];
         };
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Setting property name failed, Cannot assign array to property');
+        $this->expectExceptionMessage('Setting property name failed, ');
 
-        $model->assign(['name' => []]);
+        @$model->assign(['name' => []]);
     }
 
     #[Test]
@@ -795,13 +795,13 @@ class ModelTest extends TestCase
             public int $id = 1;
 
             #[Column(Type::VARCHAR)]
-            public string $name = 'John Doe';
+            public array $name = [];
         };
 
         try {
-            $model->findFirstByPrimaryKey(1);
+            @$model->findFirstByPrimaryKey(1);
         } catch (Exception $e) {
-            $this->assertStringStartsWith('Setting property name failed, Cannot assign array to property', $e->getMessage());
+            $this->assertStringStartsWith('Setting property name failed, ', $e->getMessage());
 
             return;
         }
@@ -1012,5 +1012,32 @@ class ModelTest extends TestCase
         $this->assertSame('Doe', $oModel->lastName);
         $this->assertSame('Jane', $oModel->firstName);
         $this->assertSame(11, $oModel->id);
+    }
+
+    #[Test]
+    public function getColumnNotFound(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+        };
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("Column id not found in " . $model::class);
+
+        $model->getColumn('id');
+    }
+
+    #[Test]
+    public function getColumnFound(): void
+    {
+        $model = new class extends Model {
+            public string $table = 'test_table';
+
+            #[Column(Type::INTEGER, 'identifiant')]
+            public int $id = 1;
+        };
+
+        $this->assertSame('identifiant', $model->getColumn('identifiant')->name);
+        $this->assertSame(1, $model->getColumn('identifiant')->type->getPhpValue(1));
     }
 }

@@ -130,7 +130,7 @@ abstract class Model
     }
 
     /**
-     * Saves the instance to the database
+     * Saves (creates or updates) the instance to the database
      *
      * @throws Exception If the instance is not transiant or persistent or the query cannot be generated
      */
@@ -210,7 +210,7 @@ abstract class Model
             $oColumn = $attributes[0]->newInstance();
 
             try {
-                $phpValue = $oColumn->type->getValue($property->getValue($this));
+                $phpValue = $oColumn->type->getQueryValue($property->getValue($this));
             } catch (Exception $e) {
                 throw new Exception(static::class . '::$' . $property->getName() . ' : ' . $e->getMessage());
             }
@@ -236,7 +236,7 @@ abstract class Model
             }
 
             try {
-                $this->{$propertyName} = $value;
+                $this->{$propertyName} = $this->getColumn($column)->type->getPhpValue($value);
             } catch (\TypeError $error) {
                 throw new Exception("Setting property $column failed, " . $error->getMessage(), 0, $error);
             }
@@ -289,6 +289,30 @@ abstract class Model
         }
 
         throw new Exception('Property for column ' . $columnName . ' not found in ' . static::class);
+    }
+
+    /**
+     * Returns the Column property for a given database column name
+     *
+     * @throws Exception If the column is not found in the model
+     *
+     * @return Attributes\Column The Column property
+     */
+    public function getColumn(string $columnName): Attributes\Column
+    {
+        foreach (new ReflectionClass($this)->getProperties() as $property) {
+            if (!$oColumn = $property->getAttributes(Attributes\Column::class)[0] ?? null) {
+                continue;
+            }
+
+            $oColumn = $oColumn->newInstance();
+
+            if (null === $oColumn->name && $property->getName() === $columnName || $oColumn->name === $columnName) {
+                return $oColumn;
+            }
+        }
+
+        throw new Exception("Column $columnName not found in " . static::class);
     }
 
     /** Finds the first instance or a resultset of the model by the given method of Queries and arguments */

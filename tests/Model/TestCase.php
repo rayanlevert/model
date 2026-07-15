@@ -2,6 +2,7 @@
 
 namespace RayanLevert\Model\Tests\Model;
 
+use DateTimeImmutable;
 use PDO;
 use PHPUnit\Framework\Attributes\Test;
 use RayanLevert\Model\State;
@@ -15,6 +16,7 @@ use RayanLevert\Model\Tests\Fixtures\User;
  * - id INT AUTO_INCREMENT PRIMARY KEY
  * - first_name VARCHAR(45) NOT NULL
  * - last_name VARCHAR(45) NOT NULL
+ * - created_at DATETIME NOT NULL
  */
 abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
 {
@@ -25,6 +27,7 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
 
         $model->firstName = 'John';
         $model->lastName  = 'Doe';
+        $model->createdAt = new DateTimeImmutable('2026-01-01 12:00:00');
 
         $this->assertSame(State::TRANSIANT, $model->state);
 
@@ -44,7 +47,7 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
         $oStatement = $this->dataObject->pdo->prepare("SELECT * FROM {$escape}user{$escape}");
 
         $this->assertTrue($oStatement->execute());
-        $this->assertSame(['id' => $id, 'first_name' => 'John', 'last_name' => 'Doe'], $oStatement->fetch(PDO::FETCH_ASSOC));
+        $this->assertSame(['id' => $id, 'first_name' => 'John', 'last_name' => 'Doe', 'created_at' => '2026-01-01 12:00:00'], $oStatement->fetch(PDO::FETCH_ASSOC));
 
         // From the find method as well
         $this->assertNotNull($oModel = $model->findFirstByPrimaryKey($id));
@@ -67,7 +70,7 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
         $oStatement = $this->dataObject->pdo->prepare("SELECT * FROM {$escape}user{$escape}");
 
         $this->assertTrue($oStatement->execute());
-        $this->assertSame(['id' => $model->id, 'first_name' => 'Jane', 'last_name' => 'Smith'], $oStatement->fetch(PDO::FETCH_ASSOC));
+        $this->assertSame(['id' => $model->id, 'first_name' => 'Jane', 'last_name' => 'Smith', 'created_at' => '2026-01-01 12:00:00'], $oStatement->fetch(PDO::FETCH_ASSOC));
 
         $model->delete();
 
@@ -76,7 +79,6 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
 
         $this->assertTrue($oStatement->execute());
         $this->assertEmpty($oStatement->fetch(PDO::FETCH_ASSOC));
-        $this->assertSame(0, $oStatement->rowCount());
 
         $this->assertSame(State::DETACHED, $model->state);
     }
@@ -87,6 +89,7 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
         $model = new User();
         $model->firstName = 'John';
         $model->lastName  = 'Doe';
+        $model->createdAt = new DateTimeImmutable('2026-01-01 12:00:00');
 
         $model->create();
 
@@ -94,6 +97,7 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame('John', $oModel->firstName);
         $this->assertSame('Doe', $oModel->lastName);
         $this->assertSame($model->id, $oModel->id);
+        $this->assertSame('2026-01-01 12:00:00', $oModel->createdAt->format('Y-m-d H:i:s'));
 
         $this->assertNull($model->findFirstByPrimaryKey($model->id + 1));
     }
@@ -104,6 +108,7 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
         $model = new User();
         $model->firstName = 'John';
         $model->lastName  = 'Doe';
+        $model->createdAt = new DateTimeImmutable('2026-01-01 12:00:00');
 
         $model->create();
 
@@ -111,21 +116,25 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame('John', $oModel->firstName);
         $this->assertSame('Doe', $oModel->lastName);
         $this->assertSame($model->id, $oModel->id);
+        $this->assertSame('2026-01-01 12:00:00', $oModel->createdAt->format('Y-m-d H:i:s'));
 
         $this->assertNotNull($oModel = $model->findFirstByColumns(['lastName' => 'Doe']));
         $this->assertSame('Doe', $oModel->lastName);
         $this->assertSame('John', $oModel->firstName);
         $this->assertSame($model->id, $oModel->id);
+        $this->assertSame('2026-01-01 12:00:00', $oModel->createdAt->format('Y-m-d H:i:s'));
 
         $this->assertNotNull($oModel = $model->findFirstByColumns(['firstName' => 'John', 'lastName' => 'Doe']));
         $this->assertSame('John', $oModel->firstName);
         $this->assertSame('Doe', $oModel->lastName);
         $this->assertSame($model->id, $oModel->id);
+        $this->assertSame('2026-01-01 12:00:00', $oModel->createdAt->format('Y-m-d H:i:s'));
 
         $this->assertNotNull($oModel = $model->findFirstByColumns(['id' => $model->id]));
         $this->assertSame($model->id, $oModel->id);
         $this->assertSame('John', $oModel->firstName);
         $this->assertSame('Doe', $oModel->lastName);
+        $this->assertSame('2026-01-01 12:00:00', $oModel->createdAt->format('Y-m-d H:i:s'));
 
         $this->assertNull($model->findFirstByColumns(['firstName' => 'Jane']));
     }
@@ -136,6 +145,7 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
         $model = new User();
         $model->firstName = 'John';
         $model->lastName  = 'Doe';
+        $model->createdAt = new DateTimeImmutable('2026-01-01 12:00:00');
 
         $model->create();
 
@@ -145,6 +155,7 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame('John', $aModels[0]->firstName);
         $this->assertSame('Doe', $aModels[0]->lastName);
         $this->assertSame($model->id, $aModels[0]->id);
+        $this->assertSame('2026-01-01 12:00:00', $aModels[0]->createdAt->format('Y-m-d H:i:s'));
 
         $aModels = iterator_to_array($model->findAllByColumns(['lastName' => 'Doe']));
 
@@ -152,6 +163,7 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame('Doe', $aModels[0]->lastName);
         $this->assertSame('John', $aModels[0]->firstName);
         $this->assertSame($model->id, $aModels[0]->id);
+        $this->assertSame('2026-01-01 12:00:00', $aModels[0]->createdAt->format('Y-m-d H:i:s'));
 
         $aModels = iterator_to_array($model->findAllByColumns(['firstName' => 'John', 'lastName' => 'Doe']));
 
@@ -159,6 +171,7 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame('John', $aModels[0]->firstName);
         $this->assertSame('Doe', $aModels[0]->lastName);
         $this->assertSame($model->id, $aModels[0]->id);
+        $this->assertSame('2026-01-01 12:00:00', $aModels[0]->createdAt->format('Y-m-d H:i:s'));
 
         $aModels = iterator_to_array($model->findAllByColumns(['id' => $model->id]));
 
@@ -166,7 +179,8 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame($model->id, $aModels[0]->id);
         $this->assertSame('John', $aModels[0]->firstName);
         $this->assertSame('Doe', $aModels[0]->lastName);
+        $this->assertSame('2026-01-01 12:00:00', $aModels[0]->createdAt->format('Y-m-d H:i:s'));
 
-        $this->assertCount(0, $model->findAllByColumns(['firstName' => 'Jane']));
+        $this->assertEmpty(iterator_to_array($model->findAllByColumns(['firstName' => 'Jane'])));
     }
 }

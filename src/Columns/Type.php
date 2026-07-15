@@ -2,6 +2,7 @@
 
 namespace RayanLevert\Model\Columns;
 
+use DateTimeImmutable;
 use DateTimeInterface;
 use JsonSerializable;
 use RayanLevert\Model\Exception;
@@ -109,7 +110,7 @@ enum Type: string
      *
      * @throws Exception If the value cannot be used in a query
      */
-    public function getValue(mixed $value): mixed
+    public function getQueryValue(mixed $value): mixed
     {
         if (is_scalar($value) || null === $value) {
             return $value;
@@ -125,7 +126,7 @@ enum Type: string
         }
 
         if (is_callable($value)) {
-            return $this->getValue(call_user_func($value));
+            return $this->getQueryValue(call_user_func($value));
         }
 
         if (is_object($value)) {
@@ -140,5 +141,26 @@ enum Type: string
         }
 
         throw new Exception('cannot use a value of type ' . gettype($value) . ' as a value for a column');
+    }
+
+    /**
+     * Returns the PHP value for a given database raw column value
+     *
+     * @throws Exception If the value cannot be converted to a PHP value
+     */
+    public function getPhpValue(mixed $value): mixed
+    {
+        return match ($this) {
+            self::INTEGER, self::UNSIGNED_INTEGER, self::SMALL_INTEGER, self::TINY_INTEGER => (int) $value,
+            self::BOOLEAN => (bool) $value,
+            self::DECIMAL, self::FLOAT, self::DOUBLE => (float) $value,
+            self::CHAR, self::VARCHAR, self::TEXT, self::MEDIUM_TEXT, self::LONG_TEXT => (string) $value,
+            self::DATE => new DateTimeImmutable($value . ' 00:00:00'),
+            self::TIME => new DateTimeImmutable('1970-01-01 ' . $value),
+            self::DATETIME => new DateTimeImmutable($value),
+            self::TIMESTAMP => new DateTimeImmutable('@' . $value),
+            self::BINARY, self::VARBINARY, self::BLOB, self::MEDIUM_BLOB, self::LONG_BLOB => $value,
+            self::JSON => json_decode($value)
+        };
     }
 }

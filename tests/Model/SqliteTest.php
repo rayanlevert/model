@@ -13,8 +13,9 @@ use RayanLevert\Model\Queries\Sqlite as QueriesSqlite;
  * - id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
  * - first_name TEXT(40) NOT NULL,
  * - last_name TEXT(40) NOT NULL
+ * - created_at TEXT NOT NULL
  */
-class SqliteTest extends \RayanLevert\Model\Tests\TransactionTestCase
+class SqliteTest extends TestCase
 {
     protected function getConnection(): Sqlite
     {

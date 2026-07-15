@@ -13,8 +13,9 @@ use RayanLevert\Model\Tests\Fixtures\User;
  * Assuring the database *model* is created and table *user* as well
  *
  * - id INT AUTO_INCREMENT PRIMARY KEY
- * - last_name VARCHAR(45) NOT NULL
  * - first_name VARCHAR(45) NOT NULL
+ * - last_name VARCHAR(45) NOT NULL
+ * - created_at DATETIME NOT NULL
  */
 class MysqlTest extends TestCase
 {

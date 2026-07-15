@@ -2,6 +2,7 @@
 
 namespace RayanLevert\Model\Tests;
 
+use DateTimeImmutable;
 use PDOStatement;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -31,23 +32,6 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
     }
 
     #[Test]
-    public function oneRowModelExceptionTypeError(): void
-    {
-        $oStatement = $this->createMock(PDOStatement::class);
-        $oStatement->expects($this->once())
-            ->method('fetch')
-            ->willReturn(['id' => 'not an integer']);
-
-        $oResultset = new Resultset(new User(), $oStatement);
-
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Setting property id failed, Cannot assign string to property');
-
-        $oResultset->next();
-        $oResultset->current();
-    }
-
-    #[Test]
     public function oneRowModelAssigned(): void
     {
         $oStatement = $this->createMock(PDOStatement::class);
@@ -71,6 +55,7 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oUser = new User();
         $oUser->lastName  = 'Doe';
         $oUser->firstName = 'John';
+        $oUser->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
 
         $oUser->create();
 
@@ -87,6 +72,7 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame($oUser->id, $oModel->id);
         $this->assertSame($oUser->lastName, $oModel->lastName);
         $this->assertSame($oUser->firstName, $oModel->firstName);
+        $this->assertSame($oUser->createdAt, $oModel->createdAt);
 
         $oResulset->next();
         $this->assertNull($oResulset->current());
@@ -98,11 +84,13 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oUser = new User();
         $oUser->lastName = 'Doe';
         $oUser->firstName = 'John';
+        $oUser->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
         $oUser->create();
 
         $oUser2 = new User();
         $oUser2->lastName = 'Doe';
         $oUser2->firstName = 'Jane';
+        $oUser2->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
         $oUser2->create();
 
         $oStatement = $this->dataObject->prepareAndExecute(new Statement('SELECT * FROM user'));
@@ -116,6 +104,7 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame($oUser->id, $oModel->id);
         $this->assertSame($oUser->lastName, $oModel->lastName);
         $this->assertSame($oUser->firstName, $oModel->firstName);
+        $this->assertSame($oUser->createdAt, $oModel->createdAt);
 
         $oResulset->next();
         $oModel = $oResulset->current();
@@ -123,6 +112,7 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame($oUser2->id, $oModel->id);
         $this->assertSame($oUser2->lastName, $oModel->lastName);
         $this->assertSame($oUser2->firstName, $oModel->firstName);
+        $this->assertEquals($oUser2->createdAt, $oModel->createdAt);
 
         $oResulset->next();
         $this->assertNull($oResulset->current());
@@ -134,11 +124,13 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oUser = new User();
         $oUser->lastName  = 'Doe';
         $oUser->firstName = 'John';
+        $oUser->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
         $oUser->create();
 
         $oUser2 = new User();
         $oUser2->lastName  = 'Doe';
         $oUser2->firstName = 'Jane';
+        $oUser2->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
         $oUser2->create();
 
         $oStatement = $this->dataObject->prepareAndExecute(new Statement('SELECT * FROM user'));
@@ -155,11 +147,12 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
             $this->assertSame($oExpectModel->id, $oModel->id);
             $this->assertSame($oExpectModel->lastName, $oModel->lastName);
             $this->assertSame($oExpectModel->firstName, $oModel->firstName);
+            $this->assertEquals($oExpectModel->createdAt, $oModel->createdAt);
 
             $this->assertSame($index, $oResulset->key());
         }
 
-        $this->assertSame(13, $this->getCount());
+        $this->assertSame(15, $this->getCount());
         $this->assertFalse($oResulset->valid());
     }
 
@@ -169,11 +162,13 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oUser = new User();
         $oUser->lastName  = 'Doe';
         $oUser->firstName = 'John';
+        $oUser->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
         $oUser->create();
 
         $oUser2 = new User();
         $oUser2->lastName  = 'Doe';
         $oUser2->firstName = 'Jane';
+        $oUser2->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
         $oUser2->create();
 
         $oStatement = $this->dataObject->prepareAndExecute(new Statement('SELECT * FROM user'));
@@ -190,6 +185,7 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame($oUser2->id, $oModel->id);
         $this->assertSame($oUser2->lastName, $oModel->lastName);
         $this->assertSame($oUser2->firstName, $oModel->firstName);
+        $this->assertEquals($oUser2->createdAt, $oModel->createdAt);
 
         $this->assertSame(2, $oResulset->key());
 
@@ -202,6 +198,7 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oUser3 = new User();
         $oUser3->lastName = 'Doe3';
         $oUser3->firstName = 'John3';
+        $oUser3->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
         $oUser3->create();
 
         // Doesn't re-execute the query, so the count is still 2
@@ -220,6 +217,7 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oUser = new User();
         $oUser->lastName  = 'Doe';
         $oUser->firstName = 'John';
+        $oUser->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
         $oUser->create();
 
         $oStatement = $this->dataObject->prepareAndExecute(new Statement('SELECT * FROM user'));
@@ -244,6 +242,7 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oUser2 = new User();
         $oUser2->lastName = 'Doe';
         $oUser2->firstName = 'Jane';
+        $oUser2->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
         $oUser2->create();
 
         $oResulset->rewind();
@@ -262,11 +261,13 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oUser = new User();
         $oUser->lastName  = 'Doe';
         $oUser->firstName = 'John';
+        $oUser->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
         $oUser->create();
 
         $oUser2 = new User();
         $oUser2->lastName  = 'Doe2';
         $oUser2->firstName = 'Jane2';
+        $oUser2->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
         $oUser2->create();
 
         $oStatement = $this->dataObject->prepareAndExecute(new Statement('SELECT * FROM user'));
@@ -290,11 +291,13 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oUser = new User();
         $oUser->lastName  = 'Doe';
         $oUser->firstName = 'John';
+        $oUser->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
         $oUser->create();
 
         $oUser2 = new User();
         $oUser2->lastName  = 'Doe2';
         $oUser2->firstName = 'Jane2';
+        $oUser2->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
         $oUser2->create();
 
         $oStatement = $this->dataObject->prepareAndExecute(new Statement('SELECT * FROM user'));
@@ -318,6 +321,7 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oUser = new User();
         $oUser->lastName  = 'Doe';
         $oUser->firstName = 'John';
+        $oUser->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
         $oUser->create();
 
         $oStatement = $this->dataObject->prepareAndExecute(new Statement('SELECT * FROM user'));
