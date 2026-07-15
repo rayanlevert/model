@@ -13,7 +13,7 @@ use function is_scalar;
  */
 abstract class Connection implements \Stringable
 {
-    /** Prefix signifying the database type (mysql, pgsql, etc.) */
+    /** Prefix signifying the database type */
     public const string PREFIX = '';
 
     /** String used to mask sensitive information like passwords */

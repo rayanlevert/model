@@ -2,11 +2,9 @@
 
 namespace RayanLevert\Model\Tests\Model;
 
-use PDO;
 use PHPUnit\Framework\Attributes\Test;
 use RayanLevert\Model\Connections\Mysql;
 use RayanLevert\Model\Queries\Mysql as QueriesMysql;
-use RayanLevert\Model\State;
 use RayanLevert\Model\Tests\Fixtures\User;
 
 /**
@@ -18,69 +16,8 @@ use RayanLevert\Model\Tests\Fixtures\User;
  * - last_name VARCHAR(45) NOT NULL
  * - first_name VARCHAR(45) NOT NULL
  */
-class MysqlTest extends \RayanLevert\Model\Tests\TransactionTestCase
+class MysqlTest extends TestCase
 {
-    #[Test]
-    public function createSaveAndDeleteSuccessfully(): void
-    {
-        $model = new User();
-
-        $model->firstName = 'John';
-        $model->lastName  = 'Doe';
-
-        $this->assertSame(State::TRANSIANT, $model->state);
-
-        // No exception thrown
-        $model->create();
-        $id = $model->id;
-
-        $this->assertSame(State::PERSISTENT, $model->state);
-
-        // The AutoIncrement column is assigned to the model
-        $this->assertNotNull($model->id);
-        $this->assertNotSame(0, $model->id);
-
-        // Select afterwards
-        $oStatement = $this->dataObject->pdo->prepare('SELECT * FROM user');
-
-        $this->assertTrue($oStatement->execute());
-        $this->assertSame(['id' => $id, 'last_name' => 'Doe', 'first_name' => 'John'], $oStatement->fetch(PDO::FETCH_ASSOC));
-
-        // From the find method as well
-        $this->assertNotNull($oModel = $model->findFirstByPrimaryKey($id));
-        $this->assertSame('John', $oModel->firstName);
-        $this->assertSame('Doe', $oModel->lastName);
-        $this->assertSame($id, $oModel->id);
-
-        $model->firstName = 'Jane';
-        $model->lastName  = 'Smith';
-
-        // No exception thrown
-        $model->save();
-
-        $this->assertSame(State::PERSISTENT, $model->state);
-
-        // The AutoIncrement column is not changed
-        $this->assertSame($id, $model->id);
-
-        // Select afterwards
-        $oStatement = $this->dataObject->pdo->prepare('SELECT * FROM user');
-
-        $this->assertTrue($oStatement->execute());
-        $this->assertSame(['id' => $model->id, 'last_name' => 'Smith', 'first_name' => 'Jane'], $oStatement->fetch(PDO::FETCH_ASSOC));
-
-        $model->delete();
-
-        // Select afterwards
-        $oStatement = $this->dataObject->pdo->prepare('SELECT * FROM user');
-
-        $this->assertTrue($oStatement->execute());
-        $this->assertEmpty($oStatement->fetch(PDO::FETCH_ASSOC));
-        $this->assertSame(0, $oStatement->rowCount());
-
-        $this->assertSame(State::DETACHED, $model->state);
-    }
-
     /** Returns a working Connection to the mysql database */
     protected function getConnection(): Mysql
     {

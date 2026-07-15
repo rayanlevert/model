@@ -8,10 +8,12 @@ use PDO;
  * Lazy loading resultset creating one instance of the provided Model for each row
  *
  * @template T of Model
+ * @implements \Iterator<int, T>
  */
 class Resultset implements \Countable, \Iterator
 {
     private array|false $currentRow = false;
+
     private int $position = 0;
 
     /** Whether the statement has been consumed */
