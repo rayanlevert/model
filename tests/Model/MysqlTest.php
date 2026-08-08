@@ -16,6 +16,8 @@ use RayanLevert\Model\Tests\Fixtures\User;
  * - first_name VARCHAR(45) NOT NULL
  * - last_name VARCHAR(45) NOT NULL
  * - created_at DATETIME NOT NULL
+ * - age INT NOT NULL
+ * - height FLOAT NOT NULL
  */
 class MysqlTest extends TestCase
 {

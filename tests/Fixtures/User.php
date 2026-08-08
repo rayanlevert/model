@@ -28,4 +28,12 @@ class User extends Model
     #[Attributes\Column(Type::DATETIME, 'created_at')]
     #[Attributes\Validation\Required]
     public ?DateTimeImmutable $createdAt = null;
+
+    #[Attributes\Column(Type::INTEGER)]
+    #[Attributes\Validation\Required]
+    public ?int $age = null;
+
+    #[Attributes\Column(Type::FLOAT)]
+    #[Attributes\Validation\Required]
+    public ?float $height = null;
 }

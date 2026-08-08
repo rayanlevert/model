@@ -14,6 +14,8 @@ use RayanLevert\Model\Queries\Postgres as QueriesPostgres;
  * - first_name character varying(45) NOT NULL
  * - last_name character varying(45) NOT NULL
  * - created_at TIMESTAMP NOT NULL
+ * - age SMALLINT NOT NULL
+ * - height FLOAT NOT NULL
  */
 class PostgresTest extends TestCase
 {

@@ -37,7 +37,7 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oStatement = $this->createMock(PDOStatement::class);
         $oStatement->expects($this->once())
             ->method('fetch')
-            ->willReturn(['id' => 1, 'last_name' => 'Doe', 'first_name' => 'John']);
+            ->willReturn(['id' => 1, 'last_name' => 'Doe', 'first_name' => 'John', 'age' => 20, 'height' => 1.80]);
 
         $oResultset = new Resultset(new User(), $oStatement);
 
@@ -47,6 +47,8 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame(1, $oModel->id);
         $this->assertSame('Doe', $oModel->lastName);
         $this->assertSame('John', $oModel->firstName);
+        $this->assertSame(20, $oModel->age);
+        $this->assertSame(1.80, $oModel->height);
     }
 
     #[Test]
@@ -56,6 +58,8 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oUser->lastName  = 'Doe';
         $oUser->firstName = 'John';
         $oUser->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
+        $oUser->age       = 20;
+        $oUser->height    = 1.80;
 
         $oUser->create();
 
@@ -73,6 +77,8 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame($oUser->lastName, $oModel->lastName);
         $this->assertSame($oUser->firstName, $oModel->firstName);
         $this->assertSame($oUser->createdAt, $oModel->createdAt);
+        $this->assertSame(20, $oModel->age);
+        $this->assertSame(1.80, $oModel->height);
 
         $oResulset->next();
         $this->assertNull($oResulset->current());
@@ -85,12 +91,16 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oUser->lastName = 'Doe';
         $oUser->firstName = 'John';
         $oUser->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
+        $oUser->age       = 20;
+        $oUser->height    = 1.80;
         $oUser->create();
 
         $oUser2 = new User();
         $oUser2->lastName = 'Doe';
         $oUser2->firstName = 'Jane';
         $oUser2->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
+        $oUser2->age       = 20;
+        $oUser2->height    = 1.80;
         $oUser2->create();
 
         $oStatement = $this->dataObject->prepareAndExecute(new Statement('SELECT * FROM user'));
@@ -105,6 +115,8 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame($oUser->lastName, $oModel->lastName);
         $this->assertSame($oUser->firstName, $oModel->firstName);
         $this->assertSame($oUser->createdAt, $oModel->createdAt);
+        $this->assertSame(20, $oModel->age);
+        $this->assertSame(1.80, $oModel->height);
 
         $oResulset->next();
         $oModel = $oResulset->current();
@@ -113,6 +125,8 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame($oUser2->lastName, $oModel->lastName);
         $this->assertSame($oUser2->firstName, $oModel->firstName);
         $this->assertEquals($oUser2->createdAt, $oModel->createdAt);
+        $this->assertSame(20, $oModel->age);
+        $this->assertSame(1.80, $oModel->height);
 
         $oResulset->next();
         $this->assertNull($oResulset->current());
@@ -125,12 +139,16 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oUser->lastName  = 'Doe';
         $oUser->firstName = 'John';
         $oUser->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
+        $oUser->age       = 20;
+        $oUser->height    = 1.80;
         $oUser->create();
 
         $oUser2 = new User();
         $oUser2->lastName  = 'Doe';
         $oUser2->firstName = 'Jane';
         $oUser2->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
+        $oUser2->age       = 20;
+        $oUser2->height    = 1.80;
         $oUser2->create();
 
         $oStatement = $this->dataObject->prepareAndExecute(new Statement('SELECT * FROM user'));
@@ -148,11 +166,13 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
             $this->assertSame($oExpectModel->lastName, $oModel->lastName);
             $this->assertSame($oExpectModel->firstName, $oModel->firstName);
             $this->assertEquals($oExpectModel->createdAt, $oModel->createdAt);
+            $this->assertSame($oExpectModel->age, $oModel->age);
+            $this->assertSame($oExpectModel->height, $oModel->height);
 
             $this->assertSame($index, $oResulset->key());
         }
 
-        $this->assertSame(15, $this->getCount());
+        $this->assertSame(19, $this->getCount());
         $this->assertFalse($oResulset->valid());
     }
 
@@ -163,12 +183,16 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oUser->lastName  = 'Doe';
         $oUser->firstName = 'John';
         $oUser->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
+        $oUser->age       = 20;
+        $oUser->height    = 1.80;
         $oUser->create();
 
         $oUser2 = new User();
         $oUser2->lastName  = 'Doe';
         $oUser2->firstName = 'Jane';
         $oUser2->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
+        $oUser2->age       = 20;
+        $oUser2->height    = 1.80;
         $oUser2->create();
 
         $oStatement = $this->dataObject->prepareAndExecute(new Statement('SELECT * FROM user'));
@@ -186,6 +210,8 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame($oUser2->lastName, $oModel->lastName);
         $this->assertSame($oUser2->firstName, $oModel->firstName);
         $this->assertEquals($oUser2->createdAt, $oModel->createdAt);
+        $this->assertSame($oUser2->age, $oModel->age);
+        $this->assertSame($oUser2->height, $oModel->height);
 
         $this->assertSame(2, $oResulset->key());
 
@@ -199,6 +225,8 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oUser3->lastName = 'Doe3';
         $oUser3->firstName = 'John3';
         $oUser3->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
+        $oUser3->age       = 20;
+        $oUser3->height    = 1.80;
         $oUser3->create();
 
         // Doesn't re-execute the query, so the count is still 2
@@ -218,6 +246,8 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oUser->lastName  = 'Doe';
         $oUser->firstName = 'John';
         $oUser->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
+        $oUser->age       = 20;
+        $oUser->height    = 1.80;
         $oUser->create();
 
         $oStatement = $this->dataObject->prepareAndExecute(new Statement('SELECT * FROM user'));
@@ -243,6 +273,8 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oUser2->lastName = 'Doe';
         $oUser2->firstName = 'Jane';
         $oUser2->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
+        $oUser2->age       = 20;
+        $oUser2->height    = 1.80;
         $oUser2->create();
 
         $oResulset->rewind();
@@ -262,12 +294,16 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oUser->lastName  = 'Doe';
         $oUser->firstName = 'John';
         $oUser->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
+        $oUser->age       = 20;
+        $oUser->height    = 1.80;
         $oUser->create();
 
         $oUser2 = new User();
         $oUser2->lastName  = 'Doe2';
         $oUser2->firstName = 'Jane2';
         $oUser2->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
+        $oUser2->age       = 20;
+        $oUser2->height    = 1.80;
         $oUser2->create();
 
         $oStatement = $this->dataObject->prepareAndExecute(new Statement('SELECT * FROM user'));
@@ -278,6 +314,8 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame($oUser->id, $oModel->id);
         $this->assertSame($oUser->lastName, $oModel->lastName);
         $this->assertSame($oUser->firstName, $oModel->firstName);
+        $this->assertSame($oUser->age, $oModel->age);
+        $this->assertSame($oUser->height, $oModel->height);
 
         $oResulset->next();
         $oModel = $oResulset->current();
@@ -292,12 +330,16 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oUser->lastName  = 'Doe';
         $oUser->firstName = 'John';
         $oUser->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
+        $oUser->age       = 20;
+        $oUser->height    = 1.80;
         $oUser->create();
 
         $oUser2 = new User();
         $oUser2->lastName  = 'Doe2';
         $oUser2->firstName = 'Jane2';
         $oUser2->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
+        $oUser2->age       = 20;
+        $oUser2->height    = 1.80;
         $oUser2->create();
 
         $oStatement = $this->dataObject->prepareAndExecute(new Statement('SELECT * FROM user'));
@@ -322,6 +364,8 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oUser->lastName  = 'Doe';
         $oUser->firstName = 'John';
         $oUser->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
+        $oUser->age       = 20;
+        $oUser->height    = 1.80;
         $oUser->create();
 
         $oStatement = $this->dataObject->prepareAndExecute(new Statement('SELECT * FROM user'));
