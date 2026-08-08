@@ -129,6 +129,10 @@ enum Type: string
             return $this->getQueryValue(call_user_func($value));
         }
 
+        if (TYPE::JSON === $this) {
+            return json_encode($value);
+        }
+
         if (is_object($value)) {
             if (method_exists($value, '__toString')) {
                 return $value->__toString();

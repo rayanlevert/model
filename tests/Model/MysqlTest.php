@@ -21,6 +21,8 @@ use RayanLevert\Model\Tests\Fixtures\User;
  * - wake_up_time TIME NULL
  * - last_login TIMESTAMP NULL
  * - birthday DATE NULL
+ * - preferences JSON NULL
+ * - avatar BLOB NULL
  */
 class MysqlTest extends TestCase
 {

@@ -19,6 +19,8 @@ use RayanLevert\Model\Queries\Sqlite as QueriesSqlite;
  * - wake_up_time TEXT NULL
  * - last_login TEXT NULL
  * - birthday DATE NULL
+ * - preferences JSON NULL
+ * - avatar BLOB NULL
  */
 class SqliteTest extends TestCase
 {

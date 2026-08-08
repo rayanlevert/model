@@ -58,4 +58,10 @@ class User extends Model
 
     #[Attributes\Column(Type::DATE, 'birthday')]
     public ?DateTimeImmutable $birthday = null;
+
+    #[Attributes\Column(Type::JSON, 'preferences')]
+    public ?object $preferences = null;
+
+    #[Attributes\Column(Type::BLOB, 'avatar')]
+    public ?string $avatar = null;
 }
