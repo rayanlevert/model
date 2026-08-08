@@ -40,9 +40,10 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
             ->willReturn(['id' => 1, 'last_name' => 'Doe', 'first_name' => 'John', 'age' => 20, 'height' => 1.80]);
 
         $oResultset = new Resultset(new User(), $oStatement);
-
         $oResultset->next();
+
         $oModel = $oResultset->current();
+
         $this->assertInstanceOf(User::class, $oModel);
         $this->assertSame(1, $oModel->id);
         $this->assertSame('Doe', $oModel->lastName);
@@ -65,7 +66,7 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
 
         $oStatement = $this->dataObject->prepareAndExecute(new Statement('SELECT * FROM user WHERE id = ?', $oUser->id));
 
-        $oUser = new User();
+        $oUser     = new User();
         $oResulset = new Resultset($oUser, $oStatement);
         $oResulset->next();
 
@@ -79,6 +80,9 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame($oUser->createdAt, $oModel->createdAt);
         $this->assertSame(20, $oModel->age);
         $this->assertSame(1.80, $oModel->height);
+        $this->assertNull($oModel->wakeUpTime);
+        $this->assertNull($oModel->lastLoginTimestamp);
+        $this->assertNull($oModel->birthday);
 
         $oResulset->next();
         $this->assertNull($oResulset->current());
@@ -93,14 +97,20 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oUser->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
         $oUser->age       = 20;
         $oUser->height    = 1.80;
+        $oUser->wakeUpTime = new DateTimeImmutable('07:30:00');
+        $oUser->lastLoginTimestamp = new DateTimeImmutable('2026-01-01 12:00:00');
+        $oUser->birthday = new DateTimeImmutable('1990-01-01');
         $oUser->create();
 
         $oUser2 = new User();
         $oUser2->lastName = 'Doe';
         $oUser2->firstName = 'Jane';
-        $oUser2->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
+        $oUser2->createdAt = new DateTimeImmutable('2026-01-02 00:00:00');
         $oUser2->age       = 20;
         $oUser2->height    = 1.80;
+        $oUser2->wakeUpTime = new DateTimeImmutable('08:30:00');
+        $oUser2->lastLoginTimestamp = new DateTimeImmutable('2026-01-02 12:00:00');
+        $oUser2->birthday = new DateTimeImmutable('1990-01-02');
         $oUser2->create();
 
         $oStatement = $this->dataObject->prepareAndExecute(new Statement('SELECT * FROM user'));
@@ -117,6 +127,9 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame($oUser->createdAt, $oModel->createdAt);
         $this->assertSame(20, $oModel->age);
         $this->assertSame(1.80, $oModel->height);
+        $this->assertSame('07:30:00', $oModel->wakeUpTime?->format('H:i:s'));
+        $this->assertSame('2026-01-01 12:00:00', $oModel->lastLoginTimestamp?->format('Y-m-d H:i:s'));
+        $this->assertSame('1990-01-01', $oModel->birthday?->format('Y-m-d'));
 
         $oResulset->next();
         $oModel = $oResulset->current();
@@ -127,6 +140,9 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertEquals($oUser2->createdAt, $oModel->createdAt);
         $this->assertSame(20, $oModel->age);
         $this->assertSame(1.80, $oModel->height);
+        $this->assertSame('08:30:00', $oModel->wakeUpTime?->format('H:i:s'));
+        $this->assertSame('2026-01-02 12:00:00', $oModel->lastLoginTimestamp?->format('Y-m-d H:i:s'));
+        $this->assertSame('1990-01-02', $oModel->birthday?->format('Y-m-d'));
 
         $oResulset->next();
         $this->assertNull($oResulset->current());
@@ -168,11 +184,13 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
             $this->assertEquals($oExpectModel->createdAt, $oModel->createdAt);
             $this->assertSame($oExpectModel->age, $oModel->age);
             $this->assertSame($oExpectModel->height, $oModel->height);
+            $this->assertNull($oModel->wakeUpTime);
+            $this->assertNull($oModel->lastLoginTimestamp);
+            $this->assertNull($oModel->birthday);
 
             $this->assertSame($index, $oResulset->key());
         }
 
-        $this->assertSame(19, $this->getCount());
         $this->assertFalse($oResulset->valid());
     }
 
@@ -212,6 +230,9 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertEquals($oUser2->createdAt, $oModel->createdAt);
         $this->assertSame($oUser2->age, $oModel->age);
         $this->assertSame($oUser2->height, $oModel->height);
+        $this->assertNull($oModel->wakeUpTime);
+        $this->assertNull($oModel->lastLoginTimestamp);
+        $this->assertNull($oModel->birthday);
 
         $this->assertSame(2, $oResulset->key());
 
@@ -296,6 +317,9 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oUser->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
         $oUser->age       = 20;
         $oUser->height    = 1.80;
+        $oUser->wakeUpTime = new DateTimeImmutable('07:30:00');
+        $oUser->lastLoginTimestamp = new DateTimeImmutable('2026-01-01 12:00:00');
+        $oUser->birthday = new DateTimeImmutable('1990-01-01');
         $oUser->create();
 
         $oUser2 = new User();
@@ -304,6 +328,9 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $oUser2->createdAt = new DateTimeImmutable('2026-01-01 00:00:00');
         $oUser2->age       = 20;
         $oUser2->height    = 1.80;
+        $oUser2->wakeUpTime = new DateTimeImmutable('08:30:00');
+        $oUser2->lastLoginTimestamp = new DateTimeImmutable('2026-01-01 12:00:00');
+        $oUser2->birthday = new DateTimeImmutable('1990-01-02');
         $oUser2->create();
 
         $oStatement = $this->dataObject->prepareAndExecute(new Statement('SELECT * FROM user'));
@@ -316,6 +343,9 @@ class ResultsetTest extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame($oUser->firstName, $oModel->firstName);
         $this->assertSame($oUser->age, $oModel->age);
         $this->assertSame($oUser->height, $oModel->height);
+        $this->assertEquals($oUser->wakeUpTime, $oModel->wakeUpTime);
+        $this->assertEquals($oUser->lastLoginTimestamp, $oModel->lastLoginTimestamp);
+        $this->assertEquals($oUser->birthday, $oModel->birthday);
 
         $oResulset->next();
         $oModel = $oResulset->current();

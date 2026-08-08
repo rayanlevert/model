@@ -18,6 +18,9 @@ use RayanLevert\Model\Tests\Fixtures\User;
  * - created_at DATETIME NOT NULL
  * - age INT NOT NULL
  * - height FLOAT NOT NULL
+ * - wake_up_time TIME NULL
+ * - last_login TIMESTAMP NULL
+ * - birthday DATE NULL
  */
 class MysqlTest extends TestCase
 {

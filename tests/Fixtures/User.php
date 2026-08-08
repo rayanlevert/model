@@ -7,6 +7,19 @@ use RayanLevert\Model\Attributes;
 use RayanLevert\Model\Columns\Type;
 use RayanLevert\Model\Model;
 
+/**
+ * Additional datatypes you may want to test for thoroughness:
+ *
+ * - Type::BOOLEAN
+ * - Type::DECIMAL
+ * - Type::CHAR
+ * - Type::TEXT, Type::MEDIUM_TEXT, Type::LONG_TEXT
+ * - Type::BINARY, Type::VARBINARY, Type::BLOB, Type::MEDIUM_BLOB, Type::LONG_BLOB
+ * - Type::JSON
+ * - Type::UNSIGNED_INTEGER, Type::SMALL_INTEGER, Type::TINY_INTEGER
+ * - Type::DATE
+ */
+
 /** User model for testing */
 class User extends Model
 {
@@ -29,12 +42,6 @@ class User extends Model
     #[Attributes\Validation\Required]
     public ?DateTimeImmutable $createdAt = null;
 
-    #[Attributes\Column(Type::TIME, 'wake_up_time')]
-    public ?DateTimeImmutable $wakeUpTime = null;
-
-    #[Attributes\Column(Type::TIMESTAMP, 'last_login')]
-    public ?DateTimeImmutable $lastLoginTimestamp = null;
-
     #[Attributes\Column(Type::INTEGER)]
     #[Attributes\Validation\Required]
     public ?int $age = null;
@@ -42,4 +49,13 @@ class User extends Model
     #[Attributes\Column(Type::FLOAT)]
     #[Attributes\Validation\Required]
     public ?float $height = null;
+
+    #[Attributes\Column(Type::TIME, 'wake_up_time')]
+    public ?DateTimeImmutable $wakeUpTime = null;
+
+    #[Attributes\Column(Type::TIMESTAMP, 'last_login')]
+    public ?DateTimeImmutable $lastLoginTimestamp = null;
+
+    #[Attributes\Column(Type::DATE, 'birthday')]
+    public ?DateTimeImmutable $birthday = null;
 }

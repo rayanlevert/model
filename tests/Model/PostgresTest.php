@@ -18,6 +18,7 @@ use RayanLevert\Model\Queries\Postgres as QueriesPostgres;
  * - height FLOAT NOT NULL
  * - wake_up_time TIME NULL
  * - last_login TIMESTAMP NULL
+ * - birthday DATE NULL
  */
 class PostgresTest extends TestCase
 {
