@@ -19,6 +19,8 @@ use RayanLevert\Model\Tests\Fixtures\User;
  * - created_at DATETIME NOT NULL
  * - age INT NOT NULL
  * - height FLOAT NOT NULL
+ * - wake_up_time TIME NULL
+ * - last_login TIMESTAMP NULL
  */
 abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
 {
@@ -27,11 +29,13 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
     {
         $model = new User();
 
-        $model->firstName = 'John';
-        $model->lastName  = 'Doe';
-        $model->createdAt = new DateTimeImmutable('2026-01-01 12:00:00');
-        $model->age       = 20;
-        $model->height    = 1.80;
+        $model->firstName           = 'John';
+        $model->lastName            = 'Doe';
+        $model->createdAt           = new DateTimeImmutable('2026-01-01 12:00:00');
+        $model->age                 = 20;
+        $model->height              = 1.80;
+        $model->wakeUpTime          = new DateTimeImmutable('07:30:00');
+        $model->lastLoginTimestamp  = new DateTimeImmutable('2026-01-01 12:00:00');
 
         $this->assertSame(State::TRANSIANT, $model->state);
 
@@ -53,12 +57,14 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertTrue($oStatement->execute());
         $this->assertSame(
             [
-                'id'         => $id,
-                'first_name' => 'John',
-                'last_name'  => 'Doe',
-                'created_at' => '2026-01-01 12:00:00',
-                'age'        => 20,
-                'height'     => 1.80
+                'id'           => $id,
+                'first_name'   => 'John',
+                'last_name'    => 'Doe',
+                'created_at'   => '2026-01-01 12:00:00',
+                'age'          => 20,
+                'height'       => 1.80,
+                'wake_up_time' => '07:30:00',
+                'last_login'   => '2026-01-01 12:00:00'
             ],
             $oStatement->fetch(PDO::FETCH_ASSOC)
         );
@@ -70,11 +76,15 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame($id, $oModel->id);
         $this->assertSame(20, $oModel->age);
         $this->assertSame(1.80, $oModel->height);
+        $this->assertSame('07:30:00', $oModel->wakeUpTime?->format('H:i:s'));
+        $this->assertSame('2026-01-01 12:00:00', $oModel->lastLoginTimestamp?->format('Y-m-d H:i:s'));
 
         $model->firstName = 'Jane';
         $model->lastName  = 'Smith';
         $model->age       = 21;
         $model->height    = 1.81;
+        $model->wakeUpTime = new DateTimeImmutable('07:30:00');
+        $model->lastLoginTimestamp = new DateTimeImmutable('2026-01-01 12:00:00');
 
         // No exception thrown
         $model->save();
@@ -90,13 +100,16 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertTrue($oStatement->execute());
         $this->assertSame(
             [
-                'id'         => $model->id,
-                'first_name' => 'Jane',
-                'last_name'  => 'Smith',
-                'created_at' => '2026-01-01 12:00:00',
-                'age'        => 21,
-                'height'     => 1.81
-            ], $oStatement->fetch(PDO::FETCH_ASSOC)
+                'id'           => $model->id,
+                'first_name'   => 'Jane',
+                'last_name'    => 'Smith',
+                'created_at'   => '2026-01-01 12:00:00',
+                'age'          => 21,
+                'height'       => 1.81,
+                'wake_up_time' => '07:30:00',
+                'last_login'   => '2026-01-01 12:00:00'
+            ],
+            $oStatement->fetch(PDO::FETCH_ASSOC)
         );
 
         $model->delete();
@@ -129,6 +142,8 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame('2026-01-01 12:00:00', $oModel->createdAt->format('Y-m-d H:i:s'));
         $this->assertSame(20, $oModel->age);
         $this->assertSame(1.80, $oModel->height);
+        $this->assertNull($oModel->wakeUpTime);
+        $this->assertNull($oModel->lastLoginTimestamp);
 
         $this->assertNull($model->findFirstByPrimaryKey($model->id + 1));
     }
@@ -137,11 +152,13 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
     public function findFirstByColumns(): void
     {
         $model = new User();
-        $model->firstName = 'John';
-        $model->lastName  = 'Doe';
-        $model->createdAt = new DateTimeImmutable('2026-01-01 12:00:00');
-        $model->age       = 20;
-        $model->height    = 1.80;
+        $model->firstName          = 'John';
+        $model->lastName           = 'Doe';
+        $model->createdAt          = new DateTimeImmutable('2026-01-01 12:00:00');
+        $model->age                = 20;
+        $model->height             = 1.80;
+        $model->wakeUpTime         = new DateTimeImmutable('07:30:00');
+        $model->lastLoginTimestamp = new DateTimeImmutable('2026-01-01 12:00:00');
 
         $model->create();
 
@@ -152,6 +169,8 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame('2026-01-01 12:00:00', $oModel->createdAt->format('Y-m-d H:i:s'));
         $this->assertSame(20, $oModel->age);
         $this->assertSame(1.80, $oModel->height);
+        $this->assertSame('07:30:00', $oModel->wakeUpTime?->format('H:i:s'));
+        $this->assertSame('2026-01-01 12:00:00', $oModel->lastLoginTimestamp?->format('Y-m-d H:i:s'));
 
         $this->assertNotNull($oModel = $model->findFirstByColumns(['lastName' => 'Doe']));
         $this->assertSame('Doe', $oModel->lastName);
@@ -160,6 +179,8 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame('2026-01-01 12:00:00', $oModel->createdAt->format('Y-m-d H:i:s'));
         $this->assertSame(20, $oModel->age);
         $this->assertSame(1.80, $oModel->height);
+        $this->assertSame('07:30:00', $oModel->wakeUpTime?->format('H:i:s'));
+        $this->assertSame('2026-01-01 12:00:00', $oModel->lastLoginTimestamp?->format('Y-m-d H:i:s'));
 
         $this->assertNotNull($oModel = $model->findFirstByColumns(['firstName' => 'John', 'lastName' => 'Doe']));
         $this->assertSame('John', $oModel->firstName);
@@ -176,6 +197,8 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame('2026-01-01 12:00:00', $oModel->createdAt->format('Y-m-d H:i:s'));
         $this->assertSame(20, $oModel->age);
         $this->assertSame(1.80, $oModel->height);
+        $this->assertSame('07:30:00', $oModel->wakeUpTime?->format('H:i:s'));
+        $this->assertSame('2026-01-01 12:00:00', $oModel->lastLoginTimestamp?->format('Y-m-d H:i:s'));
 
         $this->assertNull($model->findFirstByColumns(['firstName' => 'Jane']));
     }
@@ -201,6 +224,8 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame('2026-01-01 12:00:00', $aModels[0]->createdAt->format('Y-m-d H:i:s'));
         $this->assertSame(20, $aModels[0]->age);
         $this->assertSame(1.80, $aModels[0]->height);
+        $this->assertNull($aModels[0]->wakeUpTime);
+        $this->assertNull($aModels[0]->lastLoginTimestamp);
 
         $aModels = iterator_to_array($model->findAllByColumns(['lastName' => 'Doe']));
 
@@ -211,6 +236,8 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame('2026-01-01 12:00:00', $aModels[0]->createdAt->format('Y-m-d H:i:s'));
         $this->assertSame(20, $aModels[0]->age);
         $this->assertSame(1.80, $aModels[0]->height);
+        $this->assertNull($aModels[0]->wakeUpTime);
+        $this->assertNull($aModels[0]->lastLoginTimestamp);
 
         $aModels = iterator_to_array($model->findAllByColumns(['firstName' => 'John', 'lastName' => 'Doe']));
 
@@ -221,6 +248,8 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame('2026-01-01 12:00:00', $aModels[0]->createdAt->format('Y-m-d H:i:s'));
         $this->assertSame(20, $aModels[0]->age);
         $this->assertSame(1.80, $aModels[0]->height);
+        $this->assertNull($aModels[0]->wakeUpTime);
+        $this->assertNull($aModels[0]->lastLoginTimestamp);
 
         $aModels = iterator_to_array($model->findAllByColumns(['id' => $model->id]));
 
@@ -231,6 +260,8 @@ abstract class TestCase extends \RayanLevert\Model\Tests\TransactionTestCase
         $this->assertSame('2026-01-01 12:00:00', $aModels[0]->createdAt->format('Y-m-d H:i:s'));
         $this->assertSame(20, $aModels[0]->age);
         $this->assertSame(1.80, $aModels[0]->height);
+        $this->assertNull($aModels[0]->wakeUpTime);
+        $this->assertNull($aModels[0]->lastLoginTimestamp);
 
         $this->assertEmpty(iterator_to_array($model->findAllByColumns(['firstName' => 'Jane'])));
     }

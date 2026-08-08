@@ -16,6 +16,8 @@ use RayanLevert\Model\Queries\Sqlite as QueriesSqlite;
  * - created_at TEXT NOT NULL
  * - age INTEGER NOT NULL
  * - height REAL NOT NULL
+ * - wake_up_time TEXT NULL
+ * - last_login TEXT NULL
  */
 class SqliteTest extends TestCase
 {

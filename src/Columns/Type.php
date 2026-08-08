@@ -150,6 +150,10 @@ enum Type: string
      */
     public function getPhpValue(mixed $value): mixed
     {
+        if (null === $value) {
+            return null;
+        }
+
         return match ($this) {
             self::INTEGER, self::UNSIGNED_INTEGER, self::SMALL_INTEGER, self::TINY_INTEGER => (int) $value,
             self::BOOLEAN => (bool) $value,
@@ -157,8 +161,7 @@ enum Type: string
             self::CHAR, self::VARCHAR, self::TEXT, self::MEDIUM_TEXT, self::LONG_TEXT => (string) $value,
             self::DATE => new DateTimeImmutable($value . ' 00:00:00'),
             self::TIME => new DateTimeImmutable('1970-01-01 ' . $value),
-            self::DATETIME => new DateTimeImmutable($value),
-            self::TIMESTAMP => new DateTimeImmutable('@' . $value),
+            self::DATETIME, self::TIMESTAMP => new DateTimeImmutable($value),
             self::BINARY, self::VARBINARY, self::BLOB, self::MEDIUM_BLOB, self::LONG_BLOB => $value,
             self::JSON => json_decode($value)
         };

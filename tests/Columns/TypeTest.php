@@ -64,7 +64,7 @@ class TypeTest extends \PHPUnit\Framework\TestCase
             'DATE' => [Type::DATE, '2024-05-09', new DateTimeImmutable('2024-05-09 00:00:00')],
             'TIME' => [Type::TIME, '13:05:07', new DateTimeImmutable('1970-01-01 13:05:07')],
             'DATETIME' => [Type::DATETIME, '2023-12-08 15:16:17', new DateTimeImmutable('2023-12-08 15:16:17')],
-            'TIMESTAMP 1715859045' => [Type::TIMESTAMP, 1715859045, new DateTimeImmutable('2024-05-16 11:30:45', new DateTimeZone('UTC'))],
+            'TIMESTAMP 1715859045' => [Type::TIMESTAMP, '2024-05-16 11:30:45', new DateTimeImmutable('2024-05-16 11:30:45', new DateTimeZone('UTC'))],
         ];
     }
 
@@ -408,6 +408,12 @@ class TypeTest extends \PHPUnit\Framework\TestCase
         $type = Type::VARCHAR;
         $serialized = $type->getQueryValue($object);
         $this->assertStringContainsString('legacy serialized', $serialized);
+    }
+
+    #[Test]
+    public function getPhpValueNullReturnsNull(): void
+    {
+        $this->assertNull(Type::TIMESTAMP->getPhpValue(null));
     }
 }
 

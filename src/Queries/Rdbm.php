@@ -39,7 +39,8 @@ abstract class Rdbm implements \RayanLevert\Model\Queries
     public function update(Model $model): Statement
     {
         $oPrimaryKey = $model->getPrimaryKey();
-        $aColumns = $model->columns();
+        $aColumns     = $model->columns();
+
         unset($aColumns[$oPrimaryKey->column]);
 
         if (!$aColumns) {

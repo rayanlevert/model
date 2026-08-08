@@ -29,6 +29,12 @@ class User extends Model
     #[Attributes\Validation\Required]
     public ?DateTimeImmutable $createdAt = null;
 
+    #[Attributes\Column(Type::TIME, 'wake_up_time')]
+    public ?DateTimeImmutable $wakeUpTime = null;
+
+    #[Attributes\Column(Type::TIMESTAMP, 'last_login')]
+    public ?DateTimeImmutable $lastLoginTimestamp = null;
+
     #[Attributes\Column(Type::INTEGER)]
     #[Attributes\Validation\Required]
     public ?int $age = null;
