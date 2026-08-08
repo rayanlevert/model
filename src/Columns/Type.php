@@ -88,21 +88,6 @@ enum Type: string
     /** JSON type for storing JSON data. */
     case JSON = 'JSON';
 
-    /** Get the PHP type corresponding to this SQL type. */
-    public function getPhpType(): string
-    {
-        return match ($this) {
-            self::INTEGER, self::UNSIGNED_INTEGER,  self::SMALL_INTEGER, self::TINY_INTEGER => 'int',
-            self::BOOLEAN => 'bool',
-            self::DECIMAL, self::FLOAT, self::DOUBLE => 'float',
-            self::CHAR, self::VARCHAR, self::TEXT, self::MEDIUM_TEXT, self::LONG_TEXT, => 'string',
-            self::DATE, self::TIME, self::DATETIME, self::TIMESTAMP => 'DateTimeInterface',
-            self::BINARY, self::VARBINARY, self::BLOB, self::MEDIUM_BLOB,
-            self::LONG_BLOB => 'string',
-            self::JSON => 'mixed',
-        };
-    }
-
     /**
      * Returns the value to be used in a query
      *

@@ -214,73 +214,43 @@ class TypeTest extends \PHPUnit\Framework\TestCase
     public function integerType(): void
     {
         $this->assertSame('INT', Type::INTEGER->value);
-        $this->assertSame('int', Type::INTEGER->getPhpType());
     }
 
     #[Test]
     public function unsignedIntegerType(): void
     {
         $this->assertSame('INT UNSIGNED', Type::UNSIGNED_INTEGER->value);
-        $this->assertSame('int', Type::UNSIGNED_INTEGER->getPhpType());
     }
 
     #[Test]
     public function booleanType(): void
     {
         $this->assertSame('TINYINT(1)', Type::BOOLEAN->value);
-        $this->assertSame('bool', Type::BOOLEAN->getPhpType());
     }
 
     #[Test]
     public function varcharType(): void
     {
         $this->assertSame('VARCHAR', Type::VARCHAR->value);
-        $this->assertSame('string', Type::VARCHAR->getPhpType());
     }
 
     #[Test]
     public function textType(): void
     {
         $this->assertSame('TEXT', Type::TEXT->value);
-        $this->assertSame('string', Type::TEXT->getPhpType());
     }
 
     #[Test]
     public function timestampType(): void
     {
         $this->assertSame('TIMESTAMP', Type::TIMESTAMP->value);
-        $this->assertSame('DateTimeInterface', Type::TIMESTAMP->getPhpType());
     }
 
     #[Test]
     public function jsonType(): void
     {
         $this->assertSame('JSON', Type::JSON->value);
-        $this->assertSame('mixed', Type::JSON->getPhpType());
     }
-
-    #[Test]
-    #[DataProvider('provideNumericTypes')]
-    public function numericTypesReturnIntPhpType(Type $type): void
-    {
-        $this->assertSame('int', $type->getPhpType());
-    }
-
-    #[Test]
-    #[DataProvider('provideStringTypes')]
-    public function stringTypesReturnStringPhpType(Type $type): void
-    {
-        $this->assertSame('string', $type->getPhpType());
-    }
-
-    #[Test]
-    #[DataProvider('provideDateTimeTypes')]
-    public function dateTimeTypesReturnDateTimeInterfacePhpType(Type $type): void
-    {
-        $this->assertSame('DateTimeInterface', $type->getPhpType());
-    }
-
-    // getValue method tests
 
     #[Test]
     #[DataProvider('provideScalarValues')]
